@@ -1,20 +1,28 @@
 """Bounded model checking entry points.
 
 verify_guard is the proof: symbolic actions and amounts, admitted only
-by the given guard, checked against the policy's invariants. It runs two
-checks:
+by the given guard, checked against the policy's invariants. It runs
+three checks:
 
   - P1, depth-1: can the guard admit a single capture that exceeds
-    per_txn_cap_paise on its own? State-independent, so it is checked
-    once rather than unrolled to the horizon.
+    per_txn_cap_paise on its own?
+  - P4, depth-1: can the guard admit a single capture in a category the
+    policy disallows? (ADR-0009 — category_idx's domain is the policy's
+    own vocabulary, so this needs no arbitrary bound.)
   - P2/P3, depth-k: can a sequence of guard-admitted actions, each
     individually compliant, collectively breach the window cap or
     refund soundness within `horizon` steps?
 
-UNSAT on both means: no admissible trace of that length breaches the
-invariant — sound to depth k, and only to depth k. That bound travels
-with the verdict on VerificationResult.horizon, on both the sound and
-the unsound path, so it can never be reported without it.
+Both depth-1 checks are state-independent, so they're checked once each
+rather than unrolled to the horizon.
+
+UNSAT on all three means: no admissible trace of that length breaches
+the invariant — sound to depth k, and only to depth k. That bound
+travels with the verdict on VerificationResult.horizon, on both the
+sound and the unsound path. properties_checked additionally carries a
+window-granularity caveat on P2 (ADR-0010): window_cap_paise is proven
+cumulative over the horizon, not resolved against a real calendar
+boundary, and that has to be visible on the result rather than implied.
 
 replay_trace is not a proof. It walks one concrete, already-known
 sequence of actions through the same accounting rules and reports the
@@ -32,30 +40,35 @@ from typing import Optional
 
 from z3 import Not, Or, sat
 
-from contracts.models import Action, ActionType, Counterexample, CounterexampleStep, Verdict, VerificationResult
-from verifier.encode import GuardFn, invariant_holds
-from verifier.explain import decode_guard_counterexample, decode_p1_violation
-from verifier.model import ACTION_CAPTURE, HandPolicy, add_transition_relation, build_symbolic_system
+from contracts.models import Action, ActionType, Counterexample, CounterexampleStep, PolicyIR, Verdict, VerificationResult
+from verifier.encode import GuardFn, category_admissible_indices, invariant_holds
+from verifier.explain import decode_guard_counterexample, decode_p1_violation, decode_p4_violation
+from verifier.model import ACTION_CAPTURE, add_transition_relation, build_symbolic_system, category_vocabulary
 
 
-def _properties_checked(policy: HandPolicy) -> list[str]:
+def _properties_checked(policy: PolicyIR) -> list[str]:
     properties = []
     if policy.per_txn_cap_paise is not None:
         properties.append("P1")
     if policy.window_cap_paise is not None:
-        properties.append("P2")
+        # ADR-0010: window is read but not calendar-enforced — the
+        # caveat travels with the verdict, not just a docstring.
+        window_label = policy.window.value if policy.window is not None else "unset"
+        properties.append(f"P2[window={window_label},horizon-cumulative]")
     properties.append("P3")  # refund soundness is always on
+    if policy.allowed_categories is not None or policy.blocked_categories:
+        properties.append("P4")
     return properties
 
 
-def _check_p1(policy: HandPolicy, guard: GuardFn):
+def _check_p1(policy: PolicyIR, guard: GuardFn):
     """Depth-1: does the guard ever admit a single capture whose amount
     exceeds per_txn_cap_paise? Returns a Counterexample or None.
     """
     if policy.per_txn_cap_paise is None:
         return None
 
-    solver, steps, states = build_symbolic_system(horizon=1)
+    solver, steps, states = build_symbolic_system(policy, horizon=1)
     sv, s0 = steps[0], states[0]
     solver.add(guard(policy, sv, s0, 0))
     solver.add(sv.action_type == ACTION_CAPTURE)
@@ -66,14 +79,40 @@ def _check_p1(policy: HandPolicy, guard: GuardFn):
     return decode_p1_violation(solver.model(), sv)
 
 
-def verify_guard(policy: HandPolicy, guard: GuardFn, horizon: int = 8) -> VerificationResult:
+def _check_p4(policy: PolicyIR, guard: GuardFn):
+    """Depth-1: does the guard ever admit a single capture in a category
+    the policy disallows? Returns a Counterexample or None.
+    """
+    if policy.allowed_categories is None and not policy.blocked_categories:
+        return None
+
+    vocabulary = category_vocabulary(policy)
+    admissible = category_admissible_indices(policy, vocabulary)
+    inadmissible = [i for i in range(len(vocabulary) + 1) if i not in admissible]
+    if not inadmissible:
+        return None
+
+    solver, steps, states = build_symbolic_system(policy, horizon=1)
+    sv, s0 = steps[0], states[0]
+    solver.add(guard(policy, sv, s0, 0))
+    solver.add(sv.action_type == ACTION_CAPTURE)
+    solver.add(Or(*(sv.category_idx == i for i in inadmissible)))
+
+    if solver.check() != sat:
+        return None
+    return decode_p4_violation(solver.model(), sv, vocabulary)
+
+
+def verify_guard(policy: PolicyIR, guard: GuardFn, horizon: int = 8) -> VerificationResult:
     start = time.perf_counter()
     properties_checked = _properties_checked(policy)
 
     counterexample = _check_p1(policy, guard)
+    if counterexample is None:
+        counterexample = _check_p4(policy, guard)
 
     if counterexample is None:
-        solver, steps, states = build_symbolic_system(horizon)
+        solver, steps, states = build_symbolic_system(policy, horizon)
         add_transition_relation(solver, steps, states)
 
         for t, sv in enumerate(steps):
@@ -95,7 +134,7 @@ def verify_guard(policy: HandPolicy, guard: GuardFn, horizon: int = 8) -> Verifi
 
 
 def _replay_violated_property(
-    policy: HandPolicy,
+    policy: PolicyIR,
     action: Action,
     month_spend: int,
     captured: dict[str, int],
@@ -119,7 +158,7 @@ def _replay_violated_property(
     return None
 
 
-def replay_trace(policy: HandPolicy, scenario: list[Action], horizon: int = 8) -> Optional[Counterexample]:
+def replay_trace(policy: PolicyIR, scenario: list[Action], horizon: int = 8) -> Optional[Counterexample]:
     if len(scenario) > horizon:
         raise ValueError(f"scenario length {len(scenario)} exceeds horizon {horizon}")
 

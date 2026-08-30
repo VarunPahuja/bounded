@@ -1,21 +1,21 @@
 """Counterexample model -> readable step trace.
 
-decode_p1_violation handles the depth-1 per-action check. decode_guard_
-counterexample handles the horizon-k cumulative search. A decoder for
-replay_trace's concrete-scenario traces is added in the next pass.
+decode_p1_violation and decode_p4_violation handle the two depth-1
+per-action checks. decode_guard_counterexample handles the horizon-k
+cumulative search. A decoder for replay_trace's concrete-scenario
+traces is added in the next pass.
 """
 
 from __future__ import annotations
 
-from z3 import ArithRef, ModelRef, is_true
+from z3 import ModelRef, is_true
 
-from contracts.models import ActionType, Counterexample, CounterexampleStep
+from contracts.models import ActionType, Counterexample, CounterexampleStep, PolicyIR
 from verifier.model import (
     ACTION_CAPTURE,
     ACTION_CREATE_ORDER,
     ACTION_REFUND,
     NUM_ORDER_SLOTS,
-    HandPolicy,
     State,
     StepVars,
 )
@@ -50,9 +50,35 @@ def decode_p1_violation(model: ModelRef, sv: StepVars) -> Counterexample:
     )
 
 
+def decode_p4_violation(model: ModelRef, sv: StepVars, vocabulary: list[str]) -> Counterexample:
+    """A single admitted capture in a category the policy disallows.
+    Depth-1, same reasoning as P1: category admissibility doesn't depend
+    on accumulated state.
+    """
+    idx = model.eval(sv.category_idx, model_completion=True).as_long()
+    category = vocabulary[idx] if idx < len(vocabulary) else None
+    step = CounterexampleStep(
+        step_index=1,
+        action_type=ActionType.CAPTURE,
+        order_id=f"order-{model.eval(sv.order_idx, model_completion=True).as_long()}",
+        amount_paise=model.eval(sv.amount_paise, model_completion=True).as_long(),
+        category=category,
+    )
+    return Counterexample(
+        violated_property="P4",
+        trace=[step],
+        violation_step_index=1,
+        explanation=(
+            f"step 1: the guard admitted a single capture in category "
+            f"{category or 'unlisted'}, outside the policy's allowed/blocked rules — "
+            "no sequence needed."
+        ),
+    )
+
+
 def decode_guard_counterexample(
     model: ModelRef,
-    policy: HandPolicy,
+    policy: PolicyIR,
     steps: list[StepVars],
     states: list[State],
     horizon: int,

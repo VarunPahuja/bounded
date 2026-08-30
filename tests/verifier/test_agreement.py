@@ -31,10 +31,10 @@ from datetime import datetime, timezone
 
 from z3 import And
 
-from contracts.models import Action, ActionType, Verdict
+from contracts.models import Action, ActionType, PolicyIR, Verdict
 from verifier.bmc import replay_trace, verify_guard
 from verifier.encode import GuardFn
-from verifier.model import ACTION_CAPTURE, ACTION_CREATE_ORDER, ACTION_REFUND, NUM_ORDER_SLOTS, HandPolicy
+from verifier.model import ACTION_CAPTURE, ACTION_CREATE_ORDER, ACTION_REFUND, NUM_ORDER_SLOTS
 
 NOW = datetime(2026, 8, 30, tzinfo=timezone.utc)
 
@@ -77,7 +77,7 @@ def _exact_trace_guard(scenario: list[Action]) -> GuardFn:
         "Relabel the scenario's order_ids before adding it here."
     )
 
-    def guard(policy: HandPolicy, sv, s0, t: int):
+    def guard(policy: PolicyIR, sv, s0, t: int):
         action = scenario[t]
         return And(
             sv.action_type == _ACTION_CODE_BY_TYPE[action.action_type],
@@ -92,49 +92,49 @@ def _exact_trace_guard(scenario: list[Action]) -> GuardFn:
 # (test_p4_category_violation excluded, per module docstring; test_p2_
 # multi_step and test_solver_terminates relabeled to fit NUM_ORDER_SLOTS),
 # plus additional cases mixing both caps and multi-order refunds.
-_AGREEMENT_SCENARIOS: list[tuple[HandPolicy, list[Action]]] = [
+_AGREEMENT_SCENARIOS: list[tuple[PolicyIR, list[Action]]] = [
     # test_p1_violation_found
-    (HandPolicy(per_txn_cap_paise=5000), [_capture("order-1", 6000)]),
+    (PolicyIR(per_txn_cap_paise=5000), [_capture("order-1", 6000)]),
     # test_p2_multi_step, order-3 relabeled to order-1 (P2 is order-blind)
     (
-        HandPolicy(window_cap_paise=15000),
+        PolicyIR(window_cap_paise=15000),
         [_capture("order-1", 6000), _capture("order-2", 6000), _capture("order-1", 6000)],
     ),
     # test_p2_safe
-    (HandPolicy(window_cap_paise=15000), [_capture("order-1", 6000), _capture("order-2", 6000)]),
+    (PolicyIR(window_cap_paise=15000), [_capture("order-1", 6000), _capture("order-2", 6000)]),
     # test_p3_refund_exceeds_capture
     (
-        HandPolicy(),
+        PolicyIR(),
         [_capture("order-1", 5000), _refund("order-1", 3000), _refund("order-1", 3000)],
     ),
     # test_p3_split_refunds_ok
     (
-        HandPolicy(),
+        PolicyIR(),
         [_capture("order-1", 5000), _refund("order-1", 2000), _refund("order-1", 3000)],
     ),
     # test_solver_terminates, 8 orders collapsed to 2, no caps so no violation either way
     (
-        HandPolicy(),
+        PolicyIR(),
         [_capture(f"order-{i % 2}", 1000) for i in range(8)],
     ),
     # both caps set, safe
     (
-        HandPolicy(per_txn_cap_paise=5000, window_cap_paise=15000),
+        PolicyIR(per_txn_cap_paise=5000, window_cap_paise=15000),
         [_capture("order-1", 5000), _capture("order-2", 5000)],
     ),
     # both caps set, violation is cumulative (P2), not per-action (P1)
     (
-        HandPolicy(per_txn_cap_paise=5000, window_cap_paise=15000),
+        PolicyIR(per_txn_cap_paise=5000, window_cap_paise=15000),
         [_capture("order-1", 5000), _capture("order-2", 5000), _capture("order-1", 5000), _capture("order-2", 5000)],
     ),
     # multi-order refund: order-2's refund alone exceeds order-2's capture
     (
-        HandPolicy(),
+        PolicyIR(),
         [_capture("order-1", 3000), _capture("order-2", 4000), _refund("order-1", 1000), _refund("order-2", 5000)],
     ),
     # P1 violation with window_cap also configured but never reached
     (
-        HandPolicy(per_txn_cap_paise=5000, window_cap_paise=15000),
+        PolicyIR(per_txn_cap_paise=5000, window_cap_paise=15000),
         [_capture("order-1", 6000)],
     ),
 ]

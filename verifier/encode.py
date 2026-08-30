@@ -1,4 +1,4 @@
-"""Z3 constraint builders for Phase 1.
+"""Z3 constraint builders.
 
 Guard functions model admissibility rules a real interceptor might apply
 to a single proposed action. Each is deliberately either naive (checks
@@ -8,6 +8,10 @@ difference between them rather than assert it.
 
 invariant_holds is the cumulative property a sound guard must never let
 a trace escape, no matter how many admissible actions compose it.
+
+encode() is the transpiler MASTER.md's Phase 2 asks for: a pure function
+from PolicyIR to Z3 constraints, no guard, no invariant negation — just
+the shared transition system every check in this project is built on.
 
 replay_trace (concrete-scenario checking, verifier/bmc.py) does not use
 this module: its properties are plain Python arithmetic over a fully
@@ -19,18 +23,28 @@ from __future__ import annotations
 
 from typing import Callable
 
-from z3 import And, BoolRef, BoolVal, If, Implies, Sum
+from z3 import And, BoolRef, BoolVal, If, Implies, Or, Solver, Sum
 
-from verifier.model import ACTION_CAPTURE, ACTION_REFUND, NUM_ORDER_SLOTS, HandPolicy, State, StepVars
+from contracts.models import PolicyIR
+from verifier.model import (
+    ACTION_CAPTURE,
+    ACTION_REFUND,
+    NUM_ORDER_SLOTS,
+    State,
+    StepVars,
+    add_transition_relation,
+    build_symbolic_system,
+    category_vocabulary,
+)
 
 # t (the step index) is explicit rather than inferred from call order.
 # verify_guard calls a guard once per step in a horizon-k system, but
-# also once more on an isolated depth-1 system for the P1 pre-check
-# (verifier/bmc.py:_check_p1) — a guard that tracked position via a
-# mutable counter would desync between those two call sites. Explicit
+# also once more on an isolated depth-1 system for the P1/P4 pre-checks
+# (verifier/bmc.py:_check_p1, _check_p4) — a guard that tracked position
+# via a mutable counter would desync between those call sites. Explicit
 # t also lets a guard pin an exact scenario for testing (see
 # tests/verifier/test_agreement.py) without relying on call order.
-GuardFn = Callable[[HandPolicy, StepVars, State, int], BoolRef]
+GuardFn = Callable[[PolicyIR, StepVars, State, int], BoolRef]
 
 
 def _captured_for_order(sv: StepVars, s0: State) -> BoolRef:
@@ -41,31 +55,56 @@ def _refunded_for_order(sv: StepVars, s0: State) -> BoolRef:
     return Sum([If(sv.order_idx == slot, s0.refunded[slot], 0) for slot in range(NUM_ORDER_SLOTS)])
 
 
-def naive_capture_guard(policy: HandPolicy, sv: StepVars, s0: State, t: int) -> BoolRef:
+def category_admissible_indices(policy: PolicyIR, vocabulary: list[str]) -> set[int]:
+    """Which category_idx values (see verifier/model.py:category_vocabulary,
+    ADR-0009) this policy's allowlist/blocklist admits. index ==
+    len(vocabulary) is the OTHER sentinel: admissible only when there's
+    no allowlist (an unset allowlist means "anything not blocked is fine").
+    """
+    other_index = len(vocabulary)
+    admissible = set()
+    for i, name in enumerate(vocabulary):
+        if policy.allowed_categories is not None and name not in policy.allowed_categories:
+            continue
+        if name in policy.blocked_categories:
+            continue
+        admissible.add(i)
+    if policy.allowed_categories is None:
+        admissible.add(other_index)
+    return admissible
+
+
+def naive_capture_guard(policy: PolicyIR, sv: StepVars, s0: State, t: int) -> BoolRef:
     """Checks the per-transaction cap only. Blind to how much of the
-    window has already been spent — the exact bug this project exists
-    to catch: compliant on every individual call, unsound in aggregate.
+    window has already been spent, and blind to category — the exact
+    bug this project exists to catch: compliant on every individual
+    call, unsound in aggregate.
     """
     if policy.per_txn_cap_paise is None:
         return BoolVal(True)
     return Implies(sv.action_type == ACTION_CAPTURE, sv.amount_paise <= policy.per_txn_cap_paise)
 
 
-def sound_capture_guard(policy: HandPolicy, sv: StepVars, s0: State, t: int) -> BoolRef:
-    """Checks the per-transaction cap and the running window spend,
-    including this capture, before admitting it.
+def sound_capture_guard(policy: PolicyIR, sv: StepVars, s0: State, t: int) -> BoolRef:
+    """Checks the per-transaction cap, the running window spend
+    (including this capture), and category admissibility (P4, ADR-0009)
+    before admitting a capture.
     """
     parts = []
     if policy.per_txn_cap_paise is not None:
         parts.append(sv.amount_paise <= policy.per_txn_cap_paise)
     if policy.window_cap_paise is not None:
         parts.append(s0.month_spend + sv.amount_paise <= policy.window_cap_paise)
+    if policy.allowed_categories is not None or policy.blocked_categories:
+        vocabulary = category_vocabulary(policy)
+        admissible = category_admissible_indices(policy, vocabulary)
+        parts.append(Or(*(sv.category_idx == i for i in admissible)))
     if not parts:
         return BoolVal(True)
     return Implies(sv.action_type == ACTION_CAPTURE, And(*parts))
 
 
-def naive_refund_guard(policy: HandPolicy, sv: StepVars, s0: State, t: int) -> BoolRef:
+def naive_refund_guard(policy: PolicyIR, sv: StepVars, s0: State, t: int) -> BoolRef:
     """Checks this refund's amount against the order's total captured
     amount, but not against how much of that order has already been
     refunded. A single refund can therefore never breach P3 by itself —
@@ -75,7 +114,7 @@ def naive_refund_guard(policy: HandPolicy, sv: StepVars, s0: State, t: int) -> B
     return Implies(sv.action_type == ACTION_REFUND, sv.amount_paise <= _captured_for_order(sv, s0))
 
 
-def sound_refund_guard(policy: HandPolicy, sv: StepVars, s0: State, t: int) -> BoolRef:
+def sound_refund_guard(policy: PolicyIR, sv: StepVars, s0: State, t: int) -> BoolRef:
     """Admits a refund only if refunded-so-far plus this refund would not
     exceed captured-so-far, for the order it targets.
     """
@@ -85,7 +124,7 @@ def sound_refund_guard(policy: HandPolicy, sv: StepVars, s0: State, t: int) -> B
     )
 
 
-def admit_everything(policy: HandPolicy, sv: StepVars, s0: State, t: int) -> BoolRef:
+def admit_everything(policy: PolicyIR, sv: StepVars, s0: State, t: int) -> BoolRef:
     """No admission rule at all. Used only to prove the transition
     relation itself is satisfiable and reachable — see
     test_search_space_is_non_empty. Never compose this into a guard
@@ -101,16 +140,18 @@ def compose_guard(capture_guard: GuardFn, refund_guard: GuardFn) -> GuardFn:
     found by verify_guard can only be attributed to the rule under test.
     """
 
-    def guard(policy: HandPolicy, sv: StepVars, s0: State, t: int) -> BoolRef:
+    def guard(policy: PolicyIR, sv: StepVars, s0: State, t: int) -> BoolRef:
         return And(capture_guard(policy, sv, s0, t), refund_guard(policy, sv, s0, t))
 
     return guard
 
 
-def invariant_holds(policy: HandPolicy, s: State) -> BoolRef:
+def invariant_holds(policy: PolicyIR, s: State) -> BoolRef:
     """The cumulative invariants a sound guard must never let a trace
     escape: P2 window cap (if configured) and P3 refund soundness
     (always on — PolicyIR.refund_bounded_by_capture is Literal[True]).
+    P1 and P4 are per-action, not cumulative — checked separately as
+    depth-1 checks (verifier/bmc.py:_check_p1, _check_p4).
     """
     parts = []
     if policy.window_cap_paise is not None:
@@ -118,3 +159,16 @@ def invariant_holds(policy: HandPolicy, s: State) -> BoolRef:
     for slot in range(NUM_ORDER_SLOTS):
         parts.append(s.refunded[slot] <= s.captured[slot])
     return And(*parts)
+
+
+def encode(policy: PolicyIR, horizon: int = 8) -> Solver:
+    """The transpiler: a pure function from PolicyIR to Z3 constraints.
+    Same input, same constraints, every time — no guard, no invariant
+    negation, just the transition system and its input bounds. Every
+    check in this module (verify_guard's P1/P4 depth-1 checks, its
+    horizon-k P2/P3 search) is built by adding more to a solver shaped
+    exactly like this one.
+    """
+    solver, steps, states = build_symbolic_system(policy, horizon)
+    add_transition_relation(solver, steps, states)
+    return solver

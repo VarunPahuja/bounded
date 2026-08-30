@@ -104,3 +104,84 @@ from Phase 0, just under `verdict`/`latency_ms` instead of the informal
 names I'd been using in conversation. No amendment needed; the frozen
 file was already right.
 
+## 2026-08-30 — Phase 2: the typed IR and transpiler
+
+**Shipped:** `HandPolicy` deleted outright — `verifier/encode.py`,
+`bmc.py`, `model.py` take `contracts.models.PolicyIR` directly, no
+converter. The alternative (a converter layer) was rejected before any
+code was written: `PolicyIR`'s overlapping fields already match
+`HandPolicy`'s names exactly, so a converter would have been pure
+indirection whose only real function was reintroducing, one layer up,
+the exact drift risk `test_agreement.py` exists to catch — a field
+added to `PolicyIR` and forgotten in the converter, silently never
+reaching `encode.py`.
+
+P4 (category) entered the symbolic model (ADR-0009): `category_idx`,
+bounded by the policy's own named categories plus one `OTHER` sentinel
+— no arbitrary constant needed, unlike `NUM_ORDER_SLOTS`, because a
+policy's allowed/blocked categories are already a small, exact, known
+set the moment the policy exists. Checked as a depth-1 check
+(`_check_p4`), symmetric to P1. `sound_capture_guard` now enforces it;
+`naive_capture_guard` still doesn't, on purpose.
+
+**The window question, argued properly (ADR-0010).** `PolicyIR.window`
+(day/month) is read but the BMC model has no calendar-time dimension —
+`window_cap_paise` is proven as a cumulative cap over the traced
+horizon, regardless of which window value is set. This is a different
+class of problem from the two genuinely out-of-scope fields
+(`max_txn_count`, `require_human_above_paise`): those are *visibly
+absent* from `properties_checked`, so nobody mistakes them for
+enforced. `window` is read, changes what a merchant would believe
+`window_cap_paise` means, and has zero effect on what's proven — a
+silent policy-widening bug sitting just outside what
+`test_every_ir_field_encoded` can see, since the field *is* touched by
+code, just not honored the way its name implies.
+
+Two options on the table: reject window values the model can't honor
+at validation (cheap, but since *neither* day nor month gets real
+calendar treatment yet, a faithful version would have to reject the
+field whenever it's set at all — making it unusable rather than
+clarified, for a field that gets genuine meaning once Phase 3/4 supply
+a real starting state from the ledger); or report what was actually
+proven on the result itself. Went with the second:
+`properties_checked`'s P2 entry is now `"P2[window=month,horizon-
+cumulative]"` rather than a bare `"P2"` — the caveat travels with the
+verdict on the same field every consumer already reads, matching the
+pattern already established for `horizon` in Phase 1. Locked down by
+`test_window_semantics_are_reported`: a DAY policy and a MONTH policy
+must produce distinguishable results, or the test fails.
+
+**Broke:** while validating that the strengthened
+`test_every_ir_field_encoded` (see below) actually catches a real
+regression rather than passing vacuously, I disabled
+`sound_capture_guard`'s per-transaction check with a scratch script,
+confirmed the test failed correctly, and then ran `git checkout --
+verifier/encode.py` to restore it — except `verifier/encode.py` had
+never been committed with any of this phase's work yet, so the
+checkout silently reverted the entire file to the pre-Phase-2, still-
+`HandPolicy`-importing version, deleting the whole rewrite from the
+working tree. No data was lost — the content was still in-session and
+got rewritten byte-for-byte — but it's a reminder that "restore this
+one file" and "discard everything uncommitted in this file" are the
+same command with no warning between them, and I should have diffed
+before running it, not after.
+
+**Changed my mind, twice, in the same direction:** first drafted
+`test_every_ir_field_encoded` as a membership check against two
+hand-maintained lists (`_ENCODED_FIELDS`, `_DEFERRED_FIELDS`) — caught,
+correctly, as a tripwire that a field could pass by sitting in the
+right list with a plausible comment, never actually reaching a
+constraint. Strengthened to `test_encoded_fields_actually_change_
+constraints`: for each field, two policies differing only in that
+field must produce a different Z3 constraint string. Doing this
+surfaced a real architectural fact worth stating plainly: `encode()`
+itself only builds the bare transition skeleton — `per_txn_cap_paise`
+and `window_cap_paise` never reach it at all, they're consumed by the
+guard functions and `invariant_holds`, only when `verify_guard` runs a
+real check. Only the category fields change `encode()`'s own output.
+That's correct, not a bug — a "guard" has to stay swappable between
+naive and sound, so cap logic can't be unconditionally baked into the
+base transition system — but it meant the differential test had to
+probe whichever function actually consumes each field, not `encode()`
+uniformly, with the mismatch documented rather than smoothed over.
+
