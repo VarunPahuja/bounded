@@ -1,0 +1,46 @@
+[project]
+name = "bounded"
+version = "0.1.0"
+description = "Bounded-horizon SMT proof of spending mandates, enforced live on Razorpay test mode."
+requires-python = ">=3.11,<3.12"
+license = { text = "MIT" }
+dependencies = [
+    "pydantic==2.13.5",
+]
+
+[project.optional-dependencies]
+verifier = [
+    "z3-solver==4.15.4.0",
+]
+rail = [
+    "razorpay==2.0.1",
+    "fastmcp==3.4.7",
+]
+ledger = [
+    "cryptography==50.0.1",
+]
+llm = [
+    "groq==1.7.0",
+    "google-genai==2.20.0",
+]
+api = [
+    "fastapi==0.141.1",
+    "uvicorn==0.52.4",
+    "sqlalchemy==2.0.52",
+]
+eval = [
+    "httpx==0.28.1",
+]
+dev = [
+    "pytest==9.1.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["contracts*", "verifier*", "policy*", "rail*", "ledger*", "eval*", "api*"]

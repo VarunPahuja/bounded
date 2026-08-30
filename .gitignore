@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Env / secrets
+.env
+.env.*
+*.pem
+
+# SQLite
+*.db
+*.sqlite3
+
+# Node / Next.js
+web/node_modules/
+web/.next/
+web/out/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
