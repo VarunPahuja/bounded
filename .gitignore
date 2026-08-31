@@ -27,3 +27,7 @@ web/out/
 Thumbs.db
 .vscode/
 .idea/
+
+.env
+*.env
+.env.*
