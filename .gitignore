@@ -11,6 +11,7 @@ dist/
 # Env / secrets
 .env
 .env.*
+!.env.example
 *.pem
 
 # SQLite
@@ -27,7 +28,3 @@ web/out/
 Thumbs.db
 .vscode/
 .idea/
-
-.env
-*.env
-.env.*
