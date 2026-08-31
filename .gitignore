@@ -18,6 +18,9 @@ dist/
 *.db
 *.sqlite3
 
+# Generated seed-checkout page (order ids + public key_id, regenerated each run)
+scripts/seed_checkout.html
+
 # Node / Next.js
 web/node_modules/
 web/.next/
