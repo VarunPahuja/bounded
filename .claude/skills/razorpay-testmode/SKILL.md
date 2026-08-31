@@ -151,6 +151,49 @@ def test_rejects_tampered_body(client):
 
 Test at minimum: valid signature accepted, tampered body rejected, missing header rejected, same event id twice settles once, unknown event type ignored without a 500.
 
+## S2S / headless payment creation is not available by default
+
+`POST /v1/payments/create/upi` (the SDK's `client.payment.createUpi`) and the sibling `create/card`, `create/recurring` endpoints are **S2S (server-to-server) payment creation** — a separately-provisioned integration mode, gated per-merchant. A `rzp_test_` key does not get it automatically. Calling it returns a genuine 400, not a helpful "not enabled" message:
+
+```json
+{"error":{"code":"BAD_REQUEST_ERROR","description":"The requested URL was not found on the server.","source":"internal","step":"NA","reason":"NA","metadata":{"order_id":"order_..."}}}
+```
+
+Confirmed empirically (both via the SDK and a raw `requests.post`, to rule out an SDK bug) — the `metadata.order_id` in the response proves it reached a real handler, this is not a malformed path. Enabling S2S means contacting Razorpay; it is not something you can turn on with an API call or a dashboard toggle in test mode.
+
+**Consequence:** there is no headless way to create a payment in test mode. Every payment requires a browser step (Checkout or Payment Links). Design around this rather than against it: a payment gateway is realistically something a *customer* pays into, not something a server-side agent creates on its own — so put payment creation outside whatever you're building, done once by a human via Checkout, and keep the automatable surface to what's actually server-to-server: capture, refund, fetch, webhook.
+
+**UPI is not offered as a payment method in test-mode Checkout by default** — only cards showed up when actually testing this. `success@razorpay` / `failure@razorpay` (mentioned above) apply once UPI is reachable at all; don't assume Checkout offers UPI without checking your account's enabled methods first. For cards: `5267 3181 8797 5449` (MasterCard, credit) worked against an Indian test account. Pull the current test card list from Razorpay's docs at integration time — this is what worked on 2026-08-31, not a guarantee for later.
+
+**Producing a genuinely `failed` test payment is harder than the docs suggest, and two documented-sounding methods didn't work:**
+
+- An OTP under 4 digits on the card OTP page (Razorpay's own documented way to fail a payment) shows "Payment Failed, Retry" client-side, but the payment entity itself gets stuck at `status: "created"` forever — no `error_code`, no `error_description`. Confirmed not a sync delay by re-fetching minutes later.
+- A "declining" card number from a web search summary (`5305 6200 0007 0009`, supposedly `authentication_failed`) **authorized successfully** instead. Don't trust a search summary's card-number claims any more than a blog post's — verify against a real attempt.
+- **What actually works:** pay with `4111 1111 1111 1111` (a non-Indian-issued Visa number) against an Indian test account with domestic-only cards enabled. This reliably produces a real `status: "failed"` payment with everything populated:
+  ```json
+  {"status": "failed", "international": true, "error_code": "BAD_REQUEST_ERROR", "error_reason": "international_transaction_not_allowed", "error_source": "business", "error_step": "payment_initiation", "error_description": "Your payment could not be completed as this business accepts domestic (Indian) card payments only. Try another payment method."}
+  ```
+  This is a business-rule rejection, not a bank decline, but it's the one repeatable path to a genuine terminal `failed` payment found so far. If you need a *bank-decline*-flavored failure specifically (not a business-rule one), that's still unconfirmed — don't assume a specific card number produces one without testing it for real first.
+
+## The refund floor: INR 1.00, per call, not aggregate
+
+Every refund call is rejected below 100 paise, regardless of how much has already been refunded against the same payment:
+
+```
+BadRequestError: The amount must be atleast INR 1.00
+```
+
+Confirmed this is per-call, not a running-total check: on a payment already refunded 200 paise, a further 50-paise refund was still rejected with the identical error, while a 150-paise refund on the same payment (bringing the total to 350) succeeded immediately after. So a multi-leg split-refund scenario is fully constructible as long as **each individual leg** clears 100 paise — the floor doesn't make small split refunds impossible, it just sets a per-leg minimum. Size seed/demo amounts so every refund leg you actually intend to issue comfortably clears it; a bare-minimum ₹1 seed amount makes even a single partial refund impossible to demonstrate (you can only refund the whole thing, since anything less is below the floor and anything up to the full amount is the only room left).
+
+## Authorized-but-uncaptured payments: docs disagree with themselves on the window
+
+Razorpay's own pages give different numbers for how long an authorized payment stays uncaptured before auto-refunding:
+
+- API reference (`manual_expiry_period`: default **and max** `7200` minutes) and the FAQ page: **5 days**.
+- The rainy-day capture-settings overview page: **3 days** (and separately caps the same setting's max at "3 days" on the same page — inconsistent with the 7200-minute figure above).
+
+Trust the API reference (`manual_expiry_period`) as authoritative — it's the actual parameter the backend reads — but don't bet a time-sensitive plan on either number alone. For any demo or recording that depends on a payment staying authorized: either figure comfortably clears a same-day gap, so seed 24-48h ahead rather than the night before, and you don't have to resolve which of Razorpay's own pages is stale.
+
 ## Stub adapter
 
 Do not let a demo depend on a tunnel, a dashboard session, or wifi. Put one interface in front of the gateway and pick the implementation by env var.

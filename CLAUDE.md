@@ -25,6 +25,10 @@ At the end of each phase, append to `docs/LOG.md`: date, phase, what shipped, wh
 - Do not add scope. If you think a feature is missing, say so, do not build it.
 - Keep comments minimal. Explain why, never what.
 
+## When documented behaviour doesn't reproduce
+
+When a documented behaviour does not reproduce, check what has already been empirically observed in this session before searching for another documented approach. The failed-payment hunt burned three real payment attempts: Razorpay's documented short-OTP method leaves the payment stuck at "created" forever, a declining card number from a search summary authorized cleanly, and what finally worked was the international card rejection already observed an hour earlier while seeding. Observed behaviour outranks documentation, which outranks search summaries. Search last, not second.
+
 ## Things that are never acceptable
 
 - Widening a policy, loosening a constraint, or lowering a bound to make a test pass. If a test fails, either the implementation is wrong or the test encodes a wrong expectation. Say which one you think it is and stop.

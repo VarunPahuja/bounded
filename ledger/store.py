@@ -40,6 +40,7 @@ from sqlalchemy import (
     select,
 )
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.pool import StaticPool
 
 from contracts.models import LedgerEntry
@@ -51,11 +52,22 @@ ledger_entries = Table(
     "ledger_entries",
     metadata,
     Column("idx", Integer, primary_key=True, autoincrement=False),
-    Column("entry_id", String, nullable=False),
+    Column("entry_id", String, nullable=False, unique=True),
     Column("entry_hash", String, nullable=False, unique=True),
     Column("prev_hash", String, nullable=False),
     Column("payload", Text, nullable=False),
 )
+
+
+class DuplicateEntryError(Exception):
+    """append() was called with an entry_id already recorded in the ledger.
+
+    The idempotency signal for webhook dedupe: a check-then-append has a
+    race window (two Razorpay webhook retries landing concurrently can both
+    pass an `already_processed` pre-check before either commits), so this
+    is raised from the UNIQUE constraint on entry_id at insert time, not
+    from the pre-check. Callers should treat it as a successful no-op.
+    """
 
 _TRIGGERS = (
     """
@@ -140,16 +152,30 @@ def append(engine: Engine, entry: LedgerEntry) -> None:
                 "match the current tip"
             )
 
-        with engine.begin() as conn:
-            conn.execute(
-                ledger_entries.insert().values(
-                    idx=entry.index,
-                    entry_id=entry.entry_id,
-                    entry_hash=entry.entry_hash,
-                    prev_hash=entry.prev_hash,
-                    payload=entry.model_dump_json(),
+        try:
+            with engine.begin() as conn:
+                conn.execute(
+                    ledger_entries.insert().values(
+                        idx=entry.index,
+                        entry_id=entry.entry_id,
+                        entry_hash=entry.entry_hash,
+                        prev_hash=entry.prev_hash,
+                        payload=entry.model_dump_json(),
+                    )
                 )
-            )
+        except IntegrityError as e:
+            with engine.connect() as conn:
+                already_exists = conn.execute(
+                    select(ledger_entries.c.idx).where(
+                        ledger_entries.c.entry_id == entry.entry_id
+                    )
+                ).first()
+            if already_exists is not None:
+                raise DuplicateEntryError(
+                    f"entry_id {entry.entry_id!r} already recorded at idx "
+                    f"{already_exists.idx}"
+                ) from e
+            raise
 
 
 def load_all(engine: Engine) -> list[LedgerEntry]:

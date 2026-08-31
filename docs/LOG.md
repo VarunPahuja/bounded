@@ -185,3 +185,106 @@ base transition system — but it meant the differential test had to
 probe whichever function actually consumes each field, not `encode()`
 uniformly, with the mismatch documented rather than smoothed over.
 
+## 2026-08-31 — Phase 3 Part B: the rail, and what building it required
+
+**Shipped:** `rail/config.py` (boot guard refusing non-`rzp_test_` keys,
+`.env` via `python-dotenv`, a `masked_key_id()` helper so nothing ever
+prints the key secret), `rail/razorpay_client.py` (`create_order`,
+`attempt_capture`, `refund`, `fetch_payment`, `verify_payment_signature`),
+`rail/webhook.py` (`verify_webhook_signature` over raw bytes,
+`process_webhook_event` with retry-on-chain-contention plus a UNIQUE
+constraint for dedupe), a UNIQUE constraint on `ledger_entries.entry_id`,
+`scripts/seed.py`. All against real Razorpay test mode, nothing mocked.
+
+**The agent's action space got redefined mid-phase, and it's more
+accurate, not smaller.** The original plan had the agent creating
+payments. In a real Razorpay merchant setup the customer creates
+payments; the merchant (or its agent) captures, refunds, and pays out —
+all server-side, no browser. So Phase 3 split in two: a setup step
+outside the agent's path (a human pays a manually-captured order via
+Checkout, once, ahead of time — `scripts/seed.py` prepares the orders,
+does not touch the agent), and the rail itself, which is exactly
+capture/refund/fetch/webhook — the surface an unbounded agent is
+actually dangerous on, because it already has money sitting authorized
+in the merchant's account.
+
+**`createUpi` (S2S/headless UPI collect) does not work with these test
+keys.** `POST /v1/payments/create/upi` returns a genuine 400 —
+`{"error":{"code":"BAD_REQUEST_ERROR","description":"The requested URL
+was not found on the server.","metadata":{"order_id":"order_..."}}}` —
+confirmed via the SDK and a raw `requests.post` call, with the
+`metadata.order_id` proving it reached a real handler rather than
+hitting a malformed path. S2S/headless payment creation is a
+separately-provisioned integration, gated per-merchant; test-mode API
+keys don't get it by default, and enabling it means contacting Razorpay,
+not an API call. **This is why payment creation moved outside the
+agent's path** — there was no working headless alternative to fall back
+to inside it.
+
+**Razorpay's own docs disagree with themselves on the auto-refund window
+for an authorized-but-uncaptured payment.** The parameter-level API
+reference (`manual_expiry_period`, default and max both `7200` minutes)
+and the FAQ page both say **5 days**. The rainy-day capture-settings
+overview page says **3 days**, and separately caps the same setting's
+max at "3 days" — inconsistent with its own `7200`-minute figure on the
+API reference page. Trusted the API reference as authoritative (it's the
+actual parameter the backend reads), but the practical takeaway holds
+either way: both figures are far longer than a demo beat or an overnight
+gap, so `payment_capture: 0` stays and `scripts/seed.py` runs 24-48h
+ahead of recording — enough margin to not care which of Razorpay's own
+pages is stale.
+
+**UPI is not enabled by default in test-mode Checkout.** Seeding a real
+authorized payment required a card — `5267 3181 8797 5449` worked
+(MasterCard, credit, mock OTP page); `4111 1111 1111 1111` (the commonly
+copy-pasted Visa test number) failed as an **international** card
+against an Indian test account. Use `5267 3181 8797 5449`.
+
+**Refunds have a hard floor of INR 1.00 (100 paise), enforced per call,
+not in aggregate.** `BadRequestError: The amount must be atleast INR
+1.00`. Confirmed the "per call" part empirically, not just assumed it:
+against a payment already refunded 200 paise (comfortably over the
+floor in aggregate), a further 50-paise refund was still rejected with
+the identical error, while a 150-paise refund on the same payment
+succeeded immediately after. So the floor is checked per individual
+refund call, never against the running total — which means a two-leg
+split-refund attack scenario (P3) is fully constructible as long as each
+leg clears 100 paise; nothing about the floor makes split refunds
+impossible, it just sets a per-leg minimum. `scripts/seed.py` defaults
+to Rs 1,000 per seeded order specifically so both a meaningful partial
+refund and a two-leg split both sit an order of magnitude above that
+floor.
+
+**Resolved: `test_order_capture_refund_live` and `test_failure_handle`
+consume human-seeded payment ids, skipped cleanly if unset.** There is
+no automatable way to produce a payment in test mode at all — every one
+requires either a browser step or the S2S path confirmed blocked above
+— so both tests read a payment id from an env var
+(`RAZORPAY_TEST_AUTHORIZED_PAYMENT_ID` / `RAZORPAY_TEST_FAILED_PAYMENT_ID`)
+and `pytest.skip` with an explicit reason when it's absent, rather than
+mocking Razorpay (off the table per CLAUDE.md) or hard-failing `pytest`
+for lacking a browser. When seeded, the calls are real, nothing mocked.
+
+**Producing a genuinely `failed` test payment took three attempts, and
+the two documented-sounding approaches were both wrong.** What actually
+happened, in order:
+
+1. A card OTP entered under 4 digits (the officially documented way to
+   "fail the payment") does show "Payment Failed, Retry" client-side,
+   but the underlying payment entity never transitions past
+   `status: "created"` — no `error_code`, no `error_description`,
+   confirmed still stuck there minutes later (not a sync delay).
+2. A "declining" test card number surfaced by a web search summary
+   (Mastercard `5305 6200 0007 0009`, supposedly simulating
+   `authentication_failed`) **authorized successfully** instead —
+   exactly the "hardcoded list from a blog post" trap the
+   razorpay-testmode skill already warned against, and this time the
+   trap was a search-engine AI summary, not a blog post directly.
+3. **What worked:** the international-card rejection already noted
+   above (`4111 1111 1111 1111` against a domestic-only Indian test
+   account) produces a real `status: "failed"` payment with everything
+   populated — `error_code: "BAD_REQUEST_ERROR"`,
+   `error_reason: "international_transaction_not_allowed"`,
+   `error_source: "business"`. This is now the documented way to seed a
+   failed payment, in the skill.
+

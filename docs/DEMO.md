@@ -80,6 +80,7 @@ Stop. No thank-you slide.
 
 ## Pre-record checklist
 
+- `scripts/seed.py` run 24-48h before recording, not the night before — authorized-but-uncaptured payments auto-refund on a window Razorpay's own docs disagree about (3 vs 5 days; see the razorpay-testmode skill), so seeding this early clears either figure with a day or two to spare
 - Razorpay test mode responding, keys valid
 - Local MCP server running, refund tool confirmed working
 - Ledger reset to a clean chain so the demo starts at genesis
