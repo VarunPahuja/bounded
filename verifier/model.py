@@ -24,7 +24,7 @@ from typing import Optional
 
 from z3 import And, ArithRef, If, Int, Or, Solver
 
-from contracts.models import PolicyIR
+from contracts.models import ActionType, PolicyIR
 
 NUM_ORDER_SLOTS = 2
 MAX_AMOUNT_PAISE = 10_000_000  # 100,000 rupees; keeps the search finite
@@ -33,6 +33,17 @@ ACTION_CREATE_ORDER = 0
 ACTION_CAPTURE = 1
 ACTION_REFUND = 2
 ACTION_TYPES = (ACTION_CREATE_ORDER, ACTION_CAPTURE, ACTION_REFUND)
+
+# contracts.models.ActionType -> this module's integer codes. Phase 4's
+# verify_action (verifier/bmc.py) pins a concrete proposed Action's type
+# onto a symbolic step variable and needs the forward direction;
+# verifier/explain.py already has the reverse mapping for decoding a
+# solver model back to an ActionType.
+ACTION_TYPE_TO_CODE: dict[ActionType, int] = {
+    ActionType.CREATE_ORDER: ACTION_CREATE_ORDER,
+    ActionType.CAPTURE: ACTION_CAPTURE,
+    ActionType.REFUND: ACTION_REFUND,
+}
 
 
 def category_vocabulary(policy: PolicyIR) -> list[str]:
@@ -68,16 +79,38 @@ class State:
     refunded: list[ArithRef]
 
 
-def build_symbolic_system(policy: PolicyIR, horizon: int) -> tuple[Solver, list[StepVars], list[State]]:
+def build_symbolic_system(
+    policy: PolicyIR,
+    horizon: int,
+    *,
+    initial_month_spend: int = 0,
+    initial_captured: Optional[list[int]] = None,
+    initial_refunded: Optional[list[int]] = None,
+) -> tuple[Solver, list[StepVars], list[State]]:
     """Declares state/step variables for `horizon` steps and asserts the
     initial state plus input bounds. Does not assert the transition
     relation or any guard — callers add those.
 
     Takes `policy` (not just `horizon`) because category_idx's bound is
     the policy's own category vocabulary size, not a fixed constant.
+
+    The initial state defaults to zero everywhere — every Phase 1/2 proof
+    (verify_guard) reasons from an empty account, on purpose: it proves the
+    guard itself is sound over any admissible sequence, independent of any
+    one real account's history. Phase 4's verify_action (verifier/bmc.py)
+    is the only caller that overrides these: it seeds the real accumulated
+    state reconstructed from the ledger (rail/interceptor.py) instead of
+    zero, to decide about one concrete proposed action against the real
+    current world rather than a fictional empty one.
     """
 
     vocabulary_size = len(category_vocabulary(policy))
+    initial_captured = initial_captured if initial_captured is not None else [0] * NUM_ORDER_SLOTS
+    initial_refunded = initial_refunded if initial_refunded is not None else [0] * NUM_ORDER_SLOTS
+    if len(initial_captured) != NUM_ORDER_SLOTS or len(initial_refunded) != NUM_ORDER_SLOTS:
+        raise ValueError(
+            f"initial_captured/initial_refunded must have length NUM_ORDER_SLOTS={NUM_ORDER_SLOTS}"
+        )
 
     solver = Solver()
     solver.set("timeout", 30_000)
@@ -100,10 +133,10 @@ def build_symbolic_system(policy: PolicyIR, horizon: int) -> tuple[Solver, list[
         for t in range(horizon + 1)
     ]
 
-    solver.add(states[0].month_spend == 0)
+    solver.add(states[0].month_spend == initial_month_spend)
     for slot in range(NUM_ORDER_SLOTS):
-        solver.add(states[0].captured[slot] == 0)
-        solver.add(states[0].refunded[slot] == 0)
+        solver.add(states[0].captured[slot] == initial_captured[slot])
+        solver.add(states[0].refunded[slot] == initial_refunded[slot])
 
     for sv in steps:
         solver.add(Or(*(sv.action_type == kind for kind in ACTION_TYPES)))

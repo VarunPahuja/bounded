@@ -38,12 +38,23 @@ from __future__ import annotations
 import time
 from typing import Optional
 
-from z3 import Not, Or, sat
+from z3 import Not, Or, sat, unknown
 
 from contracts.models import Action, ActionType, Counterexample, CounterexampleStep, PolicyIR, Verdict, VerificationResult
-from verifier.encode import GuardFn, category_admissible_indices, invariant_holds
-from verifier.explain import decode_guard_counterexample, decode_p1_violation, decode_p4_violation
-from verifier.model import ACTION_CAPTURE, add_transition_relation, build_symbolic_system, category_vocabulary
+from verifier.encode import GuardFn, category_admissible_indices, category_index_for, invariant_holds
+from verifier.explain import (
+    decode_action_rejection,
+    decode_guard_counterexample,
+    decode_p1_violation,
+    decode_p4_violation,
+)
+from verifier.model import (
+    ACTION_CAPTURE,
+    ACTION_TYPE_TO_CODE,
+    add_transition_relation,
+    build_symbolic_system,
+    category_vocabulary,
+)
 
 
 def _properties_checked(policy: PolicyIR) -> list[str]:
@@ -128,6 +139,110 @@ def verify_guard(policy: PolicyIR, guard: GuardFn, horizon: int = 8) -> Verifica
         verdict=Verdict.VIOLATION if counterexample else Verdict.SAFE,
         properties_checked=properties_checked,
         horizon=horizon,
+        counterexample=counterexample,
+        latency_ms=latency_ms,
+    )
+
+
+def verify_action(
+    policy: PolicyIR,
+    guard: GuardFn,
+    action: Action,
+    *,
+    month_spend: int,
+    captured_for_order: int,
+    refunded_for_order: int,
+) -> VerificationResult:
+    """Phase 4's runtime decision: does `guard` admit this one concrete
+    `action`, from the real current state reconstructed from the ledger
+    (rail/interceptor.py), without breaching the policy's invariants?
+
+    A depth-1 Z3 system seeded with the real state instead of zero -- the
+    order this action targets is always pinned to slot 0
+    (verifier/model.py: NUM_ORDER_SLOTS); slot 1 stays zero/zero and plays
+    no part in the check. Every step variable is pinned to `action`'s
+    concrete values, so this query has no actual degrees of freedom left --
+    it is a deterministic evaluation of `guard(...) AND
+    invariant_holds(next_state)`, routed through Z3's SAT engine rather
+    than plain Python arithmetic, per CLAUDE.md's one rule: the solver
+    decides, not `_replay_violated_property`'s (unproven) arithmetic.
+
+    Soundness of a single-step check against nonzero state is not reproven
+    here -- it rests on induction over verify_guard's result (ADR-0011):
+    verify_guard proves once, from the zero state, that `guard` never
+    admits a horizon-k sequence breaching the invariant. sound_capture_guard
+    and sound_refund_guard decide admissibility using only the current
+    step's state and action -- no horizon-specific machinery -- so if the
+    real current state already satisfies the invariant (true by the same
+    induction: every action that ever executed was itself guard-admitted
+    from a prior invariant-satisfying state), admitting one more
+    guard-compliant action from that real state cannot break it either.
+
+    A Z3 `unknown` result (solver timeout) is reported as Verdict.ERROR,
+    never treated as SAFE -- fail closed, per CLAUDE.md.
+    """
+    start = time.perf_counter()
+    properties_checked = _properties_checked(policy)
+
+    try:
+        vocabulary = category_vocabulary(policy)
+        category_idx = category_index_for(vocabulary, action.category)
+        action_type_code = ACTION_TYPE_TO_CODE[action.action_type]
+
+        solver, steps, states = build_symbolic_system(
+            policy,
+            horizon=1,
+            initial_month_spend=month_spend,
+            initial_captured=[captured_for_order, 0],
+            initial_refunded=[refunded_for_order, 0],
+        )
+        add_transition_relation(solver, steps, states)
+        sv, s0, s1 = steps[0], states[0], states[1]
+
+        solver.add(sv.action_type == action_type_code)
+        solver.add(sv.order_idx == 0)
+        solver.add(sv.amount_paise == action.amount_paise)
+        solver.add(sv.category_idx == category_idx)
+        solver.add(guard(policy, sv, s0, 0))
+        solver.add(invariant_holds(policy, s1))
+
+        result = solver.check()
+    except Exception as e:  # fail closed: any encoding/solver failure is Verdict.ERROR, never SAFE
+        return VerificationResult(
+            verdict=Verdict.ERROR,
+            properties_checked=properties_checked,
+            horizon=1,
+            counterexample=None,
+            latency_ms=(time.perf_counter() - start) * 1000,
+            error_message=str(e),
+        )
+
+    latency_ms = (time.perf_counter() - start) * 1000
+
+    if result == unknown:
+        return VerificationResult(
+            verdict=Verdict.ERROR,
+            properties_checked=properties_checked,
+            horizon=1,
+            counterexample=None,
+            latency_ms=latency_ms,
+            error_message="solver returned unknown (timeout) -- failing closed",
+        )
+
+    if result == sat:
+        return VerificationResult(
+            verdict=Verdict.SAFE,
+            properties_checked=properties_checked,
+            horizon=1,
+            counterexample=None,
+            latency_ms=latency_ms,
+        )
+
+    counterexample = decode_action_rejection(policy, action, month_spend, captured_for_order, refunded_for_order)
+    return VerificationResult(
+        verdict=Verdict.VIOLATION,
+        properties_checked=properties_checked,
+        horizon=1,
         counterexample=counterexample,
         latency_ms=latency_ms,
     )

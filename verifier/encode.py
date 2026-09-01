@@ -21,7 +21,7 @@ nothing to search for once every action is already known.
 
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, Optional
 
 from z3 import And, BoolRef, BoolVal, If, Implies, Or, Solver, Sum
 
@@ -72,6 +72,19 @@ def category_admissible_indices(policy: PolicyIR, vocabulary: list[str]) -> set[
     if policy.allowed_categories is None:
         admissible.add(other_index)
     return admissible
+
+
+def category_index_for(vocabulary: list[str], category: Optional[str]) -> int:
+    """A concrete category string's index in `vocabulary`, or the OTHER
+    sentinel (index len(vocabulary)) if it names nothing the policy
+    restricts on. Mirrors category_vocabulary/category_admissible_indices
+    (ADR-0009) for a single concrete value — verifier/bmc.py's verify_action
+    uses this to pin category_idx to a real proposed action's category,
+    the same domain category_admissible_indices reasons over symbolically.
+    """
+    if category in vocabulary:
+        return vocabulary.index(category)
+    return len(vocabulary)
 
 
 def naive_capture_guard(policy: PolicyIR, sv: StepVars, s0: State, t: int) -> BoolRef:

@@ -288,3 +288,121 @@ happened, in order:
    `error_source: "business"`. This is now the documented way to seed a
    failed payment, in the skill.
 
+## 2026-08-31 — Phase 4: the interceptor
+
+**Shipped:** `rail/interceptor.py` (`propose_action`, `reconstruct_state`,
+`AccountState`, `InterceptorDecision`), `verifier/bmc.py`'s `verify_action`
+(the runtime, single-action Z3 decision), a parametrized initial state on
+`verifier/model.py:build_symbolic_system` (defaults to zero, unchanged for
+every existing caller), `category_index_for` in `verifier/encode.py`,
+`decode_action_rejection` in `verifier/explain.py`, `tests/test_architecture.py`
+(`test_no_direct_rail_access`), and `tests/rail/test_interceptor.py`. ADR-0003
+(SDK gate over MCP proxy) and ADR-0011 (`verify_action`'s soundness is
+inductive, not a fresh horizon-k search per call) written and accepted.
+19 new tests, all green; full suite 68 passed / 3 skipped (the three
+live-Razorpay tests, same skip-cleanly-without-a-seeded-payment pattern as
+Phase 3).
+
+**The decision made first, on purpose:** SDK gate, not an MCP proxy.
+MASTER.md left this open for Phase 4 specifically. Phase 3 already made
+`rail/razorpay_client.py` the sole chokepoint for every money call, and
+Phase 4's own scope boundary rules out an agent loop this phase (no LLM,
+no natural language) — so a proxy would be gating JSON-RPC tool calls
+nothing in the repo currently makes. Full argument in ADR-0003.
+
+**Test written first, as instructed:** `test_fail_closed` (five cases —
+solver exception, solver-reported timeout, malformed policy, unreadable
+ledger state, and "propose_action never raises even if every internal
+call does") went into `tests/rail/test_interceptor.py` before
+`rail/interceptor.py` existed, against the planned `propose_action`
+signature. All five passed unmodified once the interceptor was built to
+that contract.
+
+**State reconstruction, the three-way distinction:** BLOCK never touches
+the rail (excluded trivially). For ALLOW, the interceptor writes *two*
+ledger entries — a decision entry before the rail call (`razorpay_payment_id
+= None`), and an outcome entry after it (`razorpay_payment_id` set only on
+genuine success) — because the ledger is append-only and the write has to
+precede the call. `reconstruct_state` counts an entry toward accumulated
+spend iff `decision == ALLOW and action is not None and razorpay_payment_id
+is not None`. That one predicate resolves all three required cases without
+touching the frozen contracts: a blocked action, an allowed-but-failed-at-
+rail action, and a genuinely-executed action are already distinguishable
+using fields `LedgerEntry` already had. A useful side effect, not
+designed in up front: Phase 3's webhook-recorded entries carry
+`razorpay_payment_id` but never an `Action` (there was none to attach at
+that call site), so they're structurally invisible to this sum — a
+webhook echo of a capture the interceptor already recorded can never be
+double-counted, with no dedup logic required.
+
+**The runtime check goes through Z3, seeded from real state, not zero —
+new work, not wiring.** `verify_guard`'s existing systems all start from
+an empty account by construction, because they prove the *guard* is sound
+over any admissible sequence, independent of any one account's history.
+The interceptor needs to decide about one concrete action given the *real*
+current state. `verify_action` builds a depth-1 system with the real
+reconstructed numbers as the initial state (the acted-on order pinned to
+slot 0, per ADR-0007's existing 2-slot scope) and the proposed action's
+fields pinned as equalities, then asks Z3 whether `guard(...) AND
+invariant_holds(next_state)` holds — a query with zero actual degrees of
+freedom, deliberately routed through the solver rather than Python
+arithmetic anyway, because CLAUDE.md's one rule doesn't carve out an
+exception for "but this one's deterministic." Soundness of checking
+against nonzero state is inductive, not reproven per call — ADR-0011 spells
+out why that's sound and names the one thing that makes it stay sound:
+`rail/interceptor.py` hard-codes a single `GUARD` constant rather than
+accepting a caller-supplied guard, so `verify_guard`'s offline certificate
+and `verify_action`'s live decisions can never be asked about two
+different guards.
+
+**Broke — a real contracts gap, caught before it became a silent bug, not
+after.** Midway through writing `propose_action`'s rail dispatch, `attempt_
+capture`/`refund` turned out to need a Razorpay *payment_id*, and
+`contracts.models.Action` (frozen) only carries `order_id` — there is no
+mapping between the two anywhere in this repo, and `scripts/seed.py`'s
+whole flow is one order to one payment. Per CLAUDE.md ("if you think a
+feature is missing, say so, do not build it"), stopped and asked rather
+than picking silently. Decision: treat `order_id` as the payment_id passed
+to the rail, documented as a stated simplification in
+`rail/interceptor.py`'s module docstring, not a contracts change — a real
+multi-payment-per-order integration would need a mapping layer this
+project doesn't build.
+
+**Unreachable except through the interceptor, and how that's actually
+enforced:** `rail/razorpay_client.py` itself is untouched — `test_no_
+direct_rail_access` statically walks every `.py` file in the repo (AST,
+not a regex) and fails if `attempt_capture`/`refund` are imported from
+`rail.razorpay_client` anywhere outside `rail/interceptor.py` and Phase
+3's live rail test (an explicit, named exception: that test exists
+specifically to prove the rail works in isolation, and CLAUDE.md bans
+mocking the call that's supposed to prove it does). Stated plainly in
+ADR-0003 rather than left implicit: this is a CI-run test, not a
+process-level sandbox — Python has no true module privacy, so the
+guarantee holds only as long as the test keeps running. Same class of
+guarantee CLAUDE.md already accepts for "`verifier/` must never import
+`policy/parse.py`," not a lower bar invented for this one.
+
+**Not yet exercised live.** `test_compliant_action_executes` and the live
+half of `test_state_reconstruction` both skip cleanly — no
+`RAZORPAY_TEST_AUTHORIZED_PAYMENT_ID` is currently set, and seeding one
+means the same manual browser step Phase 3's own live tests needed
+(`scripts/seed.py`, pay with card 5267 3181 8797 5449). The deterministic
+half of `test_state_reconstruction` (the three-way ledger predicate, fully
+mocked) does run and passes on every invocation — what's untested against
+the real network is specifically "does a real payment id come back,"
+which the live test is written and ready to prove the moment a payment is
+seeded.
+
+**Changed my mind:** started toward re-running a fresh horizon-k adversarial
+search per proposed action, seeded from real state, before writing any
+code — reasoning that "prove no continuation is bad" sounded like a
+strictly safer claim than "this one action is fine." Dropped it once the
+actual shape of the guarantee needed became clear: `propose_action` only
+ever admits one action before the next proposal re-reads the (now
+updated) real state, so continuously re-proving the whole future on every
+call is the offline soundness proof's job, not every request's — the
+one-step, Z3-routed, inductively-sound check is the right amount of work
+per decision, not a shortcut. Written up as ADR-0011 rather than left as
+an implementation detail, since it's a real claim about what the runtime
+guarantee actually is.
+

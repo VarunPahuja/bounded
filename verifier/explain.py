@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from z3 import ModelRef, is_true
 
-from contracts.models import ActionType, Counterexample, CounterexampleStep, PolicyIR
+from contracts.models import Action, ActionType, Counterexample, CounterexampleStep, PolicyIR
 from verifier.model import (
     ACTION_CAPTURE,
     ACTION_CREATE_ORDER,
@@ -127,3 +127,58 @@ def decode_guard_counterexample(
         )
 
     raise AssertionError("solver returned sat but no violating step was found while decoding the model")
+
+
+def decode_action_rejection(
+    policy: PolicyIR,
+    action: Action,
+    month_spend: int,
+    captured_for_order: int,
+    refunded_for_order: int,
+) -> Counterexample:
+    """Concrete, single-action counterpart to decode_guard_counterexample.
+    verify_action's decision is already made by Z3 by the time this runs
+    (UNSAT means the guard rejects this exact action from this exact real
+    state) -- this only names which property is responsible, by evaluating
+    each one directly against the same concrete numbers the solver was
+    given. No search, no model to read off; every value is already known.
+    """
+    if action.action_type == ActionType.CAPTURE:
+        if policy.per_txn_cap_paise is not None and action.amount_paise > policy.per_txn_cap_paise:
+            violated = "P1"
+        elif (
+            policy.window_cap_paise is not None
+            and month_spend + action.amount_paise > policy.window_cap_paise
+        ):
+            violated = "P2"
+        elif policy.allowed_categories is not None and action.category not in policy.allowed_categories:
+            violated = "P4"
+        elif action.category in policy.blocked_categories:
+            violated = "P4"
+        else:
+            # The guard rejected this capture for a reason not enumerated
+            # above -- shouldn't happen given sound_capture_guard's actual
+            # conditions, but never leave the property unnamed.
+            violated = "P1"
+    elif action.action_type == ActionType.REFUND:
+        violated = "P3"
+    else:
+        violated = "unknown"
+
+    step = CounterexampleStep(
+        step_index=1,
+        action_type=action.action_type,
+        order_id=action.order_id,
+        amount_paise=action.amount_paise,
+        category=action.category,
+    )
+    return Counterexample(
+        violated_property=violated,
+        trace=[step],
+        violation_step_index=1,
+        explanation=(
+            f"step 1: {action.action_type.value} of {action.amount_paise} paise "
+            f"on {action.order_id} was rejected by the guard against the current "
+            f"account state -- violates {violated}."
+        ),
+    )
