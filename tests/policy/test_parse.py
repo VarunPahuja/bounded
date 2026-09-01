@@ -90,6 +90,21 @@ def test_malformed_llm_output_unknown_field(monkeypatch):
         parse_mandate("cap spend at Rs 10 per transaction")
 
 
+def test_malformed_llm_output_txn_count_without_window(monkeypatch):
+    # Reproduces the exact shape observed live on 2 of 10 real runs of the
+    # en-txn-count fixture (docs/LOG.md, Phase 5's reliability measurement):
+    # max_txn_count extracted correctly, window silently dropped. That is a
+    # *valid*-looking PolicyIR meaning something weaker than the mandate
+    # stated, not a parse failure -- exactly the ambiguity-by-omission
+    # _max_txn_count_requires_window exists to catch.
+    _stub(
+        monkeypatch,
+        json.dumps({"status": "ok", "policy": {"max_txn_count": 5, "window": None}}),
+    )
+    with pytest.raises(MandateParseError, match="max_txn_count"):
+        parse_mandate("No more than 5 transactions per day.")
+
+
 def test_malformed_llm_output_negative_cap(monkeypatch):
     _stub(
         monkeypatch,

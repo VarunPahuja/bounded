@@ -119,6 +119,30 @@ class _LLMPolicyFields(BaseModel):
                 )
         return self
 
+    @model_validator(mode="after")
+    def _max_txn_count_requires_window(self) -> "_LLMPolicyFields":
+        # Observed live (2026-09-01, Phase 5 reliability measurement): on
+        # 2/10 runs of "No more than 5 transactions per day.", the model
+        # returned max_txn_count=5 with window=null -- a *valid* PolicyIR
+        # that silently means "5 transactions, ever" rather than "5 per
+        # day," dropping a field the mandate explicitly stated rather than
+        # flagging it. That's ambiguity resolved by omission, which is the
+        # same failure ADR-0005 forbids, just arriving through a field we
+        # hadn't checked. Scoped to max_txn_count only, deliberately not
+        # extended to window_cap_paise: window-less window_cap_paise is an
+        # already-accepted, already-tested contract state (ADR-0010 --
+        # enforced as a cumulative cap regardless of window, with the
+        # caveat reported on the verdict), used directly by name in
+        # tests/verifier and tests/rail since Phase 1. Widening this check
+        # to cover that field too would reject settled, correct policies.
+        if self.max_txn_count is not None and self.window is None:
+            raise ValueError(
+                "max_txn_count requires window to be set -- a transaction "
+                "count with no window is a different, weaker constraint "
+                "than what the mandate likely meant"
+            )
+        return self
+
 
 class _ParseEnvelope(BaseModel):
     model_config = ConfigDict(extra="forbid")

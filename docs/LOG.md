@@ -550,11 +550,19 @@ deterministic layer catching exactly what the LLM missed. ADR-0005's rule
 principle defended in the abstract; here it is the difference between a
 policy that would have shipped and one that didn't.
 
-**Measured, not just observed: same mandate, same model, temperature 0,
-different output across calls.** One of the ten fixtures
-(`en-txn-count`, "No more than 5 transactions per day.") failed a live
-run mid-session after passing every prior run. Rather than treat that as
-a one-off flake, ran it live 10 times against the real Azure endpoint and
+**Running the reliability measurement did not just produce a flake rate —
+it found a gap where a merchant's stated constraint could be silently
+weakened, and nothing rejected it.** This is the headline, not the
+percentage below it: two of the ten runs against `en-txn-count`
+("No more than 5 transactions per day.") did not just parse imperfectly,
+they produced a *valid* `PolicyIR` object meaning something weaker than
+what the merchant wrote, and the system let it through. If this number
+gets quoted in the README or the video, that is the claim it supports —
+not "8/10 parse accuracy," which is a different and much weaker story.
+
+**How it was found.** One of the ten fixtures failed a live run
+mid-session after passing every prior run. Rather than treat that as a
+one-off flake, ran it live 10 times against the real Azure endpoint and
 compared each result to the expected `PolicyIR`, with `en-txn-month`
 (the two-cap-plus-window fixture) run the same way as a control:
 
@@ -563,22 +571,64 @@ compared each result to the expected `PolicyIR`, with `en-txn-month`
   came back `None` instead of `"day"` on runs 4 and 9.
 - `en-txn-month`: **10/10** matched.
 
-This is direct evidence for the project's central architectural argument,
-produced by accident rather than assembled to make the point: the same
-prompt, the same model, temperature 0, genuinely different structured
-output across otherwise-identical calls. Every claim this project makes
-rests on "an LLM is non-deterministic, therefore it cannot be the
-enforcement layer" — that has mostly been argued so far. This is a
-number. 80% is not evidence the model is bad at its job (it's a small
-sample, and the field it dropped is genuinely the harder of the two —
-inferring "day" from "per day" with no accompanying rupee amount to
-anchor it, versus `en-txn-month`'s window being paired with an explicit
-cap on both sides). It's evidence that *any* nonzero failure rate, on a
-component sitting in front of a money decision, is disqualifying for
-that component being the one that decides — which is exactly why
-`policy/parse.py` only ever proposes, and `PolicyIR`'s validators plus
-`verify_guard`/`verify_action` are what actually decide, unconditionally,
-every time.
+Same mandate, same model, temperature 0, genuinely different structured
+output across otherwise-identical calls — direct evidence for this
+project's central architectural argument, produced by accident rather
+than assembled to make the point. 80% is not evidence the model is bad
+at its job (small sample, and the field it dropped is genuinely the
+harder of the two: inferring "day" from "per day" with no accompanying
+rupee amount to anchor it, versus `en-txn-month`'s window being paired
+with an explicit cap on both sides). It's evidence that *any* nonzero
+failure rate, on a component sitting in front of a money decision, is
+disqualifying for that component being the one that decides — which is
+exactly why `policy/parse.py` only ever proposes, and `PolicyIR`'s
+validators plus `verify_guard`/`verify_action` are what actually decide,
+unconditionally, every time.
+
+**But the two misses were not "wrong answers" — they were valid answers
+that meant less than the mandate said.** Checked whether `PolicyIR`
+(`contracts/models.py`, frozen) rejects `max_txn_count` set with
+`window=None` — it doesn't; its only cross-field validator checks
+`window_cap_paise` against `per_txn_cap_paise` under `window=month`,
+nothing else. So both runs that dropped `window` didn't fail to parse —
+`parse_mandate` returned a genuinely valid
+`PolicyIR(max_txn_count=5, window=None)`: the mandate said "5 per day,"
+the parser silently kept "5, no window." That's ambiguity resolved by
+omission rather than by guessing a value — the same failure ADR-0005
+forbids, arriving through a field the existing tests hadn't exercised.
+The 8/10 is therefore two different measurements wearing one number: a
+parse-fidelity rate, and — on the 2 misses specifically — a real,
+previously-uncaught safety gap that the experiment happened to surface,
+not manufacture.
+
+Fixed at the parse layer (`policy/parse.py`'s `_LLMPolicyFields`), not in
+`contracts/models.py`, and the reasoning that matters more than the fix
+itself: before writing the validator, grepped the existing suite for
+every place `window_cap_paise` is set without `window`, and found it
+constructed that way throughout `tests/verifier/` and `tests/rail/` since
+Phase 1 — a deliberate, already-relied-on contract state (ADR-0010:
+`window_cap_paise` is enforced as a cumulative cap regardless of window,
+with the caveat reported on the verdict rather than silently dropped).
+That grep is what kept the fix scoped correctly: a validator requiring
+`window` whenever *any* windowed field is set would have rejected
+settled, correct policies across three other test files to close a gap
+that `max_txn_count` — with zero prior usages outside this phase's own
+fixture — didn't actually share. The validator only covers
+`max_txn_count`. A stub test reproduces the exact recorded shape
+(`max_txn_count: 5, window: null`) and asserts it now raises
+`MandateParseError` — that stub test is the proof the rejection works,
+deterministically, on the exact bad shape that was observed.
+
+A fresh live batch of 10 runs against the same mandate, with the fix
+active, came back 10/10 correct. **That number is not evidence the fix
+works and should not be read as such anywhere it appears** — window-
+dropping was itself only a 2-in-10 event in the first measurement, so a
+clean batch of 10 is exactly what you'd expect whether or not the
+validator does anything; a live batch could just as easily come back
+clean by never triggering the code path being tested. The stub test,
+which forces the exact previously-observed shape and asserts on it
+deterministically, is the only thing in this entry that actually proves
+the fix works.
 
 Two consequences noted here rather than acted on immediately:
 
