@@ -1,0 +1,5 @@
+{
+  "kind": "response",
+  "mandate_text": "Cap total spending at Rs 15,000.",
+  "response": "{\"status\": \"ambiguous\", \"reason\": \"Cap amount specified without a clear time window (day or month)\"}"
+}

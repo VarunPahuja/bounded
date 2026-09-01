@@ -22,7 +22,14 @@ This honesty is a scoring asset, not a liability. The track bar asks for honest 
 
 ## 2. Tech stack, locked
 
-Everything below is free tier or open source. No paid service anywhere in the critical path.
+Everything below is free tier, open source, or running on committed credits.
+No spend anywhere in the critical path beyond what's already provisioned.
+(Corrected 2026-09-01, ADR-0012: the LLM layer's original Groq/Gemini plan
+was replaced with Azure OpenAI, already-held credentials over a free
+signup — see that ADR. Azure OpenAI credits are not free, but usage here
+is a few hundred tokens per mandate parse, recorded to cassettes once and
+replayed after — a rounding error against the credit balance, not an
+ongoing cost.)
 
 ### Verification core
 | Component | Choice | License | Why |
@@ -59,9 +66,11 @@ The fallback is not a lesser build. It keeps the entire enforcement story and lo
 ### LLM layer (structure only, never enforcement)
 | Component | Choice | Cost |
 |---|---|---|
-| Primary | Groq free tier, `llama-3.3-70b-versatile` | free |
-| Fallback | Gemini free tier, `gemini-2.5-flash` | free |
-| Judge baseline | same models, different prompt | free |
+| Provider | Azure OpenAI, `gpt-4.1-mini` (ADR-0012, supersedes the original Groq/Gemini plan) | committed credits (INR 9,555 balance; negligible usage — a few hundred tokens per mandate parse, recorded once) |
+| Judge baseline | same model, different prompt | same credits |
+
+No fallback provider. One provider, actually exercised, rather than a
+second one wired in and never run for real (ADR-0012).
 
 Hard rule: the LLM parses natural language into a typed policy object and writes human-readable explanations. It never decides whether an action is allowed. If this rule is broken anywhere, the project's thesis collapses.
 
@@ -375,14 +384,13 @@ From the catalog: `engineering:architecture` for the ADRs, `engineering:testing-
 |---|---|
 | Z3, FastAPI, Next.js, all libraries | free, open source |
 | Razorpay test mode | free, no KYC needed for test keys |
-| Groq API | free tier |
-| Gemini API | free tier |
+| Azure OpenAI (`gpt-4.1-mini`) | committed credits, not free tier (ADR-0012) — negligible draw against an INR 9,555 balance |
 | Vercel, Render | free tier |
 | cloudflared | free |
 | GitHub public repo | free |
-| **Total** | **zero** |
+| **Total** | **~zero** — the only real spend is a rounding error against already-committed Azure credits |
 
-The only paid thing in the vicinity is Claude Code itself, which you already have.
+The only paid things in the vicinity are Claude Code itself and the Azure OpenAI credits, both already provisioned before this build started.
 
 ---
 

@@ -11,3 +11,4 @@
 | [ADR-0009: Category (P4) enters the symbolic model as a depth-1 check](0009-category-enters-symbolic-model.md) | Accepted | 2026-08-30 |
 | [ADR-0010: Window granularity is reported on the verdict, not silently ignored](0010-window-semantics-reported.md) | Accepted | 2026-08-30 |
 | [ADR-0011: verify_action's soundness is inductive, not a fresh horizon-k proof per call](0011-verify-action-inductive-soundness.md) | Accepted | 2026-08-31 |
+| [ADR-0012: Azure OpenAI (gpt-4.1-mini) replaces the Groq/Gemini plan](0012-azure-openai-replaces-groq.md) | Accepted | 2026-09-01 |

@@ -80,6 +80,12 @@ Stop. No thank-you slide.
 
 ## Pre-record checklist
 
+- The 0:25–1:00 mandate is a *live* LLM parse, and Phase 5's measurement
+  (docs/LOG.md) found one fixture matching only 8/10 live runs at
+  temperature 0 — the parser is right almost every time, not every time.
+  Rehearse the exact mandate string used in this beat, confirm it parses
+  correctly several times in a row, and use that exact string in the
+  recording. Do not type a new mandate live and trust the first result.
 - `scripts/seed.py` run 24-48h before recording, not the night before — authorized-but-uncaptured payments auto-refund on a window Razorpay's own docs disagree about (3 vs 5 days; see the razorpay-testmode skill), so seeding this early clears either figure with a day or two to spare
 - Razorpay test mode responding, keys valid
 - Local MCP server running, refund tool confirmed working

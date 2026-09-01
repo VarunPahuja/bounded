@@ -1,0 +1,10 @@
+{"id": "en-txn-month", "text": "Do not spend more than Rs 500 on any single transaction, and no more than Rs 15,000 in total across a month.", "expect": "ok", "policy": {"per_txn_cap_paise": 50000, "window_cap_paise": 1500000, "window": "month"}}
+{"id": "en-txn-day", "text": "Cap every single payment at Rs 1,000, and don't let the day's total go past Rs 5,000.", "expect": "ok", "policy": {"per_txn_cap_paise": 100000, "window_cap_paise": 500000, "window": "day"}}
+{"id": "en-categories-allow", "text": "Only allow purchases in the software and subscriptions categories. No spending limit otherwise.", "expect": "ok", "policy": {"allowed_categories": ["software", "subscriptions"]}}
+{"id": "en-categories-block", "text": "Never allow any purchase in the gambling or crypto categories.", "expect": "ok", "policy": {"blocked_categories": ["gambling", "crypto"]}}
+{"id": "en-txn-count", "text": "No more than 5 transactions per day.", "expect": "ok", "policy": {"max_txn_count": 5, "window": "day"}}
+{"id": "en-escalation", "text": "Anything above Rs 10,000 needs my manual approval before it goes through.", "expect": "ok", "policy": {"require_human_above_paise": 1000000}}
+{"id": "hi-txn-month", "text": "Kisi bhi ek transaction mein 2000 rupaye se zyada kharch mat karo, aur poore mahine mein total 20000 se zyada nahi hona chahiye.", "expect": "ok", "policy": {"per_txn_cap_paise": 200000, "window_cap_paise": 2000000, "window": "month"}}
+{"id": "hi-categories", "text": "Sirf food aur groceries category mein paise kharch karna allowed hai, baaki kisi category ke liye nahi.", "expect": "ok", "policy": {"allowed_categories": ["food", "groceries"]}}
+{"id": "amb-vague", "text": "Keep the spending reasonable and don't go overboard.", "expect": "ambiguous"}
+{"id": "amb-no-window", "text": "Cap total spending at Rs 15,000.", "expect": "ambiguous"}

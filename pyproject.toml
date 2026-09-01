@@ -22,8 +22,7 @@ ledger = [
     "sqlalchemy==2.0.52",
 ]
 llm = [
-    "groq==1.7.0",
-    "google-genai==2.20.0",
+    "openai==2.31.0",
 ]
 api = [
     "fastapi==0.141.1",

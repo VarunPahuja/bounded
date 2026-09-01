@@ -1,0 +1,5 @@
+{
+  "kind": "response",
+  "mandate_text": "Cap every single payment at Rs 1,000, and don't let the day's total go past Rs 5,000.",
+  "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 100000,\n    \"window_cap_paise\": 500000,\n    \"window\": \"day\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+}

@@ -1,0 +1,5 @@
+{
+  "kind": "response",
+  "mandate_text": "Sirf food aur groceries category mein paise kharch karna allowed hai, baaki kisi category ke liye nahi.",
+  "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": null,\n    \"window_cap_paise\": null,\n    \"window\": null,\n    \"allowed_categories\": [\"food\", \"groceries\"],\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+}

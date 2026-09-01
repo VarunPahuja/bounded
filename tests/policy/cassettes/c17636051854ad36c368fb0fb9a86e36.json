@@ -1,0 +1,5 @@
+{
+  "kind": "response",
+  "mandate_text": "Do not spend more than Rs 500 on any single transaction, and no more than Rs 15,000 in total across a month.",
+  "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 50000,\n    \"window_cap_paise\": 1500000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+}

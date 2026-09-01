@@ -1,0 +1,5 @@
+{
+  "kind": "response",
+  "mandate_text": "Keep monthly spending under Rs 5,000 total. Per-transaction though, go ahead and allow up to Rs 8,000 each -- that's fine, the monthly number is the real ceiling.",
+  "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 800000,\n    \"window_cap_paise\": 500000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+}

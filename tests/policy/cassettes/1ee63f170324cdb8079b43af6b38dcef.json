@@ -1,0 +1,5 @@
+{
+  "kind": "response",
+  "mandate_text": "Keep the spending reasonable and don't go overboard.",
+  "response": "{\"status\": \"ambiguous\", \"reason\": \"No specific amounts or limits are provided, only vague instructions.\"}"
+}

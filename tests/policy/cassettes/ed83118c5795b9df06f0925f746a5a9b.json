@@ -1,0 +1,5 @@
+{
+  "kind": "response",
+  "mandate_text": "Only allow purchases in the software and subscriptions categories. No spending limit otherwise.",
+  "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": null,\n    \"window_cap_paise\": null,\n    \"window\": null,\n    \"allowed_categories\": [\"software\", \"subscriptions\"],\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+}

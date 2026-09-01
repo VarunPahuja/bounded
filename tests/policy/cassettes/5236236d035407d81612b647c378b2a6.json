@@ -1,0 +1,5 @@
+{
+  "kind": "response",
+  "mandate_text": "Kisi bhi ek transaction mein 2000 rupaye se zyada kharch mat karo, aur poore mahine mein total 20000 se zyada nahi hona chahiye.",
+  "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 200000,\n    \"window_cap_paise\": 2000000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+}

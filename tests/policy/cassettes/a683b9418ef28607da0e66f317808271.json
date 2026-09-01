@@ -1,0 +1,5 @@
+{
+  "kind": "response",
+  "mandate_text": "Anything above Rs 10,000 needs my manual approval before it goes through.",
+  "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": null,\n    \"window_cap_paise\": null,\n    \"window\": null,\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": 1000000\n  }\n}"
+}

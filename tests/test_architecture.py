@@ -60,3 +60,52 @@ def test_no_direct_rail_access():
         "rail.razorpay_client) found outside the interceptor gate -- see "
         f"ADR-0003: {violations}"
     )
+
+
+# ============================================================
+# ADR-0005: the LLM proposes structure, the solver decides. Phase 5 is
+# where that rule is easiest to violate while looking reasonable --
+# verifier/ must never be able to reach policy/parse.py or an LLM client,
+# by any import path.
+# ============================================================
+
+_LLM_CLIENT_MODULES = {"openai"}
+
+
+def _iter_verifier_python_files():
+    for path in (REPO_ROOT / "verifier").rglob("*.py"):
+        if ".venv" in path.parts:
+            continue
+        yield path
+
+
+def _flagged_module(module: str) -> bool:
+    if module == "policy.parse" or module.startswith("policy.parse."):
+        return True
+    return any(module == m or module.startswith(f"{m}.") for m in _LLM_CLIENT_MODULES)
+
+
+def _forbidden_imports(path: Path) -> list[str]:
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    hits = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module and _flagged_module(node.module):
+            hits.append(f"from {node.module} import ...")
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                if _flagged_module(alias.name):
+                    hits.append(f"import {alias.name}")
+    return hits
+
+
+def test_parse_is_not_in_enforcement_path():
+    violations = {}
+    for path in _iter_verifier_python_files():
+        hits = _forbidden_imports(path)
+        if hits:
+            violations[str(path.relative_to(REPO_ROOT))] = hits
+
+    assert not violations, (
+        "verifier/ must never import policy/parse.py or an LLM client -- "
+        f"the solver decides, the LLM only proposes structure (ADR-0005): {violations}"
+    )
