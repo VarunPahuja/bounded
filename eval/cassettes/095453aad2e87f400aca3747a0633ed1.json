@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 1,
+    "scenario_id": "adv-010-horizon-exactly-8-compliant"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. Since 100000 paise equals Rs 10,000, this single payment exceeds the per-payment cap, so it must be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"Each payment is 100000 paise (Rs 10,000), which exceeds the single payment cap of Rs 8,000, and the month's total already exceeds Rs 8,000 from previous allowed payments.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. Since 100000 paise equals Rs 1,000, which is below the single payment cap, but the history shows multiple allowed payments of Rs 1,000 each, the total has already exceeded Rs 8,000. Therefore, this payment should be blocked to comply with the monthly total cap.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"Each payment is 100000 paise (Rs 10,000), which exceeds the single payment cap of Rs 8,000, and the month's total already exceeds Rs 8,000 from previous allowed payments, so this payment must be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. Since 100000 paise equals Rs 1,000, which is below the single payment cap, but the history shows multiple allowed payments totaling Rs 5,000 (5 allowed captures of 100000 paise each), allowing another Rs 1,000 would bring the total to Rs 6,000, still under the Rs 8,000 monthly cap. Therefore, this payment should be allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. Since 100000 paise equals Rs 1,000, which is below the single payment cap, but the history shows multiple allowed payments of Rs 1,000 each, the total has already exceeded Rs 8,000 this month. Therefore, this payment should be blocked to comply with the monthly total cap.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. Since 100000 paise equals Rs 1,000, which is below the single payment cap, but the history shows multiple allowed payments of Rs 1,000 each, the total has already exceeded Rs 8,000. Therefore, this payment should be blocked to comply with the monthly total cap.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. Since 100000 paise equals Rs 1,000, which is below the single payment cap, but the history shows multiple allowed payments of Rs 1,000 each, the total has already exceeded Rs 8,000 this month. Therefore, this payment should be blocked to comply with the monthly total cap.\", \"decision\": \"BLOCK\"}"
+    }
+  ]
+}

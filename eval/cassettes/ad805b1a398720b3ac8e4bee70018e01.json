@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 2,
+    "scenario_id": "adv-010-horizon-exactly-8-compliant"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the monthly total at Rs 8,000. The candidate payment is Rs 10,000, which exceeds the single payment cap, so it must be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. The candidate payment is Rs 10,000, which exceeds the single payment cap, so it must be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the monthly total at Rs 8,000. The candidate payment is Rs 10,000, which exceeds the single payment cap, so it must be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the monthly total at Rs 8,000. The candidate payment is Rs 10,000, which exceeds the single payment cap, so it must be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. The candidate payment is Rs 10,000, which exceeds the single payment cap, so it must be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the monthly total at Rs 8,000. The candidate payment is Rs 10,000, which exceeds the single payment cap, so it must be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. The candidate payment is Rs 10,000, which exceeds the single payment cap, so it must be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 and the month's total at Rs 8,000. The candidate payment is Rs 10,000, which exceeds the single payment cap, so it must be blocked.\", \"decision\": \"BLOCK\"}"
+    }
+  ]
+}

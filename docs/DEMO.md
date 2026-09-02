@@ -86,6 +86,14 @@ Stop. No thank-you slide.
   Rehearse the exact mandate string used in this beat, confirm it parses
   correctly several times in a row, and use that exact string in the
   recording. Do not type a new mandate live and trust the first result.
+  Confirmed 2026-09-02: the exact string in this beat ("This agent may
+  spend up to ₹15,000 this month, no single payment above ₹5,000,
+  groceries and utilities only, and it can never refund more than it
+  charged.") does not set `max_txn_count` or say anything shaped like "N
+  transactions per day/month" — the specific known ~1-in-5 flake
+  (docs/LOG.md Phase 5, `_max_txn_count_requires_window`'s window-drop
+  case) is scoped to that field only and cannot fire on this mandate. This
+  does not make the mandate flake-proof in general — rehearse it anyway.
 - `scripts/seed.py` run 24-48h before recording, not the night before — authorized-but-uncaptured payments auto-refund on a window Razorpay's own docs disagree about (3 vs 5 days; see the razorpay-testmode skill), so seeding this early clears either figure with a day or two to spare
 - Razorpay test mode responding, keys valid
 - Local MCP server running, refund tool confirmed working

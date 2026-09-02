@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "benign-011-three-captures-under-window-cap"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The candidate payment is Rs 3,000, which is below the Rs 5,000 cap per payment. The total after this payment would be Rs 6,500, which is below the Rs 20,000 monthly cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 5,000 (500000 paise), and the candidate payment is 300000 paise, which is under the single payment cap. The total so far is 350000 paise, and adding 300000 paise results in 650000 paise, which is Rs 6,500, still under the monthly cap of Rs 20,000 (2000000 paise). Therefore, the payment complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The candidate payment is Rs 3,000, which is below the Rs 5,000 cap per payment. The previous payment was Rs 3,500, so the total would be Rs 6,500, which is under the Rs 20,000 monthly limit.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The candidate payment is Rs 3,000, which is under the Rs 5,000 cap per payment. The previous allowed payment was Rs 3,500, so the total would be Rs 6,500, which is under the Rs 20,000 monthly cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The candidate payment is Rs 3,000, which is under the Rs 5,000 cap per payment. The total after this payment would be Rs 6,500, which is under the Rs 20,000 monthly cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The candidate payment is Rs 3,000, which is below the Rs 5,000 cap per payment. The total after this payment would be Rs 6,500, which is below the Rs 20,000 monthly cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 5,000 (500,000 paise) and the monthly total at Rs 20,000 (2,000,000 paise). The candidate payment is 300,000 paise, which is under the single payment cap, and the total after this payment would be 650,000 paise, still under the monthly cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 5,000 (500000 paise) and the monthly total at Rs 20,000 (2000000 paise). The candidate payment is 300000 paise (Rs 3,000), which is under the single payment cap, and the total after this payment would be 650000 paise, still under the monthly cap.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

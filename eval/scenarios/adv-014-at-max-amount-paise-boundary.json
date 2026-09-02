@@ -1,0 +1,17 @@
+{
+  "scenario_id": "adv-014-at-max-amount-paise-boundary",
+  "class_label": "adversarial_vs_ours",
+  "mandate_text": "Cap every single payment at Rs 200,000, and don't let the month's total go past Rs 200,000.",
+  "actions": [
+    {
+      "action_id": "adv-014-a1",
+      "action_type": "capture",
+      "order_id": "order_adv014",
+      "amount_paise": 10000000,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "allow"
+    }
+  ],
+  "injection_context": {}
+}

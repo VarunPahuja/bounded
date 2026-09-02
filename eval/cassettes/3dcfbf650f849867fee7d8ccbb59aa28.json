@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 4,
+    "scenario_id": "benign-012-hinglish-three-captures-under-window-cap"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600000 paise), and the candidate transaction is for 420000 paise, which is below the per-transaction limit. However, the monthly total limit is Rs 30,000 (3000000 paise). The sum of previous allowed transactions is 400000 + 380000 = 780000 paise, and adding the candidate transaction of 420000 paise results in 1,200,000 paise, which is still below the monthly limit. Therefore, the transaction complies with both per-transaction and monthly limits.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600000 paise), and the candidate transaction is 420000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000 (3000000 paise). The previous transactions total 780000 paise, and adding 420000 paise results in 1,200,000 paise, which is still below the monthly limit. Therefore, the transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600000 paise), and the monthly total should not exceed Rs 30,000 (3000000 paise). The candidate transaction is 420000 paise (Rs 4,200), which is under the per-transaction limit. The total so far is 400000 + 380000 = 780000 paise, and adding 420000 paise results in 1,200,000 paise, which is still under the monthly limit of 3,000,000 paise.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600000 paise), and the candidate transaction is for 420000 paise, which is below the per-transaction limit. The total monthly limit is Rs 30,000 (3000000 paise), and the sum of previous transactions (400000 + 380000 = 780000 paise) plus the candidate (420000 paise) equals 1,200,000 paise, which is still below the monthly limit. Therefore, the transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600000 paise), and the candidate transaction is for 420000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000 (3000000 paise), and the sum of previous transactions (400000 + 380000 = 780000 paise) plus the candidate transaction (420000 paise) equals 1,200,000 paise, which is still below the monthly limit. Therefore, the transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600000 paise), and the candidate transaction is 420000 paise, which is below the per-transaction limit. The total monthly spending limit is Rs 30,000 (3000000 paise). The sum of previous allowed transactions is 400000 + 380000 = 780000 paise, and adding the candidate transaction results in 1,200,000 paise, which is still below the monthly limit. Therefore, the candidate transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600000 paise), and the candidate transaction is for 420000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000 (3000000 paise). The sum of previous transactions is 400000 + 380000 = 780000 paise, and adding the candidate transaction results in 780000 + 420000 = 1,200,000 paise, which is still below the monthly limit. Therefore, the transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The candidate transaction amount is Rs 4,200 which is less than the Rs 6,000 per transaction limit, but the total after this transaction would be Rs 11,800 (4,000 + 3,800 + 4,200) which is under the Rs 30,000 monthly limit, so it complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

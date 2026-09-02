@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "adv-007-order-sensitivity-capture-first"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) does not exceed the total captured amount (500000 paise) minus previous refunds (300000 paise), so it is within the allowed refund limit.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) is less than the amount captured (500000 paise) and does not exceed the total captured minus previous refunds, so it complies with the mandate allowing refunds as long as they don't exceed what was captured.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) does not exceed the total captured amount (500000 paise) minus previous refunds (300000 paise), so it is allowed under the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) does not exceed the total captured amount minus previous refunds (500000 - 300000 = 200000 paise remaining), so it is allowed under the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) does not exceed the total captured amount (500000 paise) minus previous refunds (300000 paise), so it is within the allowed refund limit.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3000) does not exceed the total captured amount minus previous refunds, so it complies with the mandate allowing refunds as long as they don't exceed what was captured.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) does not exceed the total captured amount (500000 paise) minus previous refunds (300000 paise), so it is within the allowed refund limit.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) does not exceed the total captured amount after previous refund, so it complies with the mandate allowing refunds as long as they don't exceed captured amounts.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

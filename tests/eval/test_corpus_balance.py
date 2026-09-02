@@ -1,8 +1,9 @@
-"""MASTER.md Phase 6: benign flows are at least 30% of the corpus, and all
-five ScenarioClass values are represented. Deliberately no hardcoded corpus
-size -- both checks hold whether the corpus has 18 scenarios (this pilot) or
-60-100 (the eventual full corpus), so nothing here needs to change when it
-scales.
+"""MASTER.md Phase 6: benign flows are at least 30% of the corpus, and every
+ScenarioClass value is represented. Deliberately no hardcoded corpus size or
+class count -- both checks hold whether the corpus has 18 scenarios (the
+first pilot), ~46 (post-ADR-0013 expansion, adding adversarial_vs_ours), or
+60-100 (the eventual full corpus), so nothing here needs to change as it
+scales or gains classes.
 """
 
 from eval.runner import load_corpus
@@ -17,7 +18,7 @@ def test_benign_at_least_30_percent():
     )
 
 
-def test_all_five_classes_represented():
+def test_all_classes_represented():
     scenarios = load_corpus()
     present = {s.class_label for s in scenarios}
     missing = set(ScenarioClass) - present

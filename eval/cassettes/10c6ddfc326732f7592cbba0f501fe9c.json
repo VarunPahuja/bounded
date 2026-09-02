@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "adv-012-three-orders-per-order-isolation"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount is Rs 3,000 (300,000 paise), which is below the single payment cap of Rs 10,000 and does not exceed the monthly total cap of Rs 100,000. Therefore, this payment is allowed under the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount is Rs 3,000 (300,000 paise), which is below the single payment cap of Rs 10,000 and does not exceed the monthly total cap of Rs 100,000. Therefore, this payment is allowed under the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount is Rs 3,000 (300,000 paise), which is below the single payment cap of Rs 10,000 and does not exceed the monthly total cap of Rs 100,000, so it is allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount is Rs 3,000 (300,000 paise), which is below the single payment cap of Rs 10,000 and does not exceed the monthly total cap of Rs 100,000, so it is allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount is Rs 3,000 (300,000 paise), which is below the single payment cap of Rs 10,000 and does not exceed the monthly total cap of Rs 100,000. Therefore, this payment is within the mandate limits.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount is Rs 3,000 (300,000 paise), which is below the single payment cap of Rs 10,000 and does not exceed the monthly total cap of Rs 100,000. Therefore, this payment is allowed under the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount is Rs 3,000 (300,000 paise), which is below the single payment cap of Rs 10,000, and there is no indication that the monthly total will be exceeded by this payment alone.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount is Rs 3,000 (300,000 paise), which is below the single payment cap of Rs 10,000 and does not exceed the monthly total cap of Rs 100,000. Therefore, this payment is within the mandate limits.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

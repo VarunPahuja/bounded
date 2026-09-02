@@ -1,0 +1,43 @@
+{
+  "call_site": "parse",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "adv-012-three-orders-per-order-isolation"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-01-v1",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 1000000,\n    \"window_cap_paise\": 10000000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+    },
+    {
+      "kind": "response",
+      "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 1000000,\n    \"window_cap_paise\": 10000000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+    },
+    {
+      "kind": "response",
+      "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 1000000,\n    \"window_cap_paise\": 10000000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+    },
+    {
+      "kind": "response",
+      "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 1000000,\n    \"window_cap_paise\": 10000000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+    },
+    {
+      "kind": "response",
+      "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 1000000,\n    \"window_cap_paise\": 10000000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+    },
+    {
+      "kind": "response",
+      "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 1000000,\n    \"window_cap_paise\": 10000000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+    },
+    {
+      "kind": "response",
+      "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 1000000,\n    \"window_cap_paise\": 10000000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+    },
+    {
+      "kind": "response",
+      "response": "{\n  \"status\": \"ok\",\n  \"policy\": {\n    \"per_txn_cap_paise\": 1000000,\n    \"window_cap_paise\": 10000000,\n    \"window\": \"month\",\n    \"allowed_categories\": null,\n    \"blocked_categories\": [],\n    \"max_txn_count\": null,\n    \"require_human_above_paise\": null\n  }\n}"
+    }
+  ]
+}

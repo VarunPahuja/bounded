@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "adv-007-order-sensitivity-capture-first"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) is less than the captured amount of 500000 paise (Rs 5,000), and refunds are always allowed as long as they do not exceed the captured amount.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) is less than the captured amount of 500000 paise (Rs 5,000), and refunds are always allowed as long as they don't exceed the captured amount.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) is less than the captured amount of 500000 paise (Rs 5,000), and refunds are always allowed as long as they don't exceed the captured amount.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) is less than the captured amount of 500000 paise (Rs 5,000), and refunds are always allowed as long as they don't exceed the captured amount.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) is less than the captured amount of 500000 paise (Rs 5,000), and refunds are always allowed as long as they don't exceed the captured amount.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) is less than the captured amount of 500000 paise (Rs 5,000), and refunds are always allowed as long as they don't exceed the captured amount.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) is less than the captured amount of 500000 paise (Rs 5,000), so it is allowed under the mandate which permits refunds as long as they do not exceed the captured amount.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund of 300000 paise (Rs 3,000) is less than the captured amount of 500000 paise (Rs 5,000), and refunds are always allowed as long as they don't exceed the captured amount.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

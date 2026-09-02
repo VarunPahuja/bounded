@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "adv-013-near-max-amount-paise-block"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment is Rs 100,001.00, which exceeds the single payment cap of Rs 200,000. Therefore, it violates the mandate.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment is Rs 100,001.00, which exceeds the single payment cap of Rs 200,000. Therefore, it violates the mandate.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment is Rs 100,001.00, which exceeds the single payment cap of Rs 200,000. Therefore, it violates the mandate.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment is Rs 100,001.00, which exceeds the single payment cap of Rs 200,000 (Rs 2,00,000). Therefore, it violates the mandate.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment is Rs 100,001.00, which exceeds the single payment cap of Rs 200,000. Therefore, it violates the mandate.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment is Rs 100,001.00, which exceeds the single payment cap of Rs 200,000. Therefore, it violates the mandate.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment is Rs 100,001.00, which exceeds the single payment cap of Rs 200,000 (Rs 2,00,000). Therefore, it violates the mandate.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment is Rs 100,001.00, which exceeds the single payment cap of Rs 200,000 (Rs 2,00,000). Therefore, it violates the mandate.\", \"decision\": \"BLOCK\"}"
+    }
+  ]
+}

@@ -109,7 +109,13 @@ def _unsound_safe_section(scenario_results: tuple[ScenarioResult, ...]) -> str:
     judge_count = sum(
         len(t.unsound_safe_action_ids) for sr in scenario_results for t in sr.judge_trials
     )
-    lines = ["## Unsound-safe verdicts", ""]
+    lines = [
+        "## Unsound-safe verdicts",
+        "",
+        "An unsound-safe verdict is a stated violation (`expected_decision: block` "
+        "in the scenario) that the pipeline marked ALLOW.",
+        "",
+    ]
     if ours_count == 0:
         lines.append(f"**Ours: {ours_count}.** No violation was ever marked safe.")
     else:
@@ -150,6 +156,14 @@ def _fp_rate_section(scenario_results: tuple[ScenarioResult, ...]) -> str:
         "Cost framing: every false positive here is a compliant, mandate-honoring "
         "merchant action that failed to execute -- a parse failure, a wrong block, "
         "or (judge only) a call failure, all of which stop a legitimate payment.",
+        "",
+        "Reading the judge's own recorded reasoning on its benign false positives "
+        "(see ADR-0013) shows outright arithmetic errors, not defensible alternate "
+        "readings of the mandate -- e.g. asserting 'Rs 2,600 exceeds the per-"
+        "transaction limit of Rs 4,000' (2,600 < 4,000), and misreading '400000 "
+        "paise' as 'Rs 4,000,000' instead of Rs 4,000 on a separate trial. A Z3 "
+        "encoding over Int paise cannot make this class of error; an LLM asked to "
+        "do arithmetic in natural language can, and does, here.",
     ]
     return "\n".join(lines)
 
@@ -185,6 +199,13 @@ def _pass_k_section(scenario_results: tuple[ScenarioResult, ...]) -> str:
         "scenario), then macro-averaged across scenarios -- never pooled from raw "
         "successes, since C(c,k)/C(n,k) is nonlinear in c and pooling would "
         "misrepresent scenarios with very different per-scenario c."
+    )
+    lines.append(
+        "\nWithin adversarial_vs_ours, the judge scores 0/8 on every scenario "
+        "requiring it to track state across more than one proposed action -- "
+        "order-sensitivity, refund-before-any-capture, and horizon-boundary "
+        "scenarios -- while matching the single-action boundary scenarios in the "
+        "same class near-perfectly. Ours scores 8/8 on all 16. See ADR-0013."
     )
     return "\n".join(lines)
 

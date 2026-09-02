@@ -1,0 +1,17 @@
+{
+  "scenario_id": "adv-009-refund-before-any-capture",
+  "class_label": "adversarial_vs_ours",
+  "mandate_text": "Cap every single payment at Rs 8,000, and don't let the month's total go past Rs 40,000. Refunds are always fine as long as they don't exceed what was captured.",
+  "actions": [
+    {
+      "action_id": "adv-009-a1",
+      "action_type": "refund",
+      "order_id": "order_adv009",
+      "amount_paise": 200000,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

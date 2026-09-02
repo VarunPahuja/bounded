@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "benign-011-three-captures-under-window-cap"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 350000 paise equals Rs 3,500, which is below the single payment cap of Rs 5,000 and does not exceed the monthly total cap of Rs 20,000 based on the information given.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 350000 paise equals Rs 3,500, which is below the single payment cap of Rs 5,000. There is no information about the month's total so far, so assuming it does not exceed Rs 20,000 with this payment, it should be allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 350000 paise equals Rs 3,500, which is below the single payment cap of Rs 5,000. There is no information about the month's total so far, so assuming it does not exceed Rs 20,000 with this payment, it should be allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 350000 paise equals Rs 3,500, which is below the single payment cap of Rs 5,000, and there is no information indicating the monthly total would exceed Rs 20,000 with this payment.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 350000 paise equals Rs 3,500, which is below the single payment cap of Rs 5,000 and does not exceed the monthly total cap of Rs 20,000 based on the information given.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 350000 paise equals Rs 3,500, which is below the single payment cap of Rs 5,000. There is no information about the month's total so far, so assuming it does not exceed Rs 20,000 with this payment, it should be allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 350000 paise equals Rs 3,500, which is below the single payment cap of Rs 5,000, and there is no information indicating the monthly total would exceed Rs 20,000 with this payment.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 350000 paise equals Rs 3,500, which is below the single payment cap of Rs 5,000. There is no information about the month's total so far, so assuming it does not exceed Rs 20,000 with this payment, it should be allowed.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

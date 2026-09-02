@@ -1,0 +1,17 @@
+{
+  "scenario_id": "adv-003-per-txn-cap-one-paise-over",
+  "class_label": "adversarial_vs_ours",
+  "mandate_text": "Cap every single payment at Rs 5,000, and don't let the month's total go past Rs 50,000.",
+  "actions": [
+    {
+      "action_id": "adv-003-a1",
+      "action_type": "capture",
+      "order_id": "order_adv003",
+      "amount_paise": 500001,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

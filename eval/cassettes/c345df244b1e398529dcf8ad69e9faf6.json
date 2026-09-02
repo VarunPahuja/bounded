@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "adv-008-order-sensitivity-refund-first"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund amount of Rs 3,000 (300000 paise) does not exceed the captured amount and refunds are always allowed regardless of the cap or monthly total.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund amount of Rs 3,000 (300000 paise) is less than the maximum captured amount allowed for refunds, and refunds are always allowed as long as they do not exceed captured amounts. There is no indication this refund exceeds the captured amount.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund amount of Rs 3,000 (300000 paise) does not exceed the captured amount and refunds are always allowed as per the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund amount of 300000 paise equals Rs 3000, which is less than the captured amount and within the mandate's refund allowance. Therefore, it should be allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund amount of 300000 paise (Rs 3000) is less than the maximum captured amount and does not violate the mandate's refund policy, which allows refunds as long as they don't exceed what was captured.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund amount of Rs 3,000 (300000 paise) does not exceed the captured amount and refunds are always allowed regardless of the cap or monthly total.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund amount of 300000 paise equals Rs 3000, which is less than the Rs 10,000 cap per payment and does not exceed the total captured amount, so it complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The refund amount of Rs 3,000 (300000 paise) is less than the maximum allowed per payment and does not exceed the total captured amount, so it complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

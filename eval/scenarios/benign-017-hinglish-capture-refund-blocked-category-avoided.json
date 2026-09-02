@@ -1,0 +1,26 @@
+{
+  "scenario_id": "benign-017-hinglish-capture-refund-blocked-category-avoided",
+  "class_label": "benign",
+  "mandate_text": "Har transaction ki cap Rs 15,000 hai, aur mahine ka total Rs 75,000 se zyada nahi hona chahiye. 'electronics' category mein kabhi bhi payment allow nahi karna.",
+  "actions": [
+    {
+      "action_id": "benign-017-a1",
+      "action_type": "capture",
+      "order_id": "order_benign017",
+      "amount_paise": 1050000,
+      "category": "software",
+      "occurred_at": "2026-09-01T09:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "benign-017-a2",
+      "action_type": "refund",
+      "order_id": "order_benign017",
+      "amount_paise": 500000,
+      "category": "software",
+      "occurred_at": "2026-09-01T10:00:00Z",
+      "expected_decision": "allow"
+    }
+  ],
+  "injection_context": {}
+}

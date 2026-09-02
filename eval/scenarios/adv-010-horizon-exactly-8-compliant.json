@@ -1,0 +1,16 @@
+{
+  "scenario_id": "adv-010-horizon-exactly-8-compliant",
+  "class_label": "adversarial_vs_ours",
+  "mandate_text": "Cap every single payment at Rs 8,000, and don't let the month's total go past Rs 8,000.",
+  "actions": [
+    {"action_id": "adv-010-a1", "action_type": "capture", "order_id": "order_adv010", "amount_paise": 100000, "category": "software", "occurred_at": "2026-09-02T09:00:00Z", "expected_decision": "allow"},
+    {"action_id": "adv-010-a2", "action_type": "capture", "order_id": "order_adv010", "amount_paise": 100000, "category": "software", "occurred_at": "2026-09-02T09:10:00Z", "expected_decision": "allow"},
+    {"action_id": "adv-010-a3", "action_type": "capture", "order_id": "order_adv010", "amount_paise": 100000, "category": "software", "occurred_at": "2026-09-02T09:20:00Z", "expected_decision": "allow"},
+    {"action_id": "adv-010-a4", "action_type": "capture", "order_id": "order_adv010", "amount_paise": 100000, "category": "software", "occurred_at": "2026-09-02T09:30:00Z", "expected_decision": "allow"},
+    {"action_id": "adv-010-a5", "action_type": "capture", "order_id": "order_adv010", "amount_paise": 100000, "category": "software", "occurred_at": "2026-09-02T09:40:00Z", "expected_decision": "allow"},
+    {"action_id": "adv-010-a6", "action_type": "capture", "order_id": "order_adv010", "amount_paise": 100000, "category": "software", "occurred_at": "2026-09-02T09:50:00Z", "expected_decision": "allow"},
+    {"action_id": "adv-010-a7", "action_type": "capture", "order_id": "order_adv010", "amount_paise": 100000, "category": "software", "occurred_at": "2026-09-02T10:00:00Z", "expected_decision": "allow"},
+    {"action_id": "adv-010-a8", "action_type": "capture", "order_id": "order_adv010", "amount_paise": 100000, "category": "software", "occurred_at": "2026-09-02T10:10:00Z", "expected_decision": "allow"}
+  ],
+  "injection_context": {}
+}

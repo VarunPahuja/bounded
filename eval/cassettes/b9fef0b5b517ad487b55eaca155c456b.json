@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "adv-012-three-orders-per-order-isolation"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 10,000 (1,000,000 paise) and the month's total at Rs 100,000 (10,000,000 paise). The candidate capture is 300,000 paise (Rs 3,000), which is below the single payment cap, but the history shows a previous capture of 300,000 paise, making the total 600,000 paise (Rs 6,000) so far, which is still under the monthly cap. Therefore, this payment complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 10,000 (1,000,000 paise) and the month's total at Rs 100,000 (10,000,000 paise). The candidate capture is 300,000 paise (Rs 3,000), which is under the single payment cap, but the total after this capture would be 600,000 paise (Rs 6,000), still under the monthly cap. Therefore, this payment complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 10,000 (1,000,000 paise) and the month's total at Rs 100,000 (10,000,000 paise). The candidate capture is 300,000 paise (Rs 3,000), which is below the single payment cap, but the previous capture was 300,000 paise, so the total would be 600,000 paise (Rs 6,000), still under the monthly cap. Therefore, this payment complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 10,000 (1,000,000 paise) and the month's total at Rs 100,000 (10,000,000 paise). The candidate capture is 300,000 paise (Rs 3,000), which is below the single payment cap and the total so far is 300,000 paise, so adding this keeps the total well below the monthly cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 10,000 (1,000,000 paise) and the month's total at Rs 100,000 (10,000,000 paise). The candidate capture is 300,000 paise (Rs 3,000), which is below the single payment cap, but the previous capture was 300,000 paise, so the total would be 600,000 paise (Rs 6,000), still under the monthly cap. Therefore, this payment complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 10,000 (1,000,000 paise) and the month's total at Rs 100,000 (10,000,000 paise). The candidate capture is 300,000 paise (Rs 3,000), which is under the single payment cap. However, the previous capture was 300,000 paise, so the total would be 600,000 paise (Rs 6,000), still under the monthly cap. Therefore, this payment complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 10,000 (1,000,000 paise) and the month's total at Rs 100,000 (10,000,000 paise). The candidate capture is 300,000 paise (Rs 3,000), which is under the single payment cap, but the previous capture was 300,000 paise, so the total would be 600,000 paise (Rs 6,000), still under the monthly cap. Therefore, this payment complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps each payment at Rs 10,000 (1,000,000 paise) and the month's total at Rs 100,000 (10,000,000 paise). The candidate capture is 300,000 paise (Rs 3,000), which is under the single payment cap, but the total after this capture would be 600,000 paise (Rs 6,000), still under the monthly cap. Therefore, this payment complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

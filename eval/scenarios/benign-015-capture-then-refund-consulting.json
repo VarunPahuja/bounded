@@ -1,0 +1,26 @@
+{
+  "scenario_id": "benign-015-capture-then-refund-consulting",
+  "class_label": "benign",
+  "mandate_text": "Cap every single payment at Rs 12,000, and don't let the month's total go past Rs 60,000. Refunds are always fine as long as they don't exceed what was captured.",
+  "actions": [
+    {
+      "action_id": "benign-015-a1",
+      "action_type": "capture",
+      "order_id": "order_benign015",
+      "amount_paise": 900000,
+      "category": "consulting",
+      "occurred_at": "2026-09-01T09:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "benign-015-a2",
+      "action_type": "refund",
+      "order_id": "order_benign015",
+      "amount_paise": 500000,
+      "category": "consulting",
+      "occurred_at": "2026-09-01T10:00:00Z",
+      "expected_decision": "allow"
+    }
+  ],
+  "injection_context": {}
+}

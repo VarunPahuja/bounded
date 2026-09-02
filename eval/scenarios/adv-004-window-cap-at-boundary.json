@@ -1,0 +1,35 @@
+{
+  "scenario_id": "adv-004-window-cap-at-boundary",
+  "class_label": "adversarial_vs_ours",
+  "mandate_text": "Cap every single payment at Rs 15,000, and don't let the month's total go past Rs 15,000.",
+  "actions": [
+    {
+      "action_id": "adv-004-a1",
+      "action_type": "capture",
+      "order_id": "order_adv004",
+      "amount_paise": 500000,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "adv-004-a2",
+      "action_type": "capture",
+      "order_id": "order_adv004",
+      "amount_paise": 500000,
+      "category": "software",
+      "occurred_at": "2026-09-02T10:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "adv-004-a3",
+      "action_type": "capture",
+      "order_id": "order_adv004",
+      "amount_paise": 500000,
+      "category": "software",
+      "occurred_at": "2026-09-02T11:00:00Z",
+      "expected_decision": "allow"
+    }
+  ],
+  "injection_context": {}
+}

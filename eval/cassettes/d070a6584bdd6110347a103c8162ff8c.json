@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "adv-010-horizon-exactly-8-compliant"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 (800,000 paise) and the month's total at Rs 8,000. The candidate payment is 100,000 paise (Rs 1,000), which is below the single payment cap. However, the history shows multiple allowed payments of 100,000 paise each, totaling at least 600,000 paise already, and some blocks indicating the cap was reached or exceeded. Since the total allowed payments so far are 600,000 paise, adding another 100,000 paise would make 700,000 paise, still below the 800,000 paise monthly cap, so this payment should be allowed based on the mandate and history.\" , \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 (800,000 paise) and the month's total at Rs 8,000. The candidate payment is 100,000 paise (Rs 1,000), which is below the single payment cap. However, the history shows multiple allowed payments of 100,000 paise each, totaling at least 600,000 paise already, and the mandate's monthly total cap is Rs 8,000 (800,000 paise). Adding another 100,000 paise would bring the total to 700,000 paise, still under the monthly cap. Therefore, the payment should be allowed as it does not exceed the single payment cap or the monthly total cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 (800,000 paise) and the month's total at Rs 8,000. Each payment here is 100,000 paise (Rs 1,000), which is below the single payment cap, but the history shows multiple allowed payments totaling 600,000 paise already, so allowing another 100,000 paise would bring the total to 700,000 paise, still under the monthly cap. Therefore, this payment should be allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 (800,000 paise) and the month's total at Rs 8,000. The candidate payment is 100,000 paise (Rs 1,000), which is below the single payment cap. However, the history shows multiple allowed payments of 100,000 paise each, totaling at least 600,000 paise already allowed, and some blocks indicating the cap was reached. Adding another 100,000 paise would exceed the Rs 8,000 monthly cap. Therefore, this payment should be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 (800,000 paise) and the month's total at Rs 8,000. Each payment here is 100,000 paise (Rs 1,000), which is below the single payment cap, but the history shows multiple allowed payments totaling 600,000 paise already, so adding another 100,000 paise would bring the total to 700,000 paise, still under the monthly cap. Therefore, this payment should be allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 (800,000 paise) and the month's total at Rs 8,000. Each allowed payment so far is 100,000 paise, which is Rs 1,000, and multiple such payments have been allowed, exceeding the monthly cap of Rs 8,000. Therefore, this payment should be blocked to enforce the monthly total cap.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 (800,000 paise) and the month's total at Rs 8,000. The candidate payment is 100,000 paise (Rs 1,000), which is below the single payment cap. However, the history shows multiple allowed payments of 100,000 paise each, totaling at least 600,000 paise already allowed, and some blocks indicating the cap was reached. Adding another 100,000 paise would exceed the Rs 8,000 monthly total cap. Therefore, this payment should be blocked.\", \"decision\": \"BLOCK\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 8,000 (800,000 paise) and the month's total at Rs 8,000. Each allowed payment so far is 100,000 paise, which is Rs 1,000, and multiple such payments have been allowed, indicating the total has already exceeded Rs 8,000. Therefore, allowing another 100,000 paise payment would exceed the monthly cap.\", \"decision\": \"BLOCK\"}"
+    }
+  ]
+}

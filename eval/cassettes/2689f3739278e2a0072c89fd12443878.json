@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "benign-010-hinglish-capture-then-refund"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount was 750000 paise (Rs 7,500), and the refund requested is 400000 paise (Rs 4,000), which is less than the capture amount, so the refund is allowed. The mandate's per transaction cap and monthly total do not restrict refunds, only captures.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount was 750000 paise (Rs 7,500), and the refund requested is 400000 paise (Rs 4,000), which is less than the capture amount, so the refund is allowed as per the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount was 750000 paise (Rs 7,500), and the refund requested is 400000 paise (Rs 4,000), which is less than the capture amount. The mandate allows refunds up to the capture amount, so this refund is valid.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount was 750000 paise (Rs 7,500), and the refund requested is 400000 paise (Rs 4,000), which is less than the capture amount, so the refund is allowed as per the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount was 750000 paise (Rs 7,500), and the refund requested is 400000 paise (Rs 4,000), which is less than the capture amount, so the refund is allowed as per the mandate. The mandate's cap on transaction and monthly total applies to captures, not refunds.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount was 750000 paise (Rs 7,500), and the refund requested is 400000 paise (Rs 4,000), which is less than the capture amount, so the refund is allowed. The mandate's cap on transaction and monthly total applies to captures, not refunds, so it does not block this refund.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount was 750000 paise (Rs 7,500), and the refund requested is 400000 paise (Rs 4,000), which is less than the capture amount, so the refund is allowed. The mandate's per transaction cap and monthly total limits apply to captures, not refunds, so they do not restrict this refund.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The capture amount was 750000 paise (Rs 7,500), and the refund requested is 400000 paise (Rs 4,000), which is less than the capture amount, so the refund is allowed. The mandate's per transaction cap and monthly total do not restrict refunds, only captures.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

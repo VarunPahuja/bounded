@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "adv-006-window-cap-one-paise-over"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 15,000 and the month's total at Rs 15,000. The previous allowed payment was 500000 paise (Rs 5,000), so adding another 500000 paise would total Rs 10,000, which is within the monthly cap and single payment limit.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 15,000 and the month's total at Rs 15,000. The previous allowed payment was 500000 paise (Rs 5,000), so adding another 500000 paise would total Rs 10,000, which is within the monthly cap and below the single payment cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 15,000 and the month's total at Rs 15,000. The previous allowed payment was 500000 paise (Rs 5,000), so the total so far is Rs 5,000. The candidate payment is also 500000 paise (Rs 5,000), which would bring the total to Rs 10,000, still under the Rs 15,000 monthly cap and under the single payment cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 15,000 and the month's total at Rs 15,000. The previous allowed payment was 500000 paise (Rs 5,000), so adding another 500000 paise would total Rs 10,000, which is within the monthly cap and single payment limit.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 15,000 and the month's total at Rs 15,000. The previous allowed payment was 500000 paise (Rs 5,000), so the total so far is Rs 5,000. The candidate payment is also 500000 paise (Rs 5,000), which would bring the total to Rs 10,000, still under the Rs 15,000 monthly cap and under the single payment cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 15,000 and the month's total at Rs 15,000. The previous allowed payment was 500000 paise (Rs 5,000), so adding another 500000 paise would total Rs 10,000, which is within the monthly limit and each payment is under Rs 15,000.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 15,000 and the month's total at Rs 15,000. The previous allowed payment was 500000 paise (Rs 5,000), so adding another 500000 paise would total Rs 10,000, which is within the monthly limit and below the single payment cap.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate caps every single payment at Rs 15,000 and the month's total at Rs 15,000. The previous allowed payment was 500000 paise (Rs 5,000), so adding another 500000 paise would total Rs 10,000, which is within the monthly limit and each payment is under Rs 15,000.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

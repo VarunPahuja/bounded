@@ -53,3 +53,54 @@ could compare its computed total against what Razorpay's API reports for
 the same window and flag a divergence. This would catch the drift after
 the fact, not prevent the ALLOW that let it through. Not implemented as
 of Phase 4 — evaluated as low priority against Phase 5 scope.
+
+## A block caused by `MAX_AMOUNT_PAISE` is mislabeled as a per-transaction-cap violation
+
+**Threat:** not a soundness gap — the decision itself is correct and
+fail-closed. `MAX_AMOUNT_PAISE` (`verifier/model.py`, ADR-0008,
+10,000,000 paise / Rs 100,000) bounds the symbolic `amount_paise` variable
+in `build_symbolic_system`, used by both the offline `verify_guard` proof
+and the runtime `verify_action` check. If a proposed action's amount
+exceeds this constant, `verify_action`'s solver call becomes UNSAT purely
+from that domain conflict (`sv.amount_paise == action.amount_paise` vs.
+`sv.amount_paise <= MAX_AMOUNT_PAISE`), independent of the guard, the
+invariant, or the merchant's stated `per_txn_cap_paise` — even one set
+well above the attempted amount. The action is correctly blocked.
+
+**Why the explanation is wrong:** `decode_action_rejection`
+(`verifier/explain.py`) reasons only about `PolicyIR` fields to name which
+property was violated. It has no way to see the encoding's own domain
+bound, so a CAPTURE rejection it can't otherwise explain falls through to
+its documented `P1` default (the comment above that branch already says
+"shouldn't happen given `sound_capture_guard`'s actual conditions" — this
+is exactly the case where it does happen). Confirmed live (2026-09-02,
+Phase 6a, eval scenario `adv-013-near-max-amount-paise-block`):
+`per_txn_cap_paise=20,000,000`, action amount `10,000,100` →
+`Verdict.VIOLATION`, `Counterexample.violated_property == "P1"`, even
+though `10,000,100 < 20,000,000` and the stated per-transaction cap was
+never actually exceeded.
+
+**Consequence:** a merchant whose mandate legitimately authorizes single
+payments above Rs 100,000 (a real, plausible mandate — nothing in
+`contracts/models.py` bounds `per_txn_cap_paise`'s upper value) will have
+every such payment blocked by this project regardless of what they
+authorized, and the ledger/UI would report it as a per-transaction-cap
+violation the merchant never actually stated — a misleading audit trail
+for a real, silent capability ceiling. `properties_checked` never lists
+anything named after `MAX_AMOUNT_PAISE`, so nothing on the
+`VerificationResult` itself hints that the stated policy wasn't the actual
+reason.
+
+**Status:** Not fixed in code. Discovered during Phase 6a's
+`adversarial_vs_ours` eval class (ADR-0013), which was specifically
+authored to probe boundaries this project already admits to (ADR-0008
+itself names "any per_txn_cap_paise... approaching MAX_AMOUNT_PAISE's
+order of magnitude" as a revisit trigger). The fix, when picked up, is
+narrow: `decode_action_rejection` needs a case for "amount exceeds
+`MAX_AMOUNT_PAISE`" that names it honestly instead of falling through to
+`P1`, and arguably `PolicyIR` should reject (or `verify_action` should
+raise loudly on) a `per_txn_cap_paise` set above `MAX_AMOUNT_PAISE` at
+policy-construction or activation time, rather than silently proving
+something the encoding can't actually check. Not attempted here —
+`verifier/` changes are outside this eval-build's scope, and MASTER.md's
+5 September deadline was three days out when this was found.

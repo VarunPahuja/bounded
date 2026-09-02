@@ -28,6 +28,10 @@ class ScenarioClass(str, Enum):
     REFUND_EXCEEDS_CAPTURE = "refund_exceeds_capture"
     PROMPT_INJECTION = "prompt_injection"
     CATEGORY_COUNT_VIOLATION = "category_count_violation"
+    # Scenarios written to try to break OUR pipeline specifically (boundary
+    # amounts, action ordering, horizon-k edges, order-count edges, the
+    # MAX_AMOUNT_PAISE domain bound) -- not the judge's. See ADR-0013.
+    ADVERSARIAL_VS_OURS = "adversarial_vs_ours"
     BENIGN = "benign"
 
 

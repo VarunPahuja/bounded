@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "benign-012-hinglish-three-captures-under-window-cap"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600,000 paise), and the candidate transaction is 420,000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000 (3,000,000 paise), and the history shows only one allowed transaction of 400,000 paise, so adding 420,000 paise keeps the total well below the monthly limit.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600,000 paise), and the candidate transaction is 420,000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000 (3,000,000 paise), and the previous allowed transaction was 400,000 paise, so adding 420,000 paise keeps the total well below the monthly limit. Therefore, the transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600000 paise), and the candidate transaction is 420000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000 (3000000 paise), and the previous allowed transaction was 400000 paise, so adding 420000 paise keeps the total at 820000 paise, well below the monthly limit. Therefore, the transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600,000 paise), and the candidate transaction is 420,000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000 (3,000,000 paise), and the history shows only one allowed transaction of 400,000 paise, so adding 420,000 paise keeps the total well below the monthly limit. Therefore, the candidate transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600,000 paise), and the candidate transaction is 420,000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000 (3,000,000 paise), and the history shows only one allowed transaction of 400,000 paise, so adding 420,000 paise keeps the total well below the monthly limit. Therefore, the candidate transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600000 paise), and the candidate transaction is 420000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000, but we do not have information about the total spent this month, so we cannot block based on that. Therefore, the transaction should be allowed based on the per-transaction limit.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600,000 paise), and the candidate transaction is 420,000 paise, which is below this limit. The monthly total limit of Rs 30,000 is not assessable from the given data, but since the candidate transaction is allowed individually under the per-transaction limit, it should be allowed.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The mandate states that each transaction should not exceed Rs 6,000 (600,000 paise), and the candidate transaction is 420,000 paise, which is below the per-transaction limit. The monthly total limit is Rs 30,000 (3,000,000 paise), and the history shows only one allowed transaction of 400,000 paise, so adding 420,000 paise keeps the total well below the monthly limit. Therefore, the candidate transaction complies with the mandate.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}
