@@ -1,0 +1,17 @@
+{
+  "scenario_id": "cat-002-not-in-allowed-list",
+  "class_label": "category_count_violation",
+  "mandate_text": "Cap every single payment at Rs 6,000, and don't let the month's total go past Rs 30,000. Only allow purchases in the 'software' or 'consulting' categories.",
+  "actions": [
+    {
+      "action_id": "cat-002-a1",
+      "action_type": "capture",
+      "order_id": "order_cat002",
+      "amount_paise": 400000,
+      "category": "furniture",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

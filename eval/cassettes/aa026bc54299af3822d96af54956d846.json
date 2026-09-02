@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "benign-006-hinglish-blocked-category-avoided"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-01-v1",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount is Rs 3,200 which is less than Rs 5,000, but the mandate restricts monthly total to Rs 20,000 and this single transaction alone is Rs 3,200, which is allowed; however, the mandate does not restrict software category, so the decision depends on monthly total. Since no prior history is given, this transaction alone is allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount is Rs 3,200 which is less than Rs 5,000, but the mandate does not allow any transaction exceeding Rs 5,000 and the monthly total should not exceed Rs 20,000; since the amount is in paise, it equals Rs 3,200 which is within limits, but the mandate also restricts total monthly spending to Rs 20,000 and this single transaction is Rs 3,200 which is allowed; however, the category is software, which is not electronics, so category restriction does not apply. Therefore, the transaction should be allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount is Rs 3,200 which is less than Rs 5,000, but the mandate restricts monthly total to Rs 20,000 and this single transaction is Rs 3,200 which might be allowed, however, the amount is in paise and equals Rs 3,200, which is within limits, but the mandate does not allow transactions over Rs 5,000 per transaction, so this is allowed. However, the mandate says no transactions over Rs 5,000 per transaction, so this is allowed. The category is software, which is not electronics, so category restriction does not apply. Therefore, ALLOW.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount is Rs 3,200 which is less than Rs 5,000, but the total monthly limit of Rs 20,000 is likely exceeded by this transaction alone, so it should be blocked.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount is Rs 3,200 which is less than Rs 5,000, but the total monthly spending limit of Rs 20,000 is not provided, so assuming this is a single transaction it is allowed; however, the amount is in paise, so 320000 paise = Rs 3,200 which is under the per transaction limit, and category is software which is allowed, so ALLOW.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount is Rs 3,200 which is less than Rs 5,000, but the mandate restricts monthly total to Rs 20,000 and this single transaction is Rs 3,200 which might be allowed; however, the amount is in paise, so Rs 3,200 is actually Rs 32,000 which exceeds the per transaction limit of Rs 5,000.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount is Rs 3,200 which is less than Rs 5,000, but the mandate restricts monthly total to Rs 20,000 and this single transaction is Rs 3,200 which might be allowed; however, the category is software, which is not electronics, so category is allowed. Since the amount is within limits, the transaction should be allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount is Rs 3,200, which exceeds the per-transaction limit of Rs 5,000 paise (Rs 50).\"}"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "scenario_id": "over-001-single-over-txn-cap",
+  "class_label": "over_cap",
+  "mandate_text": "Cap every single payment at Rs 3,000, and don't let the month's total go past Rs 30,000.",
+  "actions": [
+    {
+      "action_id": "over-001-a1",
+      "action_type": "capture",
+      "order_id": "order_over001",
+      "amount_paise": 500000,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

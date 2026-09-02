@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "over-003-hinglish-single-over-txn-cap"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-01-v1",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount of Rs 2,500 (250000 paise) exceeds the per-transaction limit of Rs 2,000 set by the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount of Rs 2,500 (250000 paise) exceeds the per-transaction limit of Rs 2,000 set by the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount of Rs 2,500 (250000 paise) exceeds the per-transaction limit of Rs 2,000 specified in the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount of Rs 2,500 (250000 paise) exceeds the per transaction limit of Rs 2,000 set by the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount of Rs 2,500 (250000 paise) exceeds the per-transaction limit of Rs 2,000 set by the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount of Rs 2,500 (250000 paise) exceeds the per-transaction limit of Rs 2,000 set by the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount of Rs 2,500 (250000 paise) exceeds the per-transaction limit of Rs 2,000 specified in the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The transaction amount of Rs 2,500 (250000 paise) exceeds the per transaction limit of Rs 2,000 set by the mandate.\"}"
+    }
+  ]
+}

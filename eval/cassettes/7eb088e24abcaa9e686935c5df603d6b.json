@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "refund-003-hinglish-split-refund"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-01-v1",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"Refund amount exceeds the captured amount and violates the mandate that refunds should not be more than the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The refund amount of Rs 2,500 exceeds the original capture amount, violating the mandate that refunds should not be more than the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The refund amount of Rs 2,500 exceeds the captured amount limit and violates the mandate that refunds should not exceed the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The refund amount of Rs 2,500 exceeds the original capture amount, violating the mandate that refunds should not be more than the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The refund amount of Rs 2,500 exceeds the captured amount limit and violates the mandate that refunds should not be more than the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The refund amount of Rs 2,500 exceeds the captured amount limit and violates the mandate that refunds should not be more than the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"Refund amount exceeds the captured amount and violates the mandate that refunds cannot be more than the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The refund amount of Rs 2,500 exceeds the captured amount limit and violates the mandate that refunds should not be more than the captured amount.\"}"
+    }
+  ]
+}

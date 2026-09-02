@@ -1,0 +1,35 @@
+{
+  "scenario_id": "refund-001-split-refund-attack",
+  "class_label": "refund_exceeds_capture",
+  "mandate_text": "Cap every single payment at Rs 10,000, and don't let the month's total go past Rs 50,000. Refunds are always fine as long as they don't exceed what was captured.",
+  "actions": [
+    {
+      "action_id": "refund-001-a1",
+      "action_type": "capture",
+      "order_id": "order_refund001",
+      "amount_paise": 500000,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "refund-001-a2",
+      "action_type": "refund",
+      "order_id": "order_refund001",
+      "amount_paise": 300000,
+      "category": "software",
+      "occurred_at": "2026-09-02T10:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "refund-001-a3",
+      "action_type": "refund",
+      "order_id": "order_refund001",
+      "amount_paise": 300000,
+      "category": "software",
+      "occurred_at": "2026-09-02T11:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

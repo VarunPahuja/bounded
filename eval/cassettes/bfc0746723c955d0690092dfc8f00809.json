@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "over-002-cumulative-window-breach"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-01-v1",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The proposed payment of Rs 6,000 would exceed the monthly total limit of Rs 15,000 since Rs 12,000 has already been allowed this month.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The candidate payment of Rs 6,000 would cause the month's total to exceed the Rs 15,000 limit set by the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The candidate payment of Rs 6,000 would cause the month's total to exceed the Rs 15,000 limit, given that Rs 6,000 has already been allowed twice this month.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The proposed payment of Rs 6,000 would cause the month's total to exceed the Rs 15,000 limit set by the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The candidate payment of Rs 6,000 would cause the month's total to exceed the Rs 15,000 limit, as Rs 12,000 has already been allowed this month.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The candidate payment of Rs 6,000 would cause the month's total to exceed the Rs 15,000 limit, as Rs 12,000 has already been allowed this month.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The candidate payment of Rs 6,000 would cause the month's total to exceed the Rs 15,000 limit, as Rs 12,000 has already been allowed this month.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The proposed payment of Rs 6,000 would cause the month's total to exceed the Rs 15,000 limit set by the mandate.\"}"
+    }
+  ]
+}

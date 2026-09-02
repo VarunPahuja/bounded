@@ -12,3 +12,4 @@
 | [ADR-0010: Window granularity is reported on the verdict, not silently ignored](0010-window-semantics-reported.md) | Accepted | 2026-08-30 |
 | [ADR-0011: verify_action's soundness is inductive, not a fresh horizon-k proof per call](0011-verify-action-inductive-soundness.md) | Accepted | 2026-08-31 |
 | [ADR-0012: Azure OpenAI (gpt-4.1-mini) replaces the Groq/Gemini plan](0012-azure-openai-replaces-groq.md) | Accepted | 2026-09-01 |
+| [ADR-0013: Phase 6 eval harness — judge granularity, pass^k aggregation, mocked rail, and the injection-context isolation](0013-eval-harness-design-decisions.md) | Accepted | 2026-09-02 |

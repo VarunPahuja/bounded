@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "refund-003-hinglish-split-refund"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-01-v1",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The capture amount of Rs 3,000 exceeds the per transaction cap of Rs 5,000, so it should be allowed; however, the amount is within the cap but the total monthly limit of Rs 25,000 must also be considered, and since this is a single transaction, it is allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The capture amount of Rs 3,000 exceeds the per transaction cap of Rs 5,000 paise (Rs 50), violating the mandate's per transaction limit.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The capture amount of Rs 3,000 exceeds the per transaction cap of Rs 5,000, so it should be blocked.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The capture amount of Rs 3,000 exceeds the per transaction cap of Rs 5,000, so it should be allowed; however, the amount is within the cap but the total monthly limit of Rs 25,000 must also be considered. Since the amount is Rs 3,000, it is allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The capture amount of Rs 3,000 exceeds the per transaction cap of Rs 5,000 paise (Rs 50), violating the mandate's per transaction limit.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The capture amount of Rs 3,000 exceeds the per transaction cap of Rs 5,000 paise (Rs 50), violating the mandate's per transaction limit.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The capture amount of Rs 3,000 exceeds the per transaction cap of Rs 5,000, violating the mandate.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The capture amount of Rs 3,000 exceeds the per transaction cap of Rs 5,000, violating the mandate.\"}"
+    }
+  ]
+}

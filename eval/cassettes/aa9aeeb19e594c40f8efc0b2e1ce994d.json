@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "cat-002-not-in-allowed-list"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-01-v1",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment category is 'furniture', which is not allowed as per the mandate that only permits 'software' or 'consulting' categories.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment category is 'furniture', which is not allowed as per the mandate that only 'software' or 'consulting' categories are permitted.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment category is 'furniture', which is not allowed as per the mandate that only permits 'software' or 'consulting' categories.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment category is furniture, which is not allowed as per the mandate that only permits software or consulting categories.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment category 'furniture' is not allowed as per the mandate which only permits 'software' or 'consulting' categories.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment category is 'furniture', which is not allowed as per the mandate that only 'software' or 'consulting' categories are permitted.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment category is furniture, which is not allowed as per the mandate that only permits software or consulting categories.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment category is 'furniture', which is not allowed as per the mandate that only 'software' or 'consulting' categories are permitted.\"}"
+    }
+  ]
+}

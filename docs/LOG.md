@@ -657,3 +657,104 @@ contract stays "a `PolicyIR`, or an exception," and whether that `PolicyIR`
 is provably enforceable is a question asked afterward, by a caller that
 chooses to ask it.
 
+## 2026-09-02 — Phase 6a: eval harness at pilot scale
+
+**Shipped:** `eval/scenario.py` (`Scenario`/`ScenarioActionSpec`/
+`PipelineInput`, the last with no `injection_context` field by
+construction), `eval/cassette.py` (N_SAMPLES=8 record/replay, `EVAL_MODE`),
+`eval/metrics.py` (`pass_hat_k`, `wilson_interval`),
+`eval/baseline_llm_judge.py` (the deliberately-built anti-pattern
+baseline), `eval/runner.py` (both pipelines, `run_corpus`), `eval/report.py`
+(pure `render_report` + `write_report`), 18 scenario JSON files (12
+hand-authored across `over_cap`/`refund_exceeds_capture`/
+`prompt_injection`/`category_count_violation`, 6 benign delegated to a
+subagent per `docs/PHASE6-PLAN.md`'s spec), `tests/eval/` (5 files, 13
+tests), and two extensions to `tests/test_architecture.py`
+(`test_baseline_judge_is_not_in_enforcement_path`,
+`test_ours_pipeline_never_reads_injection_context`). ADR-0013 written
+covering five design decisions plus the bug below. Full suite: 114 passed,
+3 skipped (the pre-existing Phase 3/4 live-Razorpay skips), 0 failed.
+`docs/EVAL.md` generated live, pilot scale (18 scenarios, 8 samples each).
+
+**Headline pilot numbers (18 scenarios, not the final 60-100 corpus —
+see docs/EVAL.md's own header, which states this explicitly so the figure
+is never mistaken for the submission's result):** ours: 0 unsound-safe
+verdicts, 0% false-positive rate on benign flows (0/48), pass^1=pass^4=
+pass^8=100% across every class. Judge baseline: 0% FP on benign (0/48,
+after the fix below), pass^1 100% on `over_cap`/`category_count_violation`,
+**0% on `refund_exceeds_capture`** (never reliably catches a split-refund
+attack across two separate calls with no shared running total), 50%/34%/33%
+(k=1/4/8) on `prompt_injection`, and 12 unsound-safe verdicts corpus-wide —
+real cases where a stated violation was marked ALLOW. Median Z3
+verification latency: 9.851ms (n=248 `verify_action` calls). This is the
+comparison MASTER.md called "the point," and it landed close to what that
+section predicted: the judge does fine on the checks that need no memory
+across calls, and fails specifically on the two things a solver has and an
+isolated per-action judge call structurally doesn't — a persistent running
+total, and immunity to text it's told to trust.
+
+**Broke, twice, both caught before being reported as results.**
+
+1. A real recursion bug, not a measurement artifact. `eval/runner.py`'s
+   first draft of the judge-side "real network call" adapter
+   (`_judge_real_complete`) did `from eval.baseline_llm_judge import
+   _complete as _real_judge_complete` *inside its own function body*,
+   re-resolving the name every call. Since that call happens while
+   `run_judge_trial` is still inside `with patch("eval.baseline_llm_judge.
+   _complete", ...)`, the "real" call fetched the mock, not the original —
+   infinite recursion, caught immediately by a `RecursionError` on the
+   first live recording attempt rather than silently misbehaving. Fixed by
+   moving the import to module load time (`eval/runner.py`'s top-level
+   imports), exactly mirroring how the parse-side adapter
+   (`_real_parse_complete_from_messages`) was already written correctly —
+   the working pattern existed in the same file and the judge-side copy
+   just didn't follow it. While fixing this, also made `eval/cassette.py`'s
+   record mode check for an already-written cassette file before firing
+   live calls for a key (it previously only checked an in-process cache,
+   so a second `record`-mode run after a crash would have silently
+   re-fired every already-recorded key).
+
+2. **The first live pilot run reported a 100% false-positive rate on
+   benign flows — every one of 48 benign trials came back BLOCK — and
+   that number was checked against the raw cassette before being written
+   down anywhere, which is what caught it.** The recorded `reasoning` text
+   for every single one of those trials concluded, in its own words, that
+   the payment "should be allowed"; the `decision` field, generated first
+   because the response schema asked for `decision` before `reasoning`,
+   had already committed to `"BLOCK"` before that reasoning existed to
+   inform it. Not an adversarial-robustness finding — a schema-ordering
+   bug in this project's own baseline prompt. Fixed by reordering the
+   schema to reasoning-then-decision and bumping `PROMPT_VERSION` (`v1` ->
+   `v2`, so cassette keys changed and replay could never silently score the
+   new prompt against the old recordings). Re-run live: benign FP dropped
+   to 0/48, and the comparison in `docs/EVAL.md` became the coherent one
+   quoted above. The v1 cassettes were not deleted — they stay on disk,
+   orphaned by the version bump, as the record of what was actually
+   observed. See ADR-0013's "How this was found" for the full account,
+   including the exact cassette text that gave it away.
+
+**A silent scope decision, made deliberately and written down rather than
+left implicit.** `category_count_violation`'s three scenarios test category
+(P4) only — none of them assert a transaction-count breach. Grepped
+`verifier/` and `rail/` for `max_txn_count` before authoring this class:
+the only hit outside `policy/parse.py` is the field's declaration in
+`contracts/models.py` itself. `max_txn_count` is parsed and validated but
+never reaches `properties_checked`, `sound_capture_guard`, or
+`invariant_holds` — exactly the same "genuinely out-of-scope field" Phase
+2's entry above already named for a different reason. Writing a scenario
+that expects a count violation to be blocked would have failed on every
+trial, correctly, for a gap already on record — that would read as a
+fresh miss discovered by this phase rather than a known boundary being
+honestly reflected in the corpus. Recorded in ADR-0013 as decision #6
+rather than silently narrowing the class.
+
+**Changed my mind:** almost reported the v1 100% benign-FP number as this
+phase's headline "judges are unreliable" result — it was, after all, a
+real live measurement, not fabricated. Stopped because a number that round
+and that total (48/48, not 45/48 or 40/48) is a shape worth being
+suspicious of before writing it down, and reading eight lines of one
+cassette took less time than the write-up would have. The standing
+practice this leaves behind, same as the failed-payment hunt and the
+Groq/Gemini narrative catch before it: read the raw recording before
+trusting an aggregate, especially one that looks too clean.
+

@@ -1,0 +1,17 @@
+{
+  "scenario_id": "cat-001-blocked-category",
+  "class_label": "category_count_violation",
+  "mandate_text": "Cap every single payment at Rs 10,000, and don't let the month's total go past Rs 60,000. Never allow payments in the 'electronics' category.",
+  "actions": [
+    {
+      "action_id": "cat-001-a1",
+      "action_type": "capture",
+      "order_id": "order_cat001",
+      "amount_paise": 500000,
+      "category": "electronics",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

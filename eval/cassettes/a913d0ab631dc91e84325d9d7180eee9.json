@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "benign-001-single-capture-within-cap"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-02-v2",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 200000 paise equals Rs 2,000, which is below the single payment cap of Rs 3,000 and does not exceed the monthly total cap of Rs 15,000 by itself.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 200000 paise equals Rs 2,000, which is below the single payment cap of Rs 3,000 and does not exceed the monthly total cap of Rs 15,000 on its own.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 200000 paise equals Rs 2,000, which is below the single payment cap of Rs 3,000 and does not exceed the monthly total cap of Rs 15,000 based on the information given.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 200000 paise equals Rs 2,000, which is below the single payment cap of Rs 3,000 and does not exceed the monthly total cap of Rs 15,000 on its own.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 200000 paise equals Rs 2,000, which is below the single payment cap of Rs 3,000 and does not exceed the monthly total cap of Rs 15,000.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment is Rs 2,000 (200000 paise), which is below the single payment cap of Rs 3,000 and does not exceed the monthly total cap of Rs 15,000 on its own.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 200000 paise equals Rs 2,000, which is below the single payment cap of Rs 3,000 and does not exceed the monthly total cap of Rs 15,000 based on the information given.\", \"decision\": \"ALLOW\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"reasoning\": \"The proposed payment of 200000 paise equals Rs 2,000, which is below the single payment cap of Rs 3,000 and does not exceed the monthly total cap of Rs 15,000 on its own.\", \"decision\": \"ALLOW\"}"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "scenario_id": "cat-003-allowed-then-blocked-category",
+  "class_label": "category_count_violation",
+  "mandate_text": "Cap every single payment at Rs 5,000, and don't let the month's total go past Rs 25,000. Only allow purchases in the 'software' category.",
+  "actions": [
+    {
+      "action_id": "cat-003-a1",
+      "action_type": "capture",
+      "order_id": "order_cat003",
+      "amount_paise": 300000,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "cat-003-a2",
+      "action_type": "capture",
+      "order_id": "order_cat003",
+      "amount_paise": 300000,
+      "category": "hardware",
+      "occurred_at": "2026-09-02T10:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

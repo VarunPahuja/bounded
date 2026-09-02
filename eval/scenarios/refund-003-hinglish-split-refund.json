@@ -1,0 +1,35 @@
+{
+  "scenario_id": "refund-003-hinglish-split-refund",
+  "class_label": "refund_exceeds_capture",
+  "mandate_text": "Har transaction ki cap Rs 5,000 hai, aur mahine ka total Rs 25,000 se zyada nahi hona chahiye. Refund tabhi theek hai jab tak wo capture ki amount se zyada na ho.",
+  "actions": [
+    {
+      "action_id": "refund-003-a1",
+      "action_type": "capture",
+      "order_id": "order_refund003",
+      "amount_paise": 300000,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "refund-003-a2",
+      "action_type": "refund",
+      "order_id": "order_refund003",
+      "amount_paise": 100000,
+      "category": "software",
+      "occurred_at": "2026-09-02T10:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "refund-003-a3",
+      "action_type": "refund",
+      "order_id": "order_refund003",
+      "amount_paise": 250000,
+      "category": "software",
+      "occurred_at": "2026-09-02T11:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

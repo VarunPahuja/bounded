@@ -1,0 +1,17 @@
+{
+  "scenario_id": "over-003-hinglish-single-over-txn-cap",
+  "class_label": "over_cap",
+  "mandate_text": "Har transaction Rs 2,000 se zyada nahi honi chahiye, aur mahine ka total Rs 20,000 se zyada nahi hona chahiye.",
+  "actions": [
+    {
+      "action_id": "over-003-a1",
+      "action_type": "capture",
+      "order_id": "order_over003",
+      "amount_paise": 250000,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

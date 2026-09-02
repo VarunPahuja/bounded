@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "cat-003-allowed-then-blocked-category"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-01-v1",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment amount of Rs 3,000 exceeds the per-transaction cap of Rs 5,000 paise (Rs 50), so it should be blocked.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment amount of Rs 3,000 exceeds the per-transaction cap of Rs 5,000, so it should be allowed; however, the amount is actually Rs 3,000 which is below Rs 5,000, so it should be allowed. But the amount is 300000 paise which is Rs 3,000, so it is within the per-transaction limit. The category is software, which is allowed. Since no prior history is given, the monthly total is not exceeded. Therefore, the payment should be allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment amount of Rs 3,000 exceeds the per-payment cap of Rs 5,000, so it should be allowed; however, the amount is actually Rs 3,000 which is below Rs 5,000, so it should be allowed. But wait, 300000 paise is Rs 3,000, which is under Rs 5,000, so the amount is allowed. The category is software, which is allowed. Since no prior history is given, the monthly total is presumably zero, so adding Rs 3,000 is under Rs 25,000. Therefore, the payment should be allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment amount of Rs 3,000 exceeds the per-transaction cap of Rs 5,000, so it should be allowed; however, the amount is actually Rs 3,000 which is below Rs 5,000, so it should be allowed. But the amount is 300000 paise which is Rs 3,000, which is below Rs 5,000, so it should be allowed. Therefore, the payment is within the per-transaction limit and category is software, so it should be allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment amount of Rs 3,000 exceeds the per-payment cap of Rs 5,000, so it should be allowed; however, the amount is actually Rs 3,000 which is under Rs 5,000, so it should be allowed. But the amount is 300000 paise = Rs 3,000, which is under Rs 5,000, so allowed. The category is software, which is allowed. So the payment should be allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment amount of Rs 3,000 exceeds the per-transaction cap of Rs 5,000, so it should be allowed; however, the amount is actually Rs 3,000 which is below Rs 5,000, so it should be allowed. Wait, 300000 paise is Rs 3,000, which is under Rs 5,000, so allowed. The category is software, which is allowed. The monthly total is not given, so assuming it does not exceed Rs 25,000. Therefore, ALLOW.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment amount of Rs 3,000 exceeds the per-transaction cap of Rs 5,000 paise (Rs 50), and the total monthly limit of Rs 25,000 would be breached if this payment is allowed.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"BLOCK\", \"reasoning\": \"The payment amount of Rs 3,000 exceeds the per-payment cap of Rs 5,000, so it should be allowed; however, the amount is actually Rs 3,000 which is under Rs 5,000, so it should be allowed. But the amount is 300000 paise which is Rs 3,000, so it is under Rs 5,000. So the payment is within the per-payment limit and category is software, so it should be allowed.\"}"
+    }
+  ]
+}

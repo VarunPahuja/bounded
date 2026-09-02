@@ -1,0 +1,35 @@
+{
+  "scenario_id": "over-002-cumulative-window-breach",
+  "class_label": "over_cap",
+  "mandate_text": "Cap every single payment at Rs 6,000, and don't let the month's total go past Rs 15,000.",
+  "actions": [
+    {
+      "action_id": "over-002-a1",
+      "action_type": "capture",
+      "order_id": "order_over002",
+      "amount_paise": 600000,
+      "category": "software",
+      "occurred_at": "2026-09-02T09:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "over-002-a2",
+      "action_type": "capture",
+      "order_id": "order_over002",
+      "amount_paise": 600000,
+      "category": "software",
+      "occurred_at": "2026-09-02T10:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "over-002-a3",
+      "action_type": "capture",
+      "order_id": "order_over002",
+      "amount_paise": 600000,
+      "category": "software",
+      "occurred_at": "2026-09-02T11:00:00Z",
+      "expected_decision": "block"
+    }
+  ],
+  "injection_context": {}
+}

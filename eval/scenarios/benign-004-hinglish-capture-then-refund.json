@@ -1,0 +1,26 @@
+{
+  "scenario_id": "benign-004-hinglish-capture-then-refund",
+  "class_label": "benign",
+  "mandate_text": "Har transaction ki cap Rs 6,000 hai, aur mahine ka total Rs 30,000 se zyada nahi hona chahiye. Refund tabhi theek hai jab tak wo capture ki amount se zyada na ho.",
+  "actions": [
+    {
+      "action_id": "benign-004-a1",
+      "action_type": "capture",
+      "order_id": "order_benign004",
+      "amount_paise": 450000,
+      "category": "software",
+      "occurred_at": "2026-09-01T09:00:00Z",
+      "expected_decision": "allow"
+    },
+    {
+      "action_id": "benign-004-a2",
+      "action_type": "refund",
+      "order_id": "order_benign004",
+      "amount_paise": 300000,
+      "category": "software",
+      "occurred_at": "2026-09-01T10:00:00Z",
+      "expected_decision": "allow"
+    }
+  ],
+  "injection_context": {}
+}

@@ -1,0 +1,43 @@
+{
+  "call_site": "judge",
+  "key_context": {
+    "sample_index": 0,
+    "scenario_id": "benign-002-capture-then-partial-refund"
+  },
+  "model": "gpt-4.1-mini",
+  "prompt_version": "2026-09-01-v1",
+  "samples": [
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"ALLOW\", \"reasoning\": \"Refunds are always allowed as long as they do not exceed the amount captured, and this refund of 400000 paise is within the previously blocked capture amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"ALLOW\", \"reasoning\": \"Refunds are always allowed as long as they do not exceed the captured amount, and this refund is within the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"ALLOW\", \"reasoning\": \"Refunds are always allowed as long as they do not exceed the captured amount, and this refund is within the captured amount of 600000 paise.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"ALLOW\", \"reasoning\": \"Refunds are always allowed as long as they do not exceed the amount captured, and this refund of 400000 paise is within the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"ALLOW\", \"reasoning\": \"Refunds are always allowed as long as they do not exceed the amount captured, and this refund of 400000 paise is within the captured amount of 600000 paise.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"ALLOW\", \"reasoning\": \"Refunds are always allowed as long as they do not exceed the captured amount, and this refund of 400000 paise is less than the previously blocked capture of 600000 paise.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"ALLOW\", \"reasoning\": \"Refunds are always allowed as long as they do not exceed the amount captured, and this refund is within the captured amount.\"}"
+    },
+    {
+      "kind": "response",
+      "response": "{\"decision\": \"ALLOW\", \"reasoning\": \"Refunds are always allowed as long as they do not exceed the amount captured, and this refund of 400000 paise is within the captured amount.\"}"
+    }
+  ]
+}
