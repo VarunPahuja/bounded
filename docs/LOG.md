@@ -938,3 +938,99 @@ section heading would still appear. Reverted to a static function with the
 text that describes the methodology, and the `# noqa: ARG001` makes that
 explicit). The note is always rendered when the function is called; the caller
 only includes it in `render_report` while the corpus contains this class.
+
+## 2026-09-03 — Phase 7: the dashboard
+
+**Shipped:** all four required surfaces (Mandate, Proof, Ledger, Attacks),
+built in the order `docs/PHASE7-PLAN.md` specified and each verified working
+end to end in a real browser before the next one started. `api/` (FastAPI):
+`attacks.py`, `mandates.py`, `proof.py`, `ledger_backend.py`, `demo_state.py`,
+`main.py` — every route a direct call into an existing module, no new
+decision logic. `web/` (Next.js 15 App Router, Tailwind, shadcn/ui): four
+surface components, a shared `lib/proof-state.tsx` ambient context, an
+ambient background (`components/ambient/ProofStateBackground.tsx`) that
+drifts in SAFE and snaps to a rigid cyan grid in VIOLATION, a spatial
+sliding-strip layout with direct keyboard shortcuts (1/2/3/4) replacing the
+placeholder tab bar. `docs/PHASE7-PLAN.md` (committed standalone before any
+code, per standing practice) and ADR-0014 (the Attacks panel mocks the rail
+call, same disclosed methodology as `docs/EVAL.md`) were both written and
+approved before building started.
+
+Every surface calls the real pipeline, not a fixture: Attacks runs real
+`eval/scenarios/*.json` scenarios through real `propose_action` on a fresh
+isolated ledger; Proof reruns real `verify_guard` against the interceptor's
+actual `GUARD` object and against a naive guard composed from
+`verifier/encode.py`'s already-existing unsound functions; Ledger reads a
+persistent demo ledger seeded once with real `propose_action` calls; Mandate
+calls the real `parse_mandate`/`activate_policy`. `pytest` was run before
+Phase 7 started (114 passed, 3 skipped) and after every one of the five
+build steps; the suite never moved off that baseline except for the
+pre-existing, already-documented `test_webhook_concurrent_duplicate`
+thread-timing flake, confirmed unrelated by rerunning it in isolation (2/3
+passed, 1/3 failed — matches its documented rate).
+
+**Broke, three small things, all caught by actually looking at a rendered
+screenshot rather than trusting the code:**
+
+1. The naive-guard demo mandate initially reused the exact `docs/DEMO.md`
+   recording string (which restricts categories to groceries/utilities).
+   `verify_guard`'s P1/P4 depth-1 pre-checks run before the horizon-k P2/P3
+   search and return the first violation found — and `naive_capture_guard`
+   is blind to category entirely (that's its definition), so any policy
+   with category restrictions makes the naive guard fail on P4 before ever
+   reaching the window-cap composition story the Proof beat is actually
+   about. Not a bug in the verifier — a mismatch between the demo input and
+   the story it was supposed to tell. Fixed by defaulting the Proof
+   surface's mandate to a category-free policy with the same cap numbers,
+   confirmed live to reproduce the exact DEMO.md beat (naive: VIOLATION, a
+   real 5-step solver-constructed trace of three ₹5,000 captures plus a
+   ₹0.01 capture crossing the ₹15,000 window cap; sound: SAFE, both at
+   horizon 8).
+2. The floating keyboard-shortcut nav (fixed, top-left) initially overlapped
+   every surface's `<h1>` heading — caught in the first full-shell
+   screenshot, fixed with a `pt-16` clearance on each surface's outer panel.
+3. The real one: after wiring the ambient SAFE/VIOLATION background, every
+   white-background form control (`<select>`, `<textarea>`, `<input>`)
+   inherited the ambient text color instead of a fixed dark one — Tailwind's
+   preflight sets `color: inherit` on form elements, and the VIOLATION
+   wrapper's light text color landed on a white input background, nearly
+   illegible. Only caught because a VIOLATION-state screenshot was actually
+   inspected rather than assumed correct from the CSS reasoning alone (the
+   scenario dropdown in that screenshot was legible enough to *look* fine at
+   a glance; it took reading the actual pixels to see the contrast was
+   wrong). Fixed by pinning an explicit dark text color on every
+   white-background control, regardless of ambient state.
+
+**Changed my mind:** started building the Attacks panel's rail call with an
+open question (ADR-0014) rather than assuming an answer — asked whether to
+mock the Razorpay call (same disclosed methodology as `docs/EVAL.md`) or
+wire a freshly seeded real order. Confirmed mocked, given the two-day
+runway and that Phase 3/4 already proved the rail live once without the
+dashboard's help. This means DEMO.md's exact single-screen compliant-path
+beat (a genuine `payment.captured` id rendered inside the Attacks panel) is
+not demonstrated by this build — a real, deliberately accepted gap, named
+in ADR-0014 rather than papered over.
+
+Also reconsidered the Ledger surface's tamper control mid-build: the first
+instinct was to have `/api/ledger/tamper-preview` feed its result into the
+same ambient `ProofStateProvider` every other surface uses, so a tampered
+preview would flip the whole page to VIOLATION. Backed off before writing
+any code — the preview is deliberately non-destructive and hypothetical
+(nothing is actually broken; the real chain still verifies clean), and
+letting it announce a violation that hasn't happened would be exactly the
+kind of overclaim the project's own honesty rules exist to prevent. The
+Ledger surface's `load()` (the real `verify_chain` result) feeds the
+ambient state; the tamper preview never does.
+
+**Not yet done, named rather than silently skipped:** `docs/MASTER.md`'s
+actual Phase 7 acceptance test — two people who have not seen the project
+watching the screen and describing what it does — has not been run. Every
+other item on `docs/DESIGN.md`'s own checklist was verified directly
+(screenshots checked in both ambient states, keyboard shortcuts confirmed
+to jump directly, trace contrast confirmed unconditional, violation accent
+confirmed cyan not red), but that one is a human test this session cannot
+perform on its own. Also not built: `/api/eval/summary` and a Numbers
+surface reading `docs/EVAL.md` — not one of the four required panels, and
+correctly out of scope rather than added as unrequested surface area.
+`scripts/seed_demo_ledger`-style real Razorpay wiring for the Attacks
+panel's compliant leg (ADR-0014's "Revisit when") also remains undone.
