@@ -13,10 +13,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from contracts.models import PolicyIR, VerificationResult
+from contracts.models import LedgerEntry, PolicyIR, VerificationResult
 from policy.parse import MandateParseError
 
 from api.attacks import AttackRunResult, ScenarioNotFoundError, ScenarioSummary, list_scenarios, run_scenario
+from api.ledger_backend import ChainVerifyResponse, TamperPreviewResponse
+from api.ledger_backend import get_chain_status, get_entries, tamper_preview
 from api.mandates import ParseResponse
 from api.mandates import activate as activate_mandate
 from api.mandates import parse as parse_mandate_text
@@ -76,3 +78,23 @@ class ProofVerifyRequest(BaseModel):
 @app.post("/api/proof/verify", response_model=VerificationResult)
 def post_proof_verify(req: ProofVerifyRequest) -> VerificationResult:
     return verify_proof(req.policy, req.guard, horizon=req.horizon)
+
+
+@app.get("/api/ledger/entries", response_model=list[LedgerEntry])
+def get_ledger_entries() -> list[LedgerEntry]:
+    return get_entries()
+
+
+@app.get("/api/ledger/verify", response_model=ChainVerifyResponse)
+def get_ledger_verify() -> ChainVerifyResponse:
+    return get_chain_status()
+
+
+class TamperPreviewRequest(BaseModel):
+    index: int
+    new_amount_paise: int
+
+
+@app.post("/api/ledger/tamper-preview", response_model=TamperPreviewResponse)
+def post_ledger_tamper_preview(req: TamperPreviewRequest) -> TamperPreviewResponse:
+    return tamper_preview(req.index, req.new_amount_paise)

@@ -78,6 +78,21 @@ export interface AttackRunResult {
   blocked_at_step: number | null;
 }
 
+export type LedgerDecision = "allow" | "block" | "genesis";
+
+export interface LedgerEntry {
+  index: number;
+  entry_id: string;
+  timestamp: string;
+  decision: LedgerDecision;
+  action: Action | null;
+  verification_result: VerificationResult | null;
+  razorpay_payment_id: string | null;
+  prev_hash: string;
+  entry_hash: string;
+  signature: string;
+}
+
 class ApiError extends Error {
   constructor(
     message: string,
@@ -135,6 +150,31 @@ export function verifyProof(policy: PolicyIR, guard: GuardName, horizon = 8): Pr
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ policy, guard, horizon }),
+  });
+}
+
+export function fetchLedgerEntries(): Promise<LedgerEntry[]> {
+  return request<LedgerEntry[]>("/api/ledger/entries");
+}
+
+export interface ChainVerifyResponse {
+  broken_at_index: number | null;
+}
+
+export function fetchLedgerVerify(): Promise<ChainVerifyResponse> {
+  return request<ChainVerifyResponse>("/api/ledger/verify");
+}
+
+export interface TamperPreviewResponse {
+  broken_at_index: number | null;
+  error: string | null;
+}
+
+export function tamperPreview(index: number, newAmountPaise: number): Promise<TamperPreviewResponse> {
+  return request<TamperPreviewResponse>("/api/ledger/tamper-preview", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ index, new_amount_paise: newAmountPaise }),
   });
 }
 
