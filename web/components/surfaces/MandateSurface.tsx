@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ApiError, PolicyIR, VerificationResult, activateMandate, parseMandate } from "@/lib/api";
+import { useEffect, useRef, useState } from "react";
+import { ApiError, PolicyIR, VerificationResult, activateMandate, fetchDemoMandate, parseMandate } from "@/lib/api";
 import { paiseToRupees } from "@/lib/format";
 import { VerdictBadge } from "@/components/proof/VerdictBadge";
 import { useProofState } from "@/lib/proof-state";
@@ -35,7 +35,7 @@ function PolicyView({ policy }: { policy: PolicyIR }) {
       <dl className="flex flex-col gap-1">
         {rows.map(([k, v]) => (
           <div key={k} className="flex gap-2">
-            <dt className="w-56 shrink-0 opacity-60">{k}</dt>
+            <dt className="w-56 shrink-0 opacity-75">{k}</dt>
             <dd>{v}</dd>
           </div>
         ))}
@@ -89,11 +89,30 @@ export function MandateSurface() {
     }
   }
 
+  // No surface opens empty (task brief item 1): pre-populate with the
+  // already-parsed-and-activated recording mandate. Reads a cached result
+  // (api/mandate_cache.py) -- no live Azure call on mount, so this can
+  // never flake on camera.
+  const hasLoadedDemo = useRef(false);
+  useEffect(() => {
+    if (hasLoadedDemo.current) return;
+    hasLoadedDemo.current = true;
+    fetchDemoMandate()
+      .then((demo) => {
+        setText(demo.mandate_text);
+        setPolicy(demo.policy);
+        setActivation(demo.activation);
+        setProofState(demo.activation.verdict === "violation" ? "violation" : "safe");
+      })
+      .catch((e) => setError(e instanceof ApiError ? e.message : String(e)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <section className="mx-auto flex max-w-5xl flex-col gap-6 p-8">
+    <section className="mx-auto flex max-w-6xl flex-col gap-6 p-8">
       <header>
-        <h1 className="font-serif text-3xl">Mandate</h1>
-        <p className="mt-1 text-sm opacity-70">
+        <h1 className="font-serif text-4xl md:text-5xl">Mandate</h1>
+        <p className="mt-1 text-sm opacity-85">
           The model only translates English into a typed object -- it never decides whether a
           payment is allowed. If it can&apos;t extract every field without guessing, it refuses
           rather than filling the gap. That refusal is shown below, not hidden.
@@ -101,11 +120,11 @@ export function MandateSurface() {
       </header>
 
       <div className="flex flex-wrap gap-2 text-xs">
-        <button onClick={() => setText(RECORDING_MANDATE)} className="underline opacity-60 hover:opacity-100">
+        <button onClick={() => setText(RECORDING_MANDATE)} className="underline opacity-75 hover:opacity-100">
           load the recording mandate
         </button>
         <span className="opacity-30">·</span>
-        <button onClick={() => setText(AMBIGUOUS_MANDATE)} className="underline opacity-60 hover:opacity-100">
+        <button onClick={() => setText(AMBIGUOUS_MANDATE)} className="underline opacity-75 hover:opacity-100">
           load an ambiguous example
         </button>
       </div>
@@ -133,7 +152,7 @@ export function MandateSurface() {
           {ambiguousMessage && (
             <div className="card card-soft rounded-md border-2 border-dashed p-3 text-sm">
               <div className="font-semibold">refused -- ambiguous, not guessed</div>
-              <p className="mt-1 opacity-80">{ambiguousMessage}</p>
+              <p className="mt-1 opacity-90">{ambiguousMessage}</p>
             </div>
           )}
         </div>
@@ -155,7 +174,7 @@ export function MandateSurface() {
               {activation && (
                 <div className="card flex flex-col gap-2 rounded-lg p-4">
                   <VerdictBadge verdict={activation.verdict} horizon={activation.horizon} />
-                  <p className="text-xs opacity-70">
+                  <p className="text-xs opacity-85">
                     {activation.verdict === "safe"
                       ? "This policy is provably servable: no sequence of guard-admitted actions up to this horizon can breach it."
                       : activation.error_message ??

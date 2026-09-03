@@ -22,7 +22,7 @@ export function CounterexampleTrace({ steps, blockedAtStep }: CounterexampleTrac
           return (
             <li
               key={step.step_index}
-              className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded px-3 py-2 text-sm"
+              className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded px-3 py-2 text-base"
               style={
                 isBlocked
                   ? { background: "rgba(95, 227, 224, 0.12)", border: "1px solid var(--violation-accent)" }
@@ -48,7 +48,7 @@ export function CounterexampleTrace({ steps, blockedAtStep }: CounterexampleTrac
 
       {counterexample && (
         <div
-          className="mt-4 border-t pt-4 text-sm leading-relaxed"
+          className="mt-4 border-t pt-4 text-base leading-relaxed"
           style={{ borderColor: "var(--violation-accent)" }}
         >
           <div className="mb-1 font-semibold" style={{ color: "var(--violation-accent)" }}>
@@ -65,7 +65,7 @@ export function CounterexampleTrace({ steps, blockedAtStep }: CounterexampleTrac
       )}
 
       {blockedAtStep === null && (
-        <p className="mt-4 border-t border-[#222] pt-4 text-sm text-[#5fe38f]">
+        <p className="mt-4 border-t border-[#222] pt-4 text-base text-[#5fe38f]">
           every action in this sequence was admitted -- no violation found.
         </p>
       )}

@@ -8,7 +8,7 @@ interface PropertiesListProps {
 
 export function PropertiesList({ properties }: PropertiesListProps) {
   if (properties.length === 0) {
-    return <p className="text-xs opacity-60">no properties applied by this policy</p>;
+    return <p className="text-xs opacity-75">no properties applied by this policy</p>;
   }
   return (
     <ul className="flex flex-wrap gap-2">

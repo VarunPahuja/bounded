@@ -20,6 +20,8 @@ from rail.interceptor import GUARD as SOUND_GUARD
 from verifier.bmc import verify_guard
 from verifier.encode import compose_guard, naive_capture_guard, naive_refund_guard
 
+from api.z3_lock import Z3_LOCK
+
 NAIVE_GUARD = compose_guard(naive_capture_guard, naive_refund_guard)
 
 GuardName = Literal["naive", "sound"]
@@ -27,4 +29,5 @@ GuardName = Literal["naive", "sound"]
 
 def verify(policy: PolicyIR, guard: GuardName, horizon: int = 8) -> VerificationResult:
     chosen = NAIVE_GUARD if guard == "naive" else SOUND_GUARD
-    return verify_guard(policy, chosen, horizon=horizon)
+    with Z3_LOCK:
+        return verify_guard(policy, chosen, horizon=horizon)

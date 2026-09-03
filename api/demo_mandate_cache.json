@@ -1,0 +1,29 @@
+{
+  "mandate_text": "This agent may spend up to ₹15,000 this month, no single payment above ₹5,000, groceries and utilities only, and it can never refund more than it charged.",
+  "policy": {
+    "per_txn_cap_paise": 500000,
+    "window_cap_paise": 1500000,
+    "window": "month",
+    "allowed_categories": [
+      "groceries",
+      "utilities"
+    ],
+    "blocked_categories": [],
+    "max_txn_count": null,
+    "refund_bounded_by_capture": true,
+    "require_human_above_paise": null
+  },
+  "activation": {
+    "verdict": "safe",
+    "properties_checked": [
+      "P1",
+      "P2[window=month,horizon-cumulative]",
+      "P3",
+      "P4"
+    ],
+    "horizon": 8,
+    "counterexample": null,
+    "latency_ms": 117.55870000342838,
+    "error_message": null
+  }
+}

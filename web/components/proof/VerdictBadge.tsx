@@ -25,7 +25,7 @@ export function VerdictBadge({ verdict, horizon }: VerdictBadgeProps) {
       }}
     >
       {LABEL[verdict]}
-      <span className="text-xs font-normal opacity-80">proven to horizon {horizon}</span>
+      <span className="text-xs font-normal opacity-90">proven to horizon {horizon}</span>
     </span>
   );
 }

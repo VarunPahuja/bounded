@@ -5,21 +5,24 @@ import { AttacksSurface } from "@/components/surfaces/AttacksSurface";
 import { ProofSurface } from "@/components/surfaces/ProofSurface";
 import { LedgerSurface } from "@/components/surfaces/LedgerSurface";
 import { MandateSurface } from "@/components/surfaces/MandateSurface";
+import { EvidenceSurface } from "@/components/surfaces/EvidenceSurface";
 import { ProofStateBackground } from "@/components/ambient/ProofStateBackground";
+import { StatusStrip } from "@/components/status/StatusStrip";
 import { ProofStateProvider, useProofState } from "@/lib/proof-state";
 
-// Four surfaces as regions in a spatial strip (docs/DESIGN.md: "not a nav
+// Five surfaces as regions in a spatial strip (docs/DESIGN.md: "not a nav
 // bar"), moved between by direct keyboard shortcut -- the hard
 // requirement is no scroll-hunting during a live recording. Every
 // surface stays mounted (not remounted on switch) so in-flight state
 // (a running scenario, a parsed policy) survives moving away and back.
-type SurfaceId = "attacks" | "proof" | "ledger" | "mandate";
+type SurfaceId = "attacks" | "proof" | "ledger" | "mandate" | "evidence";
 
 const SURFACES: { id: SurfaceId; label: string; key: string }[] = [
   { id: "attacks", label: "Attacks", key: "1" },
   { id: "proof", label: "Proof", key: "2" },
   { id: "ledger", label: "Ledger", key: "3" },
   { id: "mandate", label: "Mandate", key: "4" },
+  { id: "evidence", label: "Evidence", key: "5" },
 ];
 
 function DashboardInner() {
@@ -43,6 +46,7 @@ function DashboardInner() {
   return (
     <div className="relative min-h-screen overflow-hidden" data-proof-state={proofState}>
       <ProofStateBackground />
+      <StatusStrip />
 
       {/* Minimal floating nav -- labels + direct-jump keys, not a bar. */}
       <div
@@ -94,6 +98,7 @@ function DashboardInner() {
             {s.id === "proof" && <ProofSurface />}
             {s.id === "ledger" && <LedgerSurface />}
             {s.id === "mandate" && <MandateSurface />}
+            {s.id === "evidence" && <EvidenceSurface />}
           </div>
         ))}
       </div>

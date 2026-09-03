@@ -27,6 +27,7 @@ from rail.interceptor import propose_action
 from rail.razorpay_client import CaptureResult
 
 from api.demo_state import demo_private_key, fresh_isolated_engine
+from api.z3_lock import Z3_LOCK
 
 SCENARIOS_DIR = Path(__file__).resolve().parent.parent / "eval" / "scenarios"
 
@@ -128,7 +129,7 @@ def run_scenario(scenario_id: str) -> AttackRunResult:
 
     with patch("rail.interceptor.attempt_capture", side_effect=_mock_capture), patch(
         "rail.interceptor.refund", side_effect=_mock_refund
-    ):
+    ), Z3_LOCK:
         for i, spec in enumerate(scenario.actions, start=1):
             action = spec.to_action()
             decision = propose_action(action, policy, engine, private_key)

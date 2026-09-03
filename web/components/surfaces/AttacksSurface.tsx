@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AttackRunResult, ApiError, ScenarioSummary, fetchAttackScenarios, runAttackScenario } from "@/lib/api";
 import { paiseToRupees } from "@/lib/format";
 import { CounterexampleTrace } from "@/components/trace/CounterexampleTrace";
@@ -14,6 +14,10 @@ export function AttacksSurface() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { setState: setProofState } = useProofState();
+  // The headline scenario runs the instant the surface has a scenario id --
+  // the brief's "no surface opens empty" rule -- but only once, so picking a
+  // different scenario from the dropdown afterwards never auto-fires again.
+  const hasAutoRun = useRef(false);
 
   useEffect(() => {
     fetchAttackScenarios()
@@ -25,13 +29,12 @@ export function AttacksSurface() {
       .catch((e) => setError(e instanceof ApiError ? e.message : String(e)));
   }, []);
 
-  async function handleRun() {
-    if (!scenarioId) return;
+  async function handleRun(id: string) {
     setLoading(true);
     setError(null);
     setResult(null);
     try {
-      const r = await runAttackScenario(scenarioId);
+      const r = await runAttackScenario(id);
       setResult(r);
       setProofState(r.blocked_at_step !== null ? "violation" : "safe");
     } catch (e) {
@@ -41,6 +44,14 @@ export function AttacksSurface() {
     }
   }
 
+  useEffect(() => {
+    if (scenarioId && !hasAutoRun.current) {
+      hasAutoRun.current = true;
+      handleRun(scenarioId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenarioId]);
+
   const overallVerification = result
     ? (result.blocked_at_step
         ? result.steps.find((s) => s.step_index === result.blocked_at_step)!.verification
@@ -48,10 +59,10 @@ export function AttacksSurface() {
     : null;
 
   return (
-    <section className="mx-auto flex max-w-3xl flex-col gap-6 p-8">
+    <section className="mx-auto flex max-w-4xl flex-col gap-6 p-8">
       <header>
-        <h1 className="font-serif text-3xl">Blocked attacks</h1>
-        <p className="mt-1 text-sm opacity-70">
+        <h1 className="font-serif text-4xl md:text-5xl">Blocked attacks</h1>
+        <p className="mt-1 text-sm opacity-85">
           Every action below ran through the real pipeline: real parse, real per-action Z3
           verdict, real hash-chained ledger write. Only the Razorpay network call is mocked
           (ADR-0014) -- same disclosed methodology as docs/EVAL.md.
@@ -73,7 +84,7 @@ export function AttacksSurface() {
           ))}
         </select>
         <button
-          onClick={handleRun}
+          onClick={() => scenarioId && handleRun(scenarioId)}
           disabled={!scenarioId || loading}
           className="rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
           style={{ background: "var(--safe-accent)" }}
@@ -90,8 +101,8 @@ export function AttacksSurface() {
         <div className="flex flex-col gap-4">
           <div className="card rounded-lg p-4 text-sm">
             <div className="font-medium">Mandate</div>
-            <p className="mt-1 opacity-80">{result.mandate_text}</p>
-            <div className="mt-3 flex flex-wrap gap-4 text-xs opacity-70">
+            <p className="mt-1 opacity-90">{result.mandate_text}</p>
+            <div className="mt-3 flex flex-wrap gap-4 text-xs opacity-85">
               {result.policy.per_txn_cap_paise !== null && (
                 <span>per-txn cap: {paiseToRupees(result.policy.per_txn_cap_paise)}</span>
               )}

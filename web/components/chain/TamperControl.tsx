@@ -40,7 +40,7 @@ export function TamperControl({ entries }: TamperControlProps) {
   return (
     <div className="card rounded-lg p-4">
       <h3 className="font-serif text-lg">Tamper control</h3>
-      <p className="mt-1 text-xs opacity-70">
+      <p className="mt-1 text-xs opacity-85">
         Simulates editing one entry&apos;s amount directly in the database, bypassing this
         application entirely. Nothing is written to the real ledger -- this previews, on a copy,
         exactly where <code>verify_chain</code> would detect the edit.
@@ -57,7 +57,7 @@ export function TamperControl({ entries }: TamperControlProps) {
             </option>
           ))}
         </select>
-        <span className="text-xs opacity-60">new amount (₹):</span>
+        <span className="text-xs opacity-75">new amount (₹):</span>
         <input
           className="w-24 rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm text-[#2b2630]"
           value={newAmount}
@@ -77,7 +77,7 @@ export function TamperControl({ entries }: TamperControlProps) {
       {result && (
         <p className="mt-3 font-mono text-sm">
           {result.error ? (
-            <span className="opacity-70">{result.error}</span>
+            <span className="opacity-85">{result.error}</span>
           ) : result.broken_at_index !== null ? (
             <span style={{ color: "var(--violation-accent)" }}>
               verify_chain detects the tamper at index {result.broken_at_index}

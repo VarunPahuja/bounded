@@ -15,6 +15,9 @@ from contracts.models import PolicyIR, VerificationResult
 from policy.activate import activate_policy
 from policy.parse import MandateParseError, parse_mandate
 
+from api.mandate_cache import DemoMandateResponse, get_demo_mandate
+from api.z3_lock import Z3_LOCK
+
 
 class ParseResponse(BaseModel):
     status: str  # "ok" | "ambiguous"
@@ -35,4 +38,12 @@ def parse(text: str) -> ParseResponse:
 
 
 def activate(policy: PolicyIR, horizon: int = 8) -> VerificationResult:
-    return activate_policy(policy, horizon=horizon)
+    with Z3_LOCK:
+        return activate_policy(policy, horizon=horizon)
+
+
+def demo() -> DemoMandateResponse:
+    """The cached, pre-parsed-and-activated recording mandate (task brief
+    Phase 7b, item 1) -- no live Azure call on this path.
+    """
+    return get_demo_mandate()

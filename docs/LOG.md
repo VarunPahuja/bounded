@@ -1034,3 +1034,116 @@ surface reading `docs/EVAL.md` — not one of the four required panels, and
 correctly out of scope rather than added as unrequested surface area.
 `scripts/seed_demo_ledger`-style real Razorpay wiring for the Attacks
 panel's compliant leg (ADR-0014's "Revisit when") also remains undone.
+
+
+## 2026-09-04 — Phase 7b: making the dashboard land
+
+**Shipped, in the task brief's priority order, under a 3-hour box:**
+
+1. No surface opens empty. Attacks auto-runs `inj-001-poisoned-product-
+   page-refund` on mount (once — a ref guard stops the dropdown from
+   re-firing it on manual re-selection). Proof auto-parses its default
+   mandate on mount and the naive guard's card auto-runs the instant a
+   policy exists; the sound guard stays button-only, since the VIOLATION
+   -> SAFE flip is the beat the demo narrates and pre-empting it on mount
+   would flatten that. Mandate now loads a real, pre-computed
+   parse-and-activate result on mount instead of an empty form — new
+   `api/mandate_cache.py`, cached to `api/demo_mandate_cache.json` after
+   one real Azure call, so the surface is instant on every subsequent load
+   and can never flake on camera the way a live call could (docs/LOG.md
+   Phase 5's ~1-in-5 measurement). Ledger already did this; untouched.
+2. A fifth surface, Evidence (key `5`). `api/eval_summary.py` parses the
+   committed `docs/EVAL.md` with regexes written against the exact
+   markdown shapes `eval/report.py`'s own section renderers produce —
+   not a generic markdown parser, since the file has exactly one producer.
+   Every number renders from that parse; nothing is hand-typed, including
+   the adversarial_vs_ours caveat, which is carried onto the screen
+   verbatim rather than re-summarized. `/api/eval/summary` returns 503
+   with the real reason if `docs/EVAL.md` doesn't exist, rather than a
+   placeholder number.
+3. A persistent status strip (`api/status_summary.py`,
+   `StatusStrip.tsx`), fixed top-right on every surface. Every figure is
+   real: scenario count from `len(eval/scenarios/*.json)`, test count from
+   a real `pytest --collect-only -q` (cached in-process — collection
+   only, no execution, so it's cheap), unsound-safe and median latency
+   from the same `docs/EVAL.md` parse as Evidence, and `chain_verified`
+   from the real `verify_chain` result on every request — deliberately
+   never cached, since it has to reflect the actual current chain, not a
+   snapshot from process start.
+4. Legibility for 720p: root font-size 16px -> 18px (scales every
+   Tailwind rem-based utility at once rather than hand-editing each
+   class), h1s `text-3xl` -> `text-4xl md:text-5xl`, content columns
+   widened one step per surface (`max-w-3xl` -> `4xl`, `4xl` -> `5xl`,
+   `5xl` -> `6xl`), secondary-text opacity raised (`opacity-70` ->
+   `85`, `-60` -> `75`, `-80` -> `90`) across every surface and the
+   trace/proof/chain components, and both counterexample-trace components
+   bumped from `text-sm` to `text-base` — now visibly the largest
+   monospace on either screen, as the brief required.
+
+**Broke, and it was the real one this phase: making Attacks and Proof
+both auto-run on mount crashed the backend with a native access
+violation, not a catchable Python exception.** `DashboardShell` keeps all
+five surfaces mounted at once (a Phase 7 decision, unchanged) — so the
+instant the page loads, Attacks' and Proof's new auto-run effects both
+fire, each proposing a request into a Z3-backed endpoint
+(`/api/attack/run/...` and `/api/proof/verify`) within milliseconds of
+each other. FastAPI dispatches synchronous endpoint functions to a thread
+pool by default; Z3's Python bindings share one default context that is
+not safe for concurrent use across threads. The result, reproduced live
+and caught by the same "actually run it, don't just reason about the
+code" discipline Phase 7's own entry names: `OSError: exception: access
+violation reading 0x0000000000000260` inside `Z3_solver_assert`,
+`[exited with code 127]` — the whole backend process gone, not a 500.
+Before this fix, the very scenario the brief asks for (every surface
+showing real content the instant the dashboard loads) was the exact
+trigger for a crash that would never have fired under the old
+click-to-run design, where these calls were never concurrent by
+construction.
+
+Fixed with a single process-wide `threading.Lock` (`api/z3_lock.py`),
+acquired around every `api/` call path that reaches `verifier.bmc` —
+`api/proof.py`'s `verify`, `api/mandates.py`'s `activate` (and, for
+symmetry on a cache miss, `api/mandate_cache.py`'s one-time real call),
+`api/attacks.py`'s scenario loop, and `api/ledger_backend.py`'s seed
+loop, all of which land in `verify_guard`/`verify_action` by way of
+`propose_action` or `activate_policy`. This is infrastructure inside
+`api/`, not a change to `verifier/` itself — the solver and its
+soundness argument are untouched; the lock only serializes concurrent
+dashboard requests into the same shared Z3 context. Confirmed fixed by
+re-running the exact five-surface concurrent mount that crashed the
+process before: zero console errors, backend still answering after the
+run. `pytest` reconfirmed at the pre-existing baseline (113 passed, the
+known `test_webhook_concurrent_duplicate` thread-timing flake, 3
+skipped) — the lock touches only `api/`, which has no test suite of its
+own (manual verification only, per `docs/PHASE7-PLAN.md`).
+
+**Verified by looking, per the standing practice.** Screenshotted all
+five surfaces at 1280x720 (Playwright via a scratch script, no
+`chromium-cli` in this environment) after the concurrency fix: every
+surface has real, dense content on load — the blocked trace, the naive
+guard's solver-constructed counterexample, the seeded ledger, the
+activated demo mandate, and the Evidence surface's comparison tables,
+all legible at that resolution with the status strip and floating nav
+visible throughout. Also captured the untouched default SAFE ambient
+state (a screenshot taken ~150ms after load, before either auto-run
+resolves) to confirm the lilac/rose drift aesthetic and serif heading
+survived the font/column changes — they did. One cosmetic issue noted,
+not fixed: scrolled far enough down the Evidence surface, the fixed
+status strip visually overlaps the pass^k table's header row for one
+scroll position. Left as-is — it's a momentary overlap during a live
+scroll on the one surface dense enough to scroll past 720px, not a
+static resting state, and item 5 (ambient polish) is explicitly
+lower-priority than shipping within the box.
+
+**Changed my mind:** none on scope — the brief's priority order was
+followed exactly, item 5 (ambient polish) was not started, and the
+`/api/eval/summary` "parse the committed file" approach from
+`docs/PHASE7-PLAN.md`'s original open list was used as specified rather
+than reopening the alternative (reading `eval/report.py`'s in-memory
+result structure directly), since no run in this session produces that
+structure fresh — the committed file is the only real artifact on disk.
+
+`pytest`: 113 passed, 3 skipped, 1 known flake (`test_webhook_
+concurrent_duplicate`) — unchanged baseline. Stopping here per the
+brief's hard time box; Phase 8 (README, video, written answer) has not
+started and is the priority.

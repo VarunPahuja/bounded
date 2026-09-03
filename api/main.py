@@ -17,13 +17,17 @@ from contracts.models import LedgerEntry, PolicyIR, VerificationResult
 from policy.parse import MandateParseError
 
 from api.attacks import AttackRunResult, ScenarioNotFoundError, ScenarioSummary, list_scenarios, run_scenario
+from api.eval_summary import EvalSummary, EvalSummaryUnavailable, load_eval_summary
 from api.ledger_backend import ChainVerifyResponse, TamperPreviewResponse
 from api.ledger_backend import get_chain_status, get_entries, tamper_preview
+from api.mandate_cache import DemoMandateResponse
 from api.mandates import ParseResponse
 from api.mandates import activate as activate_mandate
+from api.mandates import demo as demo_mandate
 from api.mandates import parse as parse_mandate_text
 from api.proof import GuardName
 from api.proof import verify as verify_proof
+from api.status_summary import StatusSummary, get_status_summary
 
 app = FastAPI(title="Bounded dashboard API")
 
@@ -69,6 +73,11 @@ def post_mandate_activate(req: ActivateRequest) -> VerificationResult:
     return activate_mandate(req.policy, horizon=req.horizon)
 
 
+@app.get("/api/mandate/demo", response_model=DemoMandateResponse)
+def get_mandate_demo() -> DemoMandateResponse:
+    return demo_mandate()
+
+
 class ProofVerifyRequest(BaseModel):
     policy: PolicyIR
     guard: GuardName
@@ -98,3 +107,16 @@ class TamperPreviewRequest(BaseModel):
 @app.post("/api/ledger/tamper-preview", response_model=TamperPreviewResponse)
 def post_ledger_tamper_preview(req: TamperPreviewRequest) -> TamperPreviewResponse:
     return tamper_preview(req.index, req.new_amount_paise)
+
+
+@app.get("/api/eval/summary", response_model=EvalSummary)
+def get_eval_summary() -> EvalSummary:
+    try:
+        return load_eval_summary()
+    except EvalSummaryUnavailable as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
+@app.get("/api/status/summary", response_model=StatusSummary)
+def get_status() -> StatusSummary:
+    return get_status_summary()

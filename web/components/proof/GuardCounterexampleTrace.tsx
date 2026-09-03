@@ -23,7 +23,7 @@ export function GuardCounterexampleTrace({ counterexample }: GuardCounterexample
           return (
             <li
               key={step.step_index}
-              className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded px-3 py-2 text-sm"
+              className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded px-3 py-2 text-base"
               style={
                 isBreachPoint
                   ? { background: "rgba(95, 227, 224, 0.12)", border: "1px solid var(--violation-accent)" }
@@ -47,7 +47,7 @@ export function GuardCounterexampleTrace({ counterexample }: GuardCounterexample
         })}
       </ol>
 
-      <div className="mt-4 border-t pt-4 text-sm leading-relaxed" style={{ borderColor: "var(--violation-accent)" }}>
+      <div className="mt-4 border-t pt-4 text-base leading-relaxed" style={{ borderColor: "var(--violation-accent)" }}>
         <div className="mb-1 font-semibold" style={{ color: "var(--violation-accent)" }}>
           violated: {counterexample.violated_property}
         </div>

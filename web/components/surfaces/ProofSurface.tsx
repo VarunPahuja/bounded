@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ApiError, GuardName, PolicyIR, VerificationResult, parseMandate, verifyProof } from "@/lib/api";
 import { paiseToRupees } from "@/lib/format";
 import { VerdictBadge } from "@/components/proof/VerdictBadge";
@@ -20,9 +20,10 @@ interface GuardCardProps {
   label: string;
   guard: GuardName;
   policy: PolicyIR;
+  autoRun?: boolean;
 }
 
-function GuardCard({ label, guard, policy }: GuardCardProps) {
+function GuardCard({ label, guard, policy, autoRun }: GuardCardProps) {
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +43,20 @@ function GuardCard({ label, guard, policy }: GuardCardProps) {
     }
   }
 
+  // The naive guard's solver-constructed counterexample is the surface's
+  // headline evidence -- run it the instant a policy exists, no click
+  // required. The sound guard stays button-only: the VIOLATION -> SAFE flip
+  // is the beat the demo narrates, and narrating a click that already
+  // happened before the viewer saw it would flatten that.
+  useEffect(() => {
+    if (autoRun) run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [policy]);
+
   return (
     <div className="card flex flex-col gap-3 rounded-lg p-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-serif text-lg">{label}</h3>
+        <h3 className="font-serif text-xl">{label}</h3>
         <button
           onClick={run}
           disabled={loading}
@@ -62,7 +73,7 @@ function GuardCard({ label, guard, policy }: GuardCardProps) {
         <div className="flex flex-col gap-3">
           <VerdictBadge verdict={result.verdict} horizon={result.horizon} />
           <PropertiesList properties={result.properties_checked} />
-          <p className="text-xs opacity-60">solve time: {result.latency_ms.toFixed(2)} ms</p>
+          <p className="text-xs opacity-75">solve time: {result.latency_ms.toFixed(2)} ms</p>
           {result.counterexample && <GuardCounterexampleTrace counterexample={result.counterexample} />}
         </div>
       )}
@@ -96,11 +107,23 @@ export function ProofSurface() {
     }
   }
 
+  // No surface opens empty (task brief item 1): parse the default mandate
+  // the instant this surface mounts, so the naive guard's counterexample
+  // (below) has a policy to run against without a click.
+  const hasAutoParsed = useRef(false);
+  useEffect(() => {
+    if (!hasAutoParsed.current) {
+      hasAutoParsed.current = true;
+      handleParse();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <section className="mx-auto flex max-w-4xl flex-col gap-6 p-8">
+    <section className="mx-auto flex max-w-5xl flex-col gap-6 p-8">
       <header>
-        <h1 className="font-serif text-3xl">Proof</h1>
-        <p className="mt-1 text-sm opacity-70">
+        <h1 className="font-serif text-4xl md:text-5xl">Proof</h1>
+        <p className="mt-1 text-sm opacity-85">
           Same policy, same solver, two guards. The naive guard checks each payment against the
           per-payment cap alone; the sound guard also tracks the running window spend. Nobody
           writes the counterexample below -- the solver searches every guard-admitted sequence up
@@ -136,7 +159,7 @@ export function ProofSurface() {
 
       {policy && (
         <>
-          <div className="card rounded-lg p-4 text-xs opacity-80">
+          <div className="card rounded-lg p-4 text-xs opacity-90">
             {policy.per_txn_cap_paise !== null && <span className="mr-4">per-txn cap: {paiseToRupees(policy.per_txn_cap_paise)}</span>}
             {policy.window_cap_paise !== null && (
               <span>
@@ -145,7 +168,7 @@ export function ProofSurface() {
             )}
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <GuardCard label="Naive guard" guard="naive" policy={policy} />
+            <GuardCard label="Naive guard" guard="naive" policy={policy} autoRun />
             <GuardCard label="Sound guard" guard="sound" policy={policy} />
           </div>
         </>

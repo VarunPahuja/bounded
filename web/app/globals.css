@@ -127,6 +127,12 @@
   }
   html {
     @apply font-sans;
+    /* Legibility for a 720p recording (task brief Phase 7b, item 4): the
+       default 16px base reads fine on a desktop monitor but not on a
+       screen-capture watched small. Bumping the root size scales every
+       Tailwind rem-based utility (text-sm, text-xs, spacing) with it,
+       rather than hand-editing every class. */
+    font-size: 18px;
   }
 }
 

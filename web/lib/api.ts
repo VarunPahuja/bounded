@@ -178,4 +178,74 @@ export function tamperPreview(index: number, newAmountPaise: number): Promise<Ta
   });
 }
 
+export interface DemoMandateResponse {
+  mandate_text: string;
+  policy: PolicyIR;
+  activation: VerificationResult;
+}
+
+export function fetchDemoMandate(): Promise<DemoMandateResponse> {
+  return request<DemoMandateResponse>("/api/mandate/demo");
+}
+
+export interface ClassBalance {
+  class_label: string;
+  scenarios: number;
+  pct: number;
+}
+
+export interface CorpusBalance {
+  classes: ClassBalance[];
+  total: number;
+  benign_pct: number;
+}
+
+export interface FalsePositiveRow {
+  pipeline: string;
+  fp: number;
+  n: number;
+  rate_pct: number;
+  ci_lo: number;
+  ci_hi: number;
+}
+
+export interface PassKRow {
+  class_label: string;
+  ours: Record<string, number>;
+  judge: Record<string, number>;
+}
+
+export interface EvalSummary {
+  n_scenarios: number;
+  n_samples: number;
+  generated_at: string;
+  mode: string;
+  commit: string;
+  corpus: CorpusBalance;
+  unsound_safe_ours: number;
+  unsound_safe_judge: number;
+  unsound_safe_definition: string;
+  false_positive: FalsePositiveRow[];
+  pass_k: PassKRow[];
+  median_latency_ms: number;
+  median_latency_n: number;
+  adversarial_note: string;
+}
+
+export function fetchEvalSummary(): Promise<EvalSummary> {
+  return request<EvalSummary>("/api/eval/summary");
+}
+
+export interface StatusSummary {
+  scenario_count: number;
+  test_count: number | null;
+  unsound_safe: number | null;
+  median_latency_ms: number | null;
+  chain_verified: boolean;
+}
+
+export function fetchStatusSummary(): Promise<StatusSummary> {
+  return request<StatusSummary>("/api/status/summary");
+}
+
 export { ApiError };

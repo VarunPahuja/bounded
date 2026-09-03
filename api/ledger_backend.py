@@ -32,6 +32,7 @@ from rail.interceptor import propose_action
 from rail.razorpay_client import CaptureResult
 
 from api.demo_state import demo_engine, demo_private_key, demo_public_key
+from api.z3_lock import Z3_LOCK
 
 # A fixed demo policy for seeding only -- not user-editable here. The
 # Mandate/Proof surfaces are where a viewer explores arbitrary policies;
@@ -68,7 +69,7 @@ def _seed_if_empty() -> None:
     ]
     with patch("rail.interceptor.attempt_capture", side_effect=_mock_capture), patch(
         "rail.interceptor.refund", side_effect=_mock_refund
-    ):
+    ), Z3_LOCK:
         for action in seed_actions:
             propose_action(action, _SEED_POLICY, engine, private_key)
 

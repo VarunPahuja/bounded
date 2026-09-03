@@ -33,10 +33,10 @@ export function LedgerSurface() {
   }, []);
 
   return (
-    <section className="mx-auto flex max-w-4xl flex-col gap-6 p-8">
+    <section className="mx-auto flex max-w-5xl flex-col gap-6 p-8">
       <header>
-        <h1 className="font-serif text-3xl">Ledger</h1>
-        <p className="mt-1 text-sm opacity-70">
+        <h1 className="font-serif text-4xl md:text-5xl">Ledger</h1>
+        <p className="mt-1 text-sm opacity-85">
           The hash-chained, Ed25519-signed audit trail every decision in this system is written
           to. Real entries from the real interceptor -- the same one Attacks and Proof exercise.
         </p>
@@ -48,7 +48,7 @@ export function LedgerSurface() {
         <>
           <div className="flex items-center gap-3">
             <ChainStatusBadge brokenAtIndex={brokenAtIndex} />
-            <button onClick={load} className="text-xs underline opacity-60">
+            <button onClick={load} className="text-xs underline opacity-75">
               refresh
             </button>
           </div>
