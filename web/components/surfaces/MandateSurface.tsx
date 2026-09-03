@@ -17,6 +17,10 @@ const RECORDING_MANDATE =
 // rule (policy/parse.py's system prompt) is to never invent one.
 const AMBIGUOUS_MANDATE = "Keep the agent's spending reasonable and don't let it go overboard.";
 
+// UI 2.0 (ADR-0015): the typed side renders as a black-field mono block --
+// visually a "compiled" artifact next to the English prose, so the
+// translation the brief asks to make legible at a glance reads as a
+// contrast in kind (prose vs. typed object), not just two white cards.
 function PolicyView({ policy }: { policy: PolicyIR }) {
   const rows: [string, string][] = [];
   if (policy.per_txn_cap_paise !== null) rows.push(["per_txn_cap_paise", paiseToRupees(policy.per_txn_cap_paise)]);
@@ -30,13 +34,15 @@ function PolicyView({ policy }: { policy: PolicyIR }) {
   rows.push(["refund_bounded_by_capture", "true (always on)"]);
 
   return (
-    <div className="card rounded-lg p-4 font-mono text-xs">
-      <div className="mb-2 font-sans text-sm font-semibold">PolicyIR (typed, what everything downstream reads)</div>
-      <dl className="flex flex-col gap-1">
+    <div className="nb-mono p-6" style={{ background: "var(--trace-bg)", color: "var(--trace-fg)", border: "4px solid var(--trace-fg)", boxShadow: "8px 8px 0 var(--safe)" }}>
+      <div className="mb-4 text-lg font-black uppercase tracking-tight" style={{ color: "var(--safe)" }}>
+        PolicyIR — what everything downstream reads
+      </div>
+      <dl className="flex flex-col gap-2 text-base">
         {rows.map(([k, v]) => (
-          <div key={k} className="flex gap-2">
-            <dt className="w-56 shrink-0 opacity-75">{k}</dt>
-            <dd>{v}</dd>
+          <div key={k} className="flex flex-wrap gap-2">
+            <dt style={{ color: "var(--trace-muted)" }}>{k}:</dt>
+            <dd className="font-bold">{v}</dd>
           </div>
         ))}
       </dl>
@@ -89,8 +95,8 @@ export function MandateSurface() {
     }
   }
 
-  // No surface opens empty (task brief item 1): pre-populate with the
-  // already-parsed-and-activated recording mandate. Reads a cached result
+  // No surface opens empty: pre-populate with the already-parsed-and-
+  // activated recording mandate. Reads a cached result
   // (api/mandate_cache.py) -- no live Azure call on mount, so this can
   // never flake on camera.
   const hasLoadedDemo = useRef(false);
@@ -109,82 +115,73 @@ export function MandateSurface() {
   }, []);
 
   return (
-    <section className="mx-auto flex max-w-6xl flex-col gap-6 p-8">
+    <section className="flex w-full flex-col gap-8 px-8 py-10 md:px-14">
       <header>
-        <h1 className="font-serif text-4xl md:text-5xl">Mandate</h1>
-        <p className="mt-1 text-sm opacity-85">
-          The model only translates English into a typed object -- it never decides whether a
+        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+          Mandate
+        </h1>
+        <p className="mt-4 max-w-3xl text-lg font-bold" style={{ color: "var(--muted-fg)" }}>
+          The model only translates English into a typed object — it never decides whether a
           payment is allowed. If it can&apos;t extract every field without guessing, it refuses
           rather than filling the gap. That refusal is shown below, not hidden.
         </p>
       </header>
 
-      <div className="flex flex-wrap gap-2 text-xs">
-        <button onClick={() => setText(RECORDING_MANDATE)} className="underline opacity-75 hover:opacity-100">
-          load the recording mandate
+      <div className="nb-mono flex flex-wrap gap-4 text-sm font-black">
+        <button onClick={() => setText(RECORDING_MANDATE)} className="underline underline-offset-4">
+          LOAD THE RECORDING MANDATE
         </button>
-        <span className="opacity-30">·</span>
-        <button onClick={() => setText(AMBIGUOUS_MANDATE)} className="underline opacity-75 hover:opacity-100">
-          load an ambiguous example
+        <span>·</span>
+        <button onClick={() => setText(AMBIGUOUS_MANDATE)} className="underline underline-offset-4">
+          LOAD AN AMBIGUOUS EXAMPLE
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="flex flex-col gap-3">
-          <textarea
-            className="min-h-[140px] rounded-md border border-black/10 bg-white p-3 text-sm text-[#2b2630]"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
+        <div className="flex flex-col gap-4">
+          <div className="text-lg font-black uppercase tracking-tight">English (untrusted input)</div>
+          <textarea className="nb-input min-h-[160px] text-xl" value={text} onChange={(e) => setText(e.target.value)} />
           <div>
-            <button
-              onClick={handleParse}
-              disabled={parsing}
-              className="rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-              style={{ background: "var(--safe-accent)" }}
-            >
-              {parsing ? "parsing…" : "Parse mandate"}
+            <button onClick={handleParse} disabled={parsing} className="nb-btn">
+              {parsing ? "PARSING…" : "PARSE MANDATE"}
             </button>
           </div>
           {error && (
-            <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">{error}</div>
+            <div className="nb-panel-flat p-4 text-base font-bold" style={{ borderColor: "var(--violation)" }}>
+              {error}
+            </div>
           )}
           {ambiguousMessage && (
-            <div className="card card-soft rounded-md border-2 border-dashed p-3 text-sm">
-              <div className="font-semibold">refused -- ambiguous, not guessed</div>
-              <p className="mt-1 opacity-90">{ambiguousMessage}</p>
+            <div className="nb-panel-flat p-4 text-base font-bold" style={{ borderStyle: "dashed" }}>
+              <div className="uppercase">refused — ambiguous, not guessed</div>
+              <p className="mt-1">{ambiguousMessage}</p>
             </div>
           )}
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
+          <div className="text-lg font-black uppercase tracking-tight">Typed PolicyIR (compiled)</div>
           {policy ? (
             <>
               <PolicyView policy={policy} />
               <div>
-                <button
-                  onClick={handleActivate}
-                  disabled={activating}
-                  className="rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                  style={{ background: "var(--safe-accent)" }}
-                >
-                  {activating ? "proving…" : "Activate (prove servable)"}
+                <button onClick={handleActivate} disabled={activating} className="nb-btn">
+                  {activating ? "PROVING…" : "ACTIVATE (PROVE SERVABLE)"}
                 </button>
               </div>
               {activation && (
-                <div className="card flex flex-col gap-2 rounded-lg p-4">
+                <div className="nb-panel flex flex-col gap-3 p-5">
                   <VerdictBadge verdict={activation.verdict} horizon={activation.horizon} />
-                  <p className="text-xs opacity-85">
+                  <p className="text-base font-bold">
                     {activation.verdict === "safe"
                       ? "This policy is provably servable: no sequence of guard-admitted actions up to this horizon can breach it."
-                      : activation.error_message ??
-                        "Not servable -- see the counterexample the solver constructed."}
+                      : activation.error_message ?? "Not servable — see the counterexample the solver constructed."}
                   </p>
                 </div>
               )}
             </>
           ) : (
-            <div className="card flex h-full items-center justify-center rounded-lg border-dashed p-8 text-sm opacity-50">
+            <div className="nb-panel-flat flex h-full min-h-[200px] items-center justify-center p-8 text-lg font-bold" style={{ borderStyle: "dashed" }}>
               parse a mandate to see the typed policy here
             </div>
           )}

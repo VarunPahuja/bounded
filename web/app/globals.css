@@ -7,10 +7,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-fraunces);
-  --font-serif: var(--font-fraunces);
+  /* UI 2.0 (ADR-0015): this was `--font-sans: var(--font-sans);` -- a
+     self-referential no-op that resolved to nothing, so every "sans"
+     element silently fell back to the browser's default serif. Caught by
+     actually looking at a rendered screenshot, not by reasoning about the
+     CSS -- the huge neobrutalist headings were rendering serif. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -19,61 +22,23 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
 }
 
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --border: oklch(0.145 0 0);
+  --input: oklch(0.145 0 0);
+  --ring: oklch(0.145 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0px;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -84,144 +49,183 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    border-radius: 0 !important;
   }
   body {
-    @apply bg-background text-foreground;
+    /* font-sans applies here, not on <html>: next/font's --font-geist-sans
+       custom property is only defined by the .variable class on <body>
+       (see app/layout.tsx), and a CSS custom property is never visible to
+       an ancestor -- applying the utility on <html> silently resolved to
+       nothing and fell back to the browser's default serif. Caught by
+       screenshotting the actual page, not by reading the CSS. */
+    @apply bg-background text-foreground font-sans;
   }
   html {
-    @apply font-sans;
-    /* Legibility for a 720p recording (task brief Phase 7b, item 4): the
-       default 16px base reads fine on a desktop monitor but not on a
-       screen-capture watched small. Bumping the root size scales every
-       Tailwind rem-based utility (text-sm, text-xs, spacing) with it,
-       rather than hand-editing every class. */
-    font-size: 18px;
+    /* Legibility for a 720p recording under compression (ADR-0015): a
+       large fixed base plus solid colour everywhere, never opacity, is
+       the whole legibility strategy of UI 2.0. */
+    font-size: 20px;
   }
 }
 
-/* Proof-state palette (docs/DESIGN.md). Driven by data-proof-state on the
-   page root, not by prefers-color-scheme -- the mood is a function of the
-   current verdict, not the viewer's OS theme. VIOLATION's accent is a cold
-   cyan by design, deliberately never red (DESIGN.md's non-negotiable). */
+/* ============================================================
+   UI 2.0 -- neobrutalist design tokens (ADR-0015, supersedes
+   docs/DESIGN.md's ethereal SAFE/VIOLATION palette).
+
+   Two layers of variables:
+   - Panel tokens (--panel-*) are UNCONDITIONAL: every card, button,
+     input and panel is a solid bone/white fill with a pure black
+     border and a pure black hard shadow, in both ambient states. This
+     is what "borders: pure black on every card" and "shadows: never
+     soft" mean literally, without per-state recolouring logic.
+   - Canvas tokens (--canvas-*, --accent, --accent-fg) are what actually
+     carries the SAFE/VIOLATION distinction: the page canvas flips from
+     bone to near-black, and the accent flips from electric blue to
+     electric cyan (never red -- the one rule carried forward from
+     DESIGN.md, restated in ADR-0015). Panels sit on top of either
+     canvas as crisp, unchanged islands.
+   ============================================================ */
 :root {
-  --safe-bg: #f8f6f3;
-  --safe-lilac: #cdbfe0;
-  --safe-rose: #e8c9cb;
-  --safe-accent: #a891c9;
-  --safe-fg: #2b2630;
+  --bone: #f2eee2;
+  --ink: #0a0a0a;
 
-  --violation-bg: #0a0a0c;
-  --violation-accent: #5fe3e0;
-  --violation-fg: #e8e8ec;
-}
+  /* Fixed semantic colours -- always mean the same thing regardless of
+     global ambient state, so two verdicts (e.g. the naive and sound
+     guard cards on Proof) can disagree with each other correctly. Never
+     red (DESIGN.md's one rule that survives ADR-0015 unchanged). */
+  --safe: #0033ff;
+  --safe-ink: #ffffff;
+  --violation: #00e5ff;
+  --violation-ink: #0a0a0a;
+  --admitted: #007a3d;
 
-/* SAFE-state drift (docs/DESIGN.md: "elements drift slightly -- subtle,
-   continuous, not attention-seeking"). Large, soft, low-opacity blobs;
-   the motion should register peripherally, not draw the eye. */
-.drift-blob {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(80px);
-  opacity: 0.35;
-  will-change: transform;
-}
-.drift-blob-a {
-  width: 42vw;
-  height: 42vw;
-  top: -10%;
-  left: -8%;
-  animation: drift-a 34s ease-in-out infinite;
-}
-.drift-blob-b {
-  width: 38vw;
-  height: 38vw;
-  bottom: -12%;
-  right: -6%;
-  animation: drift-b 40s ease-in-out infinite;
-}
-.drift-blob-c {
-  width: 30vw;
-  height: 30vw;
-  top: 30%;
-  right: 20%;
-  animation: drift-c 46s ease-in-out infinite;
-}
-@keyframes drift-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(4vw, 6vh) scale(1.08); }
-}
-@keyframes drift-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-5vw, -4vh) scale(1.05); }
-}
-@keyframes drift-c {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-3vw, 5vh) scale(0.95); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .drift-blob { animation: none; }
+  /* Ambient tokens -- the *global* current-state mood, used only by the
+     canvas background and the nav/status chrome. */
+  --canvas-bg: var(--bone);
+  --canvas-fg: var(--ink);
+  --accent: var(--safe);
+  --accent-fg: var(--safe-ink);
+
+  --panel-bg: #ffffff;
+  --panel-fg: var(--ink);
+  --panel-border: var(--ink);
+  --panel-shadow: var(--ink);
+  --muted-fg: #4a4a4a;
 }
 
-/* Surface chrome (cards, dividers) responds to the ambient proof state
-   too -- data-proof-state is set once on the app root (DashboardShell),
-   not per component, so every card picks this up without each surface
-   hand-rolling its own conditional styling. */
-:root {
-  --card-bg: rgba(255, 255, 255, 0.6);
-  --card-border: rgba(0, 0, 0, 0.1);
-  --card-bg-soft: rgba(0, 0, 0, 0.05);
-  --card-text-muted: rgba(43, 38, 48, 0.6);
-}
 [data-proof-state="violation"] {
-  --card-bg: rgba(255, 255, 255, 0.06);
-  --card-border: rgba(95, 227, 224, 0.25);
-  --card-bg-soft: rgba(255, 255, 255, 0.08);
-  --card-text-muted: rgba(232, 232, 236, 0.65);
+  --canvas-bg: var(--ink);
+  --canvas-fg: var(--bone);
+  --accent: var(--violation);
+  --accent-fg: var(--violation-ink);
 }
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+
+/* Trace surfaces are unconditionally a pure black field with bright
+   monospace -- the default treatment now, not an exception carved out
+   for one component (docs/DESIGN.md's old non-negotiable, restated as
+   the norm rather than the exception per ADR-0015). */
+:root {
+  --trace-bg: #0a0a0a;
+  --trace-fg: #f2eee2;
+  --trace-muted: #8a8a8a;
 }
-.card-soft {
-  background: var(--card-bg-soft);
+
+/* ---- Structural utility classes ---- */
+
+.nb-panel {
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+  border: 4px solid var(--panel-border);
+  box-shadow: 8px 8px 0 var(--panel-shadow);
 }
-.text-muted {
-  color: var(--card-text-muted);
+
+.nb-panel-flat {
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+  border: 3px solid var(--panel-border);
+}
+
+.nb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  font-weight: 800;
+  padding: 0.75rem 1.5rem;
+  /* Fixed --safe, not the ambient --accent: an action button ("run
+     this", "parse this") is a call to action, not a verdict, so it
+     stays the same colour regardless of what the rest of the page is
+     currently displaying. */
+  background: var(--safe);
+  color: var(--safe-ink);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+  cursor: pointer;
+}
+.nb-btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+.nb-btn:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.nb-btn:disabled {
+  cursor: not-allowed;
+  background: #c9c9c9;
+  color: #6a6a6a;
+}
+
+.nb-btn-ghost {
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+}
+
+.nb-input {
+  border: 3px solid var(--ink);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.6rem 0.8rem;
+  font-size: 1rem;
+}
+.nb-input:focus {
+  outline: 3px solid var(--accent);
+  outline-offset: 0;
+}
+
+.nb-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 3px solid var(--ink);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-geist-mono);
+  font-weight: 700;
+}
+
+.nb-heading {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 0.85;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.nb-mono {
+  font-family: var(--font-geist-mono);
+}
+
+.nb-divider {
+  border: none;
+  border-top: 4px solid var(--ink);
+  margin: 0;
+}
+
+.nb-vdivider {
+  border-left: 3px solid var(--ink);
 }

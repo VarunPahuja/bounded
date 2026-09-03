@@ -38,52 +38,49 @@ export function TamperControl({ entries }: TamperControlProps) {
   }
 
   return (
-    <div className="card rounded-lg p-4">
-      <h3 className="font-serif text-lg">Tamper control</h3>
-      <p className="mt-1 text-xs opacity-85">
+    <div className="nb-panel p-6">
+      <h3 className="text-2xl font-black uppercase tracking-tight">Tamper control</h3>
+      <p className="mt-2 text-base font-medium" style={{ color: "var(--muted-fg)" }}>
         Simulates editing one entry&apos;s amount directly in the database, bypassing this
-        application entirely. Nothing is written to the real ledger -- this previews, on a copy,
-        exactly where <code>verify_chain</code> would detect the edit.
+        application entirely. Nothing is written to the real ledger — this previews, on a copy,
+        exactly where <code className="nb-mono font-bold">verify_chain</code> would detect the edit.
       </p>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <select
-          className="rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm text-[#2b2630]"
-          value={index ?? ""}
-          onChange={(e) => setIndex(Number(e.target.value))}
-        >
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <select className="nb-input nb-mono" value={index ?? ""} onChange={(e) => setIndex(Number(e.target.value))}>
           {tamperable.map((e) => (
             <option key={e.index} value={e.index}>
               #{e.index} — {e.action!.action_type} {paiseToRupees(e.action!.amount_paise)}
             </option>
           ))}
         </select>
-        <span className="text-xs opacity-75">new amount (₹):</span>
-        <input
-          className="w-24 rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm text-[#2b2630]"
-          value={newAmount}
-          onChange={(e) => setNewAmount(e.target.value)}
-        />
+        <span className="nb-mono text-sm font-black">NEW AMOUNT (₹):</span>
+        <input className="nb-input nb-mono w-28" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} />
         <button
           onClick={handlePreview}
           disabled={loading || index === null}
-          className="rounded-md px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
-          style={{ background: "var(--violation-accent)", color: "var(--violation-bg)" }}
+          className="nb-btn"
+          style={{ background: "var(--violation)", color: "var(--violation-ink)" }}
         >
-          {loading ? "checking…" : "Preview tamper"}
+          {loading ? "CHECKING…" : "PREVIEW TAMPER"}
         </button>
       </div>
 
-      {error && <p className="mt-2 text-xs text-red-700">{error}</p>}
+      {error && (
+        <p className="nb-mono mt-3 border-2 border-black bg-white px-3 py-2 text-sm font-bold text-red-700">{error}</p>
+      )}
       {result && (
-        <p className="mt-3 font-mono text-sm">
+        <p className="nb-mono mt-4 text-lg font-black">
           {result.error ? (
-            <span className="opacity-85">{result.error}</span>
+            <span style={{ color: "var(--muted-fg)" }}>{result.error}</span>
           ) : result.broken_at_index !== null ? (
-            <span style={{ color: "var(--violation-accent)" }}>
-              verify_chain detects the tamper at index {result.broken_at_index}
+            <span
+              className="inline-block border-2 px-3 py-1"
+              style={{ borderColor: "var(--ink)", background: "var(--violation)", color: "var(--violation-ink)" }}
+            >
+              VERIFY_CHAIN DETECTS THE TAMPER AT INDEX {result.broken_at_index}
             </span>
           ) : (
-            <span className="text-[#5fe38f]">chain still verifies (unexpected -- report this)</span>
+            <span style={{ color: "#007a3d" }}>CHAIN STILL VERIFIES (unexpected — report this)</span>
           )}
         </p>
       )}

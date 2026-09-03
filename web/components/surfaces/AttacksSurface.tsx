@@ -53,25 +53,30 @@ export function AttacksSurface() {
   }, [scenarioId]);
 
   const overallVerification = result
-    ? (result.blocked_at_step
-        ? result.steps.find((s) => s.step_index === result.blocked_at_step)!.verification
-        : result.steps[result.steps.length - 1]?.verification)
+    ? result.blocked_at_step
+      ? result.steps.find((s) => s.step_index === result.blocked_at_step)!.verification
+      : result.steps[result.steps.length - 1]?.verification
     : null;
 
   return (
-    <section className="mx-auto flex max-w-4xl flex-col gap-6 p-8">
+    <section className="flex w-full flex-col gap-8 px-8 py-10 md:px-14">
       <header>
-        <h1 className="font-serif text-4xl md:text-5xl">Blocked attacks</h1>
-        <p className="mt-1 text-sm opacity-85">
+        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+          Blocked
+          <br />
+          attacks
+        </h1>
+        <p className="mt-4 max-w-3xl text-lg font-bold" style={{ color: "var(--muted-fg)" }}>
           Every action below ran through the real pipeline: real parse, real per-action Z3
-          verdict, real hash-chained ledger write. Only the Razorpay network call is mocked
-          (ADR-0014) -- same disclosed methodology as docs/EVAL.md.
+          verdict, real hash-chained ledger write.{" "}
+          <span className="nb-chip">ADR-0014: RAZORPAY CALL MOCKED</span> — same disclosed
+          methodology as docs/EVAL.md.
         </p>
       </header>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-4">
         <select
-          className="rounded-md border border-black/10 bg-white px-3 py-2 text-sm text-[#2b2630]"
+          className="nb-input nb-mono flex-1 min-w-[320px]"
           value={scenarioId ?? ""}
           onChange={(e) => setScenarioId(e.target.value)}
           disabled={!scenarios}
@@ -83,32 +88,29 @@ export function AttacksSurface() {
             </option>
           ))}
         </select>
-        <button
-          onClick={() => scenarioId && handleRun(scenarioId)}
-          disabled={!scenarioId || loading}
-          className="rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-          style={{ background: "var(--safe-accent)" }}
-        >
-          {loading ? "running…" : "Run scenario"}
+        <button onClick={() => scenarioId && handleRun(scenarioId)} disabled={!scenarioId || loading} className="nb-btn">
+          {loading ? "RUNNING…" : "RUN SCENARIO"}
         </button>
       </div>
 
       {error && (
-        <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">{error}</div>
+        <div className="nb-panel-flat p-4 text-base font-bold" style={{ borderColor: "var(--violation)", color: "var(--ink)" }}>
+          {error}
+        </div>
       )}
 
       {result && (
-        <div className="flex flex-col gap-4">
-          <div className="card rounded-lg p-4 text-sm">
-            <div className="font-medium">Mandate</div>
-            <p className="mt-1 opacity-90">{result.mandate_text}</p>
-            <div className="mt-3 flex flex-wrap gap-4 text-xs opacity-85">
+        <div className="flex flex-col gap-6">
+          <div className="nb-panel p-5">
+            <div className="text-lg font-black uppercase tracking-tight">Mandate</div>
+            <p className="mt-2 text-lg font-bold">{result.mandate_text}</p>
+            <div className="nb-mono mt-3 flex flex-wrap gap-3 text-sm font-bold">
               {result.policy.per_txn_cap_paise !== null && (
-                <span>per-txn cap: {paiseToRupees(result.policy.per_txn_cap_paise)}</span>
+                <span className="nb-chip">PER-TXN CAP {paiseToRupees(result.policy.per_txn_cap_paise)}</span>
               )}
               {result.policy.window_cap_paise !== null && (
-                <span>
-                  window cap: {paiseToRupees(result.policy.window_cap_paise)} ({result.policy.window})
+                <span className="nb-chip">
+                  WINDOW CAP {paiseToRupees(result.policy.window_cap_paise)} ({result.policy.window})
                 </span>
               )}
             </div>

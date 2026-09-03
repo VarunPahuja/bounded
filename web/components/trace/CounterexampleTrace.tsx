@@ -1,10 +1,10 @@
 import { AttackStep } from "@/lib/api";
 import { paiseToRupees } from "@/lib/format";
 
-// Non-negotiable per docs/DESIGN.md: counterexample traces are always
-// maximum-contrast monospace on a dark field, regardless of the ambient
-// SAFE/VIOLATION mood elsewhere on the page. This component never reads
-// the ambient proof-state and never softens its own contrast.
+// UI 2.0 (ADR-0015): trace surfaces are unconditionally a pure black
+// field with bright monospace -- this is now the default treatment, not
+// an exception carved out for one component. BLOCKED gets a solid cyan
+// block (never a translucent overlay -- no opacity-based hierarchy).
 interface CounterexampleTraceProps {
   steps: AttackStep[];
   blockedAtStep: number | null;
@@ -15,30 +15,41 @@ export function CounterexampleTrace({ steps, blockedAtStep }: CounterexampleTrac
   const counterexample = blockedStep?.verification.counterexample ?? null;
 
   return (
-    <div className="rounded-lg border border-[#222] bg-[#0a0a0c] p-5 font-mono text-[#e8e8ec]">
-      <ol className="flex flex-col gap-1">
+    <div
+      className="nb-mono p-6"
+      style={{
+        background: "var(--trace-bg)",
+        color: "var(--trace-fg)",
+        border: "4px solid var(--trace-fg)",
+        boxShadow: "8px 8px 0 var(--violation)",
+      }}
+    >
+      <ol className="flex flex-col gap-2">
         {steps.map((step) => {
           const isBlocked = step.step_index === blockedAtStep;
           return (
             <li
               key={step.step_index}
-              className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded px-3 py-2 text-base"
+              className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-4 py-3 text-xl font-bold"
               style={
                 isBlocked
-                  ? { background: "rgba(95, 227, 224, 0.12)", border: "1px solid var(--violation-accent)" }
-                  : { border: "1px solid transparent" }
+                  ? { background: "var(--violation)", color: "var(--violation-ink)", border: "3px solid var(--violation-ink)" }
+                  : { border: "3px solid transparent" }
               }
             >
-              <span className="text-[#7a7a86]">step {step.step_index}</span>
-              <span className="font-semibold uppercase">{step.action.action_type}</span>
+              <span style={{ color: isBlocked ? "var(--violation-ink)" : "var(--trace-muted)" }}>
+                step {step.step_index}
+              </span>
+              <span className="uppercase">{step.action.action_type}</span>
               <span>{paiseToRupees(step.action.amount_paise)}</span>
-              <span className="text-[#7a7a86]">on</span>
+              <span style={{ color: isBlocked ? "var(--violation-ink)" : "var(--trace-muted)" }}>on</span>
               <span>{step.action.order_id}</span>
-              {step.action.category && <span className="text-[#7a7a86]">[{step.action.category}]</span>}
-              <span
-                className="ml-auto font-semibold"
-                style={{ color: isBlocked ? "var(--violation-accent)" : "#5fe38f" }}
-              >
+              {step.action.category && (
+                <span style={{ color: isBlocked ? "var(--violation-ink)" : "var(--trace-muted)" }}>
+                  [{step.action.category}]
+                </span>
+              )}
+              <span className="ml-auto text-2xl font-black" style={{ color: isBlocked ? "var(--violation-ink)" : "#39ff6a" }}>
                 {step.allowed ? "ADMITTED" : "BLOCKED"}
               </span>
             </li>
@@ -47,26 +58,23 @@ export function CounterexampleTrace({ steps, blockedAtStep }: CounterexampleTrac
       </ol>
 
       {counterexample && (
-        <div
-          className="mt-4 border-t pt-4 text-base leading-relaxed"
-          style={{ borderColor: "var(--violation-accent)" }}
-        >
-          <div className="mb-1 font-semibold" style={{ color: "var(--violation-accent)" }}>
-            violated: {counterexample.violated_property} (at scenario step {blockedAtStep})
+        <div className="mt-5 pt-5 text-xl leading-snug" style={{ borderTop: "4px solid var(--violation)" }}>
+          <div className="mb-2 text-2xl font-black" style={{ color: "var(--violation)" }}>
+            VIOLATED: {counterexample.violated_property} (at scenario step {blockedAtStep})
           </div>
           {/* The solver's own explanation is a self-contained, depth-1 check against
               the account state at the moment of this one action -- its internal
               "step 1" refers to itself, not this scenario's step numbering above.
               Shown verbatim (never rewritten) with that framing made explicit. */}
-          <p className="text-[#c8c8d0]">
+          <p style={{ color: "var(--trace-fg)" }}>
             solver&apos;s explanation for this rejection: &ldquo;{counterexample.explanation}&rdquo;
           </p>
         </div>
       )}
 
       {blockedAtStep === null && (
-        <p className="mt-4 border-t border-[#222] pt-4 text-base text-[#5fe38f]">
-          every action in this sequence was admitted -- no violation found.
+        <p className="mt-5 pt-5 text-xl font-bold" style={{ borderTop: "4px solid #39ff6a", color: "#39ff6a" }}>
+          every action in this sequence was admitted — no violation found.
         </p>
       )}
     </div>

@@ -23,6 +23,12 @@ interface GuardCardProps {
   autoRun?: boolean;
 }
 
+// UI 2.0 (ADR-0015): the VIOLATION -> SAFE flip is the beat this surface
+// narrates -- make the whole panel change, not just a badge. A resolved
+// naive guard turns the entire card into a black/cyan violation block; a
+// resolved sound guard turns it into a solid blue/white safe block. Two
+// panels side by side, opposite colours, is the "dramatic" the brief asks
+// for -- not a colour swatch inside an otherwise-identical white card.
 function GuardCard({ label, guard, policy, autoRun }: GuardCardProps) {
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -53,27 +59,32 @@ function GuardCard({ label, guard, policy, autoRun }: GuardCardProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [policy]);
 
+  const resolved = result?.verdict === "violation" ? "violation" : result?.verdict === "safe" ? "safe" : null;
+  const panelStyle =
+    resolved === "violation"
+      ? { background: "var(--ink)", color: "var(--bone)", borderColor: "var(--violation)", boxShadow: "8px 8px 0 var(--violation)" }
+      : resolved === "safe"
+        ? { background: "var(--safe)", color: "var(--safe-ink)", borderColor: "var(--ink)", boxShadow: "8px 8px 0 var(--ink)" }
+        : { background: "var(--panel-bg)", color: "var(--panel-fg)", borderColor: "var(--ink)", boxShadow: "8px 8px 0 var(--ink)" };
+
   return (
-    <div className="card flex flex-col gap-3 rounded-lg p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-serif text-xl">{label}</h3>
-        <button
-          onClick={run}
-          disabled={loading}
-          className="rounded-md px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
-          style={{ background: "var(--safe-accent)" }}
-        >
-          {loading ? "running…" : "Run verify_guard"}
+    <div className="flex flex-col gap-4 border-4 p-6" style={panelStyle}>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-3xl font-black uppercase tracking-tight">{label}</h3>
+        <button onClick={run} disabled={loading} className="nb-btn shrink-0">
+          {loading ? "RUNNING…" : "RUN VERIFY_GUARD"}
         </button>
       </div>
 
-      {error && <div className="rounded-md border border-red-300 bg-red-50 p-2 text-xs text-red-800">{error}</div>}
+      {error && (
+        <div className="border-2 border-black bg-white p-3 text-sm font-bold text-red-700">{error}</div>
+      )}
 
       {result && (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <VerdictBadge verdict={result.verdict} horizon={result.horizon} />
           <PropertiesList properties={result.properties_checked} />
-          <p className="text-xs opacity-75">solve time: {result.latency_ms.toFixed(2)} ms</p>
+          <p className="nb-mono text-sm font-bold">solve time: {result.latency_ms.toFixed(2)} ms</p>
           {result.counterexample && <GuardCounterexampleTrace counterexample={result.counterexample} />}
         </div>
       )}
@@ -107,9 +118,9 @@ export function ProofSurface() {
     }
   }
 
-  // No surface opens empty (task brief item 1): parse the default mandate
-  // the instant this surface mounts, so the naive guard's counterexample
-  // (below) has a policy to run against without a click.
+  // No surface opens empty: parse the default mandate the instant this
+  // surface mounts, so the naive guard's counterexample below has a
+  // policy to run against without a click.
   const hasAutoParsed = useRef(false);
   useEffect(() => {
     if (!hasAutoParsed.current) {
@@ -120,54 +131,55 @@ export function ProofSurface() {
   }, []);
 
   return (
-    <section className="mx-auto flex max-w-5xl flex-col gap-6 p-8">
+    <section className="flex w-full flex-col gap-8 px-8 py-10 md:px-14">
       <header>
-        <h1 className="font-serif text-4xl md:text-5xl">Proof</h1>
-        <p className="mt-1 text-sm opacity-85">
+        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+          Proof
+        </h1>
+        <p className="mt-4 max-w-3xl text-lg font-bold" style={{ color: "var(--muted-fg)" }}>
           Same policy, same solver, two guards. The naive guard checks each payment against the
           per-payment cap alone; the sound guard also tracks the running window spend. Nobody
-          writes the counterexample below -- the solver searches every guard-admitted sequence up
+          writes the counterexample below — the solver searches every guard-admitted sequence up
           to horizon 8 and constructs it.
         </p>
       </header>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         <textarea
-          className="rounded-md border border-black/10 bg-white p-3 text-sm text-[#2b2630]"
+          className="nb-input min-h-[80px] w-full max-w-4xl text-lg"
           rows={2}
           value={mandateText}
           onChange={(e) => setMandateText(e.target.value)}
         />
         <div>
-          <button
-            onClick={handleParse}
-            disabled={parsing}
-            className="rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-            style={{ background: "var(--safe-accent)" }}
-          >
-            {parsing ? "parsing…" : "Parse mandate"}
+          <button onClick={handleParse} disabled={parsing} className="nb-btn">
+            {parsing ? "PARSING…" : "PARSE MANDATE"}
           </button>
         </div>
       </div>
 
-      {error && <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">{error}</div>}
+      {error && (
+        <div className="nb-panel-flat p-4 text-base font-bold" style={{ borderColor: "var(--violation)" }}>
+          {error}
+        </div>
+      )}
       {ambiguousMessage && (
-        <div className="card card-soft rounded-md p-3 text-sm">
-          <span className="font-semibold">rejected as ambiguous:</span> {ambiguousMessage}
+        <div className="nb-panel-flat p-4 text-base font-bold">
+          <span className="uppercase">rejected as ambiguous:</span> {ambiguousMessage}
         </div>
       )}
 
       {policy && (
         <>
-          <div className="card rounded-lg p-4 text-xs opacity-90">
-            {policy.per_txn_cap_paise !== null && <span className="mr-4">per-txn cap: {paiseToRupees(policy.per_txn_cap_paise)}</span>}
+          <div className="nb-mono flex flex-wrap gap-3 text-sm font-bold">
+            {policy.per_txn_cap_paise !== null && <span className="nb-chip">PER-TXN CAP {paiseToRupees(policy.per_txn_cap_paise)}</span>}
             {policy.window_cap_paise !== null && (
-              <span>
-                window cap: {paiseToRupees(policy.window_cap_paise)} ({policy.window ?? "unset"})
+              <span className="nb-chip">
+                WINDOW CAP {paiseToRupees(policy.window_cap_paise)} ({policy.window ?? "unset"})
               </span>
             )}
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <GuardCard label="Naive guard" guard="naive" policy={policy} autoRun />
             <GuardCard label="Sound guard" guard="sound" policy={policy} />
           </div>

@@ -33,27 +33,33 @@ export function LedgerSurface() {
   }, []);
 
   return (
-    <section className="mx-auto flex max-w-5xl flex-col gap-6 p-8">
+    <section className="flex w-full flex-col gap-8 px-8 py-10 md:px-14">
       <header>
-        <h1 className="font-serif text-4xl md:text-5xl">Ledger</h1>
-        <p className="mt-1 text-sm opacity-85">
+        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+          Ledger
+        </h1>
+        <p className="mt-4 max-w-3xl text-lg font-bold" style={{ color: "var(--muted-fg)" }}>
           The hash-chained, Ed25519-signed audit trail every decision in this system is written
-          to. Real entries from the real interceptor -- the same one Attacks and Proof exercise.
+          to. Real entries from the real interceptor — the same one Attacks and Proof exercise.
         </p>
       </header>
 
-      {error && <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">{error}</div>}
+      {error && (
+        <div className="nb-panel-flat p-4 text-base font-bold" style={{ borderColor: "var(--violation)" }}>
+          {error}
+        </div>
+      )}
 
       {entries && (
         <>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <ChainStatusBadge brokenAtIndex={brokenAtIndex} />
-            <button onClick={load} className="text-xs underline opacity-75">
-              refresh
+            <button onClick={load} className="nb-mono text-sm font-black underline underline-offset-4">
+              REFRESH
             </button>
           </div>
 
-          <ul className="card rounded-lg">
+          <ul className="nb-panel">
             {entries.map((e) => (
               <LedgerEntryRow key={e.entry_id} entry={e} brokenAtIndex={brokenAtIndex} />
             ))}

@@ -1,5 +1,18 @@
 # DESIGN.md
 
+**Superseded 2026-09-04 by [ADR-0015](adr/0015-neobrutalist-ui-supersedes-ethereal.md).**
+The ethereal direction below was built for Phase 7 and shipped through
+Phase 7b, but pale low-contrast colour and opacity-based hierarchy do not
+survive a 1280x720 recording under video compression — the medium this
+interface is actually judged through. UI 2.0 replaces it with a
+neobrutalist direction (hard borders, flat saturated colour, no opacity
+hierarchy). This file is left as-is, not rewritten, per this project's
+standing rule that decisions are amended, never erased — the reasoning
+below explains why ethereal seemed right at the time, and ADR-0015
+explains why it no longer is.
+
+---
+
 Direction for Phase 7 (dashboard) only. Nothing here is built. Phase 2
 (Policy IR and transpiler) is next per the phase gate in MASTER.md —
 this file exists so the direction isn't reconstructed from memory five

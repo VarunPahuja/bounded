@@ -6,15 +6,14 @@ import { ProofSurface } from "@/components/surfaces/ProofSurface";
 import { LedgerSurface } from "@/components/surfaces/LedgerSurface";
 import { MandateSurface } from "@/components/surfaces/MandateSurface";
 import { EvidenceSurface } from "@/components/surfaces/EvidenceSurface";
-import { ProofStateBackground } from "@/components/ambient/ProofStateBackground";
 import { StatusStrip } from "@/components/status/StatusStrip";
 import { ProofStateProvider, useProofState } from "@/lib/proof-state";
 
-// Five surfaces as regions in a spatial strip (docs/DESIGN.md: "not a nav
-// bar"), moved between by direct keyboard shortcut -- the hard
-// requirement is no scroll-hunting during a live recording. Every
-// surface stays mounted (not remounted on switch) so in-flight state
-// (a running scenario, a parsed policy) survives moving away and back.
+// UI 2.0 (ADR-0015): five surfaces, direct keyboard jump, a hard-edged
+// numbered strip instead of a floating pill nav. Every surface stays
+// mounted (not remounted on switch) so in-flight state (a running
+// scenario, a parsed policy) survives moving away and back -- unchanged
+// from the prior build, only the presentation is new.
 type SurfaceId = "attacks" | "proof" | "ledger" | "mandate" | "evidence";
 
 const SURFACES: { id: SurfaceId; label: string; key: string }[] = [
@@ -24,6 +23,44 @@ const SURFACES: { id: SurfaceId; label: string; key: string }[] = [
   { id: "mandate", label: "Mandate", key: "4" },
   { id: "evidence", label: "Evidence", key: "5" },
 ];
+
+const NAV_H = 128;
+const STATUS_H = 56;
+
+function NavStrip({ active, onSelect }: { active: SurfaceId; onSelect: (id: SurfaceId) => void }) {
+  return (
+    <div
+      className="fixed left-0 right-0 top-0 z-30 flex"
+      style={{
+        height: NAV_H,
+        background: "var(--panel-bg)",
+        borderBottom: "4px solid var(--ink)",
+        boxShadow: "0 8px 0 var(--ink)",
+      }}
+    >
+      {SURFACES.map((s, i) => {
+        const isActive = s.id === active;
+        return (
+          <button
+            key={s.id}
+            onClick={() => onSelect(s.id)}
+            className="flex flex-1 items-center gap-4 px-6 text-left transition-colors"
+            style={{
+              borderLeft: i === 0 ? "none" : "3px solid var(--ink)",
+              background: isActive ? "var(--accent)" : "var(--panel-bg)",
+              color: isActive ? "var(--accent-fg)" : "var(--panel-fg)",
+            }}
+          >
+            <span className="nb-mono" style={{ fontSize: 44, fontWeight: 900, lineHeight: 1 }}>
+              {s.key}
+            </span>
+            <span className="text-lg font-extrabold uppercase tracking-tight">{s.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function DashboardInner() {
   const [active, setActive] = useState<SurfaceId>("attacks");
@@ -41,59 +78,26 @@ function DashboardInner() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const violation = proofState === "violation";
-
   return (
-    <div className="relative min-h-screen overflow-hidden" data-proof-state={proofState}>
-      <ProofStateBackground />
-      <StatusStrip />
-
-      {/* Minimal floating nav -- labels + direct-jump keys, not a bar. */}
-      <div
-        className="fixed top-5 left-5 z-20 flex gap-1 rounded-full border px-2 py-1.5 backdrop-blur-sm"
-        style={{
-          borderColor: violation ? "rgba(95,227,224,0.3)" : "rgba(0,0,0,0.08)",
-          background: violation ? "rgba(10,10,12,0.6)" : "rgba(255,255,255,0.6)",
-        }}
-      >
-        {SURFACES.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => setActive(s.id)}
-            className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors"
-            style={{
-              background: active === s.id ? (violation ? "var(--violation-accent)" : "var(--safe-accent)") : "transparent",
-              color:
-                active === s.id
-                  ? violation
-                    ? "var(--violation-bg)"
-                    : "white"
-                  : violation
-                    ? "var(--violation-fg)"
-                    : "var(--safe-fg)",
-              opacity: active === s.id ? 1 : 0.55,
-            }}
-          >
-            <span className="font-mono">{s.key}</span>
-            {s.label}
-          </button>
-        ))}
-      </div>
+    <div
+      className="relative min-h-screen overflow-hidden"
+      data-proof-state={proofState}
+      style={{ background: "var(--canvas-bg)", color: "var(--canvas-fg)" }}
+    >
+      <NavStrip active={active} onSelect={setActive} />
+      <StatusStrip top={NAV_H} height={STATUS_H} />
 
       <div
-        className="flex h-screen"
+        className="flex"
         style={{
           width: `${SURFACES.length * 100}vw`,
           transform: `translateX(-${index * 100}vw)`,
-          transition: violation ? "transform 200ms ease" : "transform 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+          transition: "transform 120ms linear",
+          minHeight: "100vh",
         }}
       >
         {SURFACES.map((s) => (
-          <div
-            key={s.id}
-            className="h-screen w-screen overflow-y-auto pt-16"
-            style={{ color: violation ? "var(--violation-fg)" : "var(--safe-fg)" }}
-          >
+          <div key={s.id} className="h-screen w-screen overflow-y-auto" style={{ paddingTop: NAV_H + STATUS_H }}>
             {s.id === "attacks" && <AttacksSurface />}
             {s.id === "proof" && <ProofSurface />}
             {s.id === "ledger" && <LedgerSurface />}

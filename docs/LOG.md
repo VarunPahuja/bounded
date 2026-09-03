@@ -1147,3 +1147,106 @@ structure fresh — the committed file is the only real artifact on disk.
 concurrent_duplicate`) — unchanged baseline. Stopping here per the
 brief's hard time box; Phase 8 (README, video, written answer) has not
 started and is the priority.
+
+
+## 2026-09-04 — UI 2.0: neobrutalist redesign, on branch `ui-2.0`
+
+**Shipped, `web/` only, nothing else touched:** a full visual redesign
+superseding `docs/DESIGN.md`'s ethereal direction, written up in
+ADR-0015 before any code. Same five surfaces, same data layer, same API
+wrappers (`web/lib/api.ts` untouched) — every fetch call, every piece of
+state management, every honesty rule (bound travels with verdict,
+`properties_checked` verbatim, ADR-0014's mocked-rail disclosure, the
+`adversarial_vs_ours` caveat carried in full) is exactly what Phase 7b
+left behind. Only presentation changed:
+
+- `web/app/globals.css` rewritten: hard 3–4px black borders, 6–10px
+  zero-blur pure-black shadows, flat saturated colour with no opacity-
+  based hierarchy anywhere, oversized black-weight headings (`clamp(56px,
+  8vw, 120px)`), monospace for every technical value. Palette: bone base,
+  electric blue (`#0033FF`) for SAFE, electric cyan (`#00E5FF`) for
+  VIOLATION — never red, the one rule DESIGN.md handed forward unchanged.
+  `docs/DESIGN.md` itself is marked superseded at its top, not rewritten
+  or deleted, per the project's standing rule on amending decisions.
+- `DashboardShell.tsx`: the floating pill nav is gone, replaced with a
+  full-width hard-edged strip of five numbered blocks (`1`–`5`), the
+  active one filled solid in the current ambient accent. `StatusStrip`
+  moved from a blurred floating pill to a second hard-edged bar directly
+  under the nav. `ProofStateBackground.tsx` (drift blobs, grid overlay)
+  deleted outright — the canvas background is now a flat colour swap
+  driven directly by `data-proof-state`, no separate component needed.
+- Every surface rebuilt on the same token system: `AttacksSurface`'s
+  trace is the "60-second moment" treatment (huge mono, solid-cyan
+  BLOCKED blocks, impossible to skim past); `ProofSurface`'s two guard
+  cards now flip their *entire panel* — solid black/cyan for VIOLATION,
+  solid blue/white for SAFE — not just a badge, so the VIOLATION→SAFE
+  beat reads as two structurally opposite blocks side by side;
+  `LedgerSurface`'s hash chain renders with an explicit `⟶` connector
+  glyph between prev/entry hash, "hash links that look like links";
+  `MandateSurface` splits English (plain white panel) against the typed
+  `PolicyIR` (a black-field mono block styled like compiled output, not
+  another white card) so the "the model only translated" framing reads
+  as a contrast in *kind*; `EvidenceSurface`'s headline numbers became
+  `ScoreTile`s — OURS/JUDGE split by a thick divider, the winning side
+  filled solid blue, 0 vs 48 and 100.0% vs 74.2% readable in under a
+  second.
+
+**Broke, twice, both caught only by looking at a rendered screenshot —
+reasoning about the CSS would not have found either:**
+
+1. **Every heading rendered in the browser's default serif font, not
+   Geist.** `@theme inline` had `--font-sans: var(--font-sans);` — a
+   self-referential no-op inherited unchanged from the original
+   scaffolding — so the `font-sans` utility resolved to nothing and every
+   "sans" element silently fell back to Times New Roman. Invisible in the
+   old ethereal build because its headings used an explicit `.font-serif`
+   (Fraunces) class anyway, so nobody had reason to look closely at what
+   the *unstyled* fallback actually was. UI 2.0's oversized headings made
+   it impossible to miss the moment they rendered. Fixed by pointing
+   `--font-sans` at `var(--font-geist-sans)` with a real fallback stack.
+2. **The fix above still didn't work on the first attempt, for a second,
+   independent reason.** `--font-geist-sans` is only defined where
+   `app/layout.tsx` puts the `.variable` class — on `<body>` — but
+   `font-sans` was applied on `<html>`, body's *parent*. A CSS custom
+   property is never visible to an ancestor, only to the element it's
+   declared on and that element's descendants, so `<html>` resolving
+   `var(--font-sans)` -> `var(--font-geist-sans)` found nothing and fell
+   back to serif again, identically to bug 1, for a different underlying
+   reason. Confirmed via `getComputedStyle` in a scratch Playwright
+   script before and after: `--font-sans` computed as `""` on `<body>`
+   until the utility moved from `html` to `body` in `globals.css`, after
+   which `h1`'s computed `font-family` read `Geist, "Geist Fallback",
+   ui-sans-serif, system-ui, sans-serif` correctly.
+3. **The Evidence scoreboard's "100.0%" clipped against its own tile
+   divider at 1280px.** `text-5xl` (60px at this build's 20px root) does
+   not fit six characters in the ~140px column a three-way `ScoreTile`
+   grid leaves per side. Caught in the first Evidence screenshot, fixed
+   with a fixed `34px` size tuned against the actual longest value this
+   tile ever renders, not a Tailwind step chosen by eye.
+
+**Verified by looking, per the standing practice.** Screenshotted all
+five surfaces at 1280×720 after every fix, in both ambient states: the
+untouched default SAFE state (bone background, blue nav, captured ~120ms
+after load before the Attacks auto-run resolves) and the VIOLATION state
+every surface reaches within a couple seconds of a real page load (the
+Attacks and Proof-naive auto-runs both resolve VIOLATION). Also drove the
+Proof surface's sound guard to SAFE and screenshotted both guard cards
+side by side — genuinely opposite colour blocks, not a badge swap.
+Checked every form control (`nb-input`) explicitly: black text on white,
+unconditionally, the exact bug class ("white inputs with light inherited
+text") the task brief called out from the last build.
+
+`pytest`: 114 passed, 3 skipped, 0 failed — the known
+`test_webhook_concurrent_duplicate` flake didn't fire this run. Exactly
+the pre-change baseline; nothing outside `web/` was touched, so nothing
+should have moved and nothing did.
+
+**Changed my mind:** none on scope. `docs/PHASE7-PLAN.md`'s data layer
+(`lib/api.ts`, `lib/proof-state.tsx`, the fetch logic inside every
+surface) was kept exactly as built — the task brief called this out
+explicitly as fine, and grepping the diff after finishing confirms it:
+every surface's `useState`/`useEffect`/handler logic is byte-identical to
+before the redesign, only JSX and class names changed.
+
+ADR-0015 written and accepted before any component code, per standing
+practice. Not merged to `main` — pushed on `ui-2.0` for review.

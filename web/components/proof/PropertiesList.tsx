@@ -8,12 +8,16 @@ interface PropertiesListProps {
 
 export function PropertiesList({ properties }: PropertiesListProps) {
   if (properties.length === 0) {
-    return <p className="text-xs opacity-75">no properties applied by this policy</p>;
+    return (
+      <p className="nb-mono text-sm font-bold" style={{ color: "var(--muted-fg)" }}>
+        no properties applied by this policy
+      </p>
+    );
   }
   return (
     <ul className="flex flex-wrap gap-2">
       {properties.map((p) => (
-        <li key={p} className="card card-soft rounded-full px-2.5 py-1 font-mono text-xs">
+        <li key={p} className="nb-chip text-sm">
           {p}
         </li>
       ))}
