@@ -908,18 +908,20 @@ replay mode (`EVAL_MODE=replay`); zero live LLM calls. ADR-0013 amended.
 item: any amount above Rs 100,000 in a recorded demo will produce a correctly
 blocked action but a false audit explanation on screen.
 
-**Dead end considered and rejected.** The brief raised the option of authoring
-a small number of scenarios whose `expected_decision` can be determined from
-the mandate text alone, before running them, so that the class contains at
-least a few genuine tests rather than only recordings. This would have been
-real, and it is the right direction for future work on this class. It was not
-done here for one reason: doing it quickly enough to be credible, before the
-5 September deadline, risks exactly the failure mode this entire task is
-correcting — a scenario that looks like a genuine test but was constructed
-backward, from a known answer, without the rigor the claim would require.
-The framing fix is a clean correction of a real problem. Fabricating a scenario
-to make the fix look more complete would be the same error at smaller scale.
-Skipped entirely.
+**Option considered, declined for time.** The brief raised the option of
+authoring a small number of scenarios whose `expected_decision` is written
+from the mandate text before running them — genuine tests, not recordings.
+That would have been a real result and is the right direction for this class.
+It was not done here because there was not enough time to do it carefully, and
+a rushed attempt might quietly slide into being pre-verified anyway: write the
+scenario, feel uncertain about the expected answer, run it to check, and record
+the output — which is exactly the pattern this task corrects. A scenario
+written correctly from the mandate text first is a real test regardless of how
+fast it was written; had it failed, that would have been good, not a problem.
+The risk was not methodological. It was that two days before the deadline,
+under pressure, the line between "written from the mandate" and "checked first
+then written" is easy to cross without noticing. Resource decision, not a
+principled objection.
 
 **Broke:** nothing in the test suite. The known-flaky concurrency test
 (`test_webhook_concurrent_duplicate`) fired again in the pre-change baseline
