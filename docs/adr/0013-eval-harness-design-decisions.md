@@ -5,6 +5,7 @@
 - Deciders: Varun P.
 - Supersedes: -
 - Superseded by: -
+- Amended: 2026-09-03 (see amendment at end of document)
 
 ## Context
 
@@ -382,3 +383,53 @@ formal, stateful verifier exists to make sound.
   real fix — see `docs/THREATS.md`'s new entry. Out of scope for this ADR;
   flagged there for whoever picks up `verifier/` next, with `MASTER.md`'s
   5 September deadline three days out at time of writing.
+
+## Amendment — 2026-09-03: adversarial_vs_ours framing corrected in docs/EVAL.md
+
+**What changed and why.** `docs/EVAL.md` previously presented the
+`adversarial_vs_ours` class's 100% pass^k result as though it measured
+adversarial robustness — 16 scenarios that probed the pipeline's boundary
+handling and found no gap. That framing was wrong, and ADR-0013 decision #7
+(above) already contained the sentence that exposes it: "each
+`expected_decision` reflects observed, not guessed, behavior."
+
+Every `expected_decision` in this class was determined by running
+`verify_action` / `propose_action` locally first and recording the output. The
+corpus then measured whether repeated samples reproduce that output. 100% is
+true by construction as a correctness claim. It is 16 recordings of behaviour
+at boundaries, not 16 independent tests of whether the boundary handling is
+correct. The class cannot fail; the system was run, its output was written down
+as the answer, and then the system was asked to reproduce it.
+
+A reviewer reading this ADR would find the contradiction in minutes — it was
+documented honestly here before the report was corrected. Correcting the report
+ourselves, before it is submitted, is the right outcome.
+
+**What the change does not do.** It does not delete or modify any scenario,
+any `expected_decision`, or any scenario result. The 100% figures in the table
+are unchanged; the section added to `eval/report.py` and regenerated into
+`docs/EVAL.md` explains what those figures measure (reproducibility) and what
+they do not measure (correctness), and leads with the two genuine findings the
+pre-verification actually produced (the `MAX_AMOUNT_PAISE` mislabeling and the
+ADR-0007 scope correction). The framing is corrected; the data is intact.
+
+**What the class does earn.** Every one of the 16 scenarios returned identical
+verdicts on all 8 samples with a non-deterministic LLM in the parse path.
+Phase 5 measured that parser at 8/10 on one fixture at temperature 0. Consistent
+end-to-end verdicts despite a component measured to be inconsistent is a real
+result: the deterministic solver layer absorbs parse variance at the decision
+boundary. That claim is now stated explicitly rather than implied by the
+percentage.
+
+**Files changed (2026-09-03):**
+- `eval/report.py`: new `_adversarial_class_note()` function; wired into
+  `render_report` between `_violations_caught_section` and
+  `_unsound_safe_section`; `_pass_k_section`'s trailing note updated to
+  cross-reference the new section.
+- `docs/EVAL.md`: regenerated from `eval/report.py` in replay mode
+  (`EVAL_MODE=replay`). No live LLM calls made.
+- `docs/DEMO.md`: pre-record checklist item added for `MAX_AMOUNT_PAISE`
+  demo-safety (a merchant mandate authorizing single payments above Rs 100,000
+  will have every such payment blocked and mislabeled on camera).
+- `docs/adr/0013-eval-harness-design-decisions.md`: this amendment.
+- `docs/LOG.md`: entry appended.

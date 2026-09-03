@@ -870,3 +870,69 @@ sentences of report text) and every finding was written up rather than
 acted on, per the explicit instruction to treat a discovered gap as a
 finding for `THREATS.md`/`LOG.md`, not a same-session fix.
 
+
+## 2026-09-03 — Phase 6b: adversarial_vs_ours framing corrected
+
+**Shipped:** a correction to `docs/EVAL.md`'s presentation of the
+`adversarial_vs_ours` class. No scenario changed. No `expected_decision`
+changed. No verifier code changed. What changed is how the 100% pass^k
+figure is described.
+
+**What was wrong.** The report presented the class's 100% pass^k result as
+though 16 adversarial scenarios had probed the pipeline's boundary handling
+and found no gap. That is not what happened. Every `expected_decision` in
+this class was determined by running `verify_action` / `propose_action`
+locally first and writing down the observed output as the answer. The corpus
+then measured whether repeated samples reproduce that answer. 100% is true by
+construction as a correctness claim — the system was run, its output was
+recorded, and then the system was asked whether it produces that output again.
+It cannot fail by design.
+
+ADR-0013 decision #7 already said this, plainly: "each `expected_decision`
+reflects observed, not guessed, behavior." The problem was not that this was
+hidden — it was documented honestly in the ADR — but that `docs/EVAL.md`
+presented the number without that context, so a reader reaching the report
+before the ADR would read implied adversarial robustness where there was none.
+A reviewer reading ADR-0013 would find the contradiction in minutes.
+
+**What changed.** `eval/report.py` has a new `_adversarial_class_note()`
+function, inserted between the violations table and the unsound-safe section.
+It leads with the two real findings the pre-verification produced (the
+`MAX_AMOUNT_PAISE` mislabeling, the ADR-0007 scope correction), then states
+plainly what the 100% measures (reproducibility across a non-deterministic
+parse path) and what it does not measure (correctness at boundaries). The
+pass^k section's trailing note now cross-references this section instead of
+repeating partial context. `docs/EVAL.md` was regenerated from the renderer in
+replay mode (`EVAL_MODE=replay`); zero live LLM calls. ADR-0013 amended.
+`docs/DEMO.md`'s pre-record checklist gained a `MAX_AMOUNT_PAISE` demo-safety
+item: any amount above Rs 100,000 in a recorded demo will produce a correctly
+blocked action but a false audit explanation on screen.
+
+**Dead end considered and rejected.** The brief raised the option of authoring
+a small number of scenarios whose `expected_decision` can be determined from
+the mandate text alone, before running them, so that the class contains at
+least a few genuine tests rather than only recordings. This would have been
+real, and it is the right direction for future work on this class. It was not
+done here for one reason: doing it quickly enough to be credible, before the
+5 September deadline, risks exactly the failure mode this entire task is
+correcting — a scenario that looks like a genuine test but was constructed
+backward, from a known answer, without the rigor the claim would require.
+The framing fix is a clean correction of a real problem. Fabricating a scenario
+to make the fix look more complete would be the same error at smaller scale.
+Skipped entirely.
+
+**Broke:** nothing in the test suite. The known-flaky concurrency test
+(`test_webhook_concurrent_duplicate`) fired again in the pre-change baseline
+run — same thread-timing behavior documented in Phase 3, passes in isolation.
+Full suite: 113 passed, 3 skipped, 1 known flake.
+
+**Changed my mind:** my first instinct after reading the task was to look at
+whether `_adversarial_class_note` should be a conditional block — only render
+it if the `adversarial_vs_ours` class is present in the corpus. That would
+have been wrong: the note is about this class's methodology and should be
+unconditional, not toggled on by scenario count. If the class is absent, the
+section heading would still appear. Reverted to a static function with the
+`scenario_results` argument accepted but unused (the results aren't needed for
+text that describes the methodology, and the `# noqa: ARG001` makes that
+explicit). The note is always rendered when the function is called; the caller
+only includes it in `render_report` while the corpus contains this class.

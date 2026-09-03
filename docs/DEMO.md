@@ -102,3 +102,11 @@ Stop. No thank-you slide.
 - Terminal font size raised until readable at 720p
 - Notifications off, second monitor cleared
 - Full run-through end to end before recording anything
+- Every amount used in the recorded demo must be well under `MAX_AMOUNT_PAISE`
+  (10,000,000 paise / Rs 100,000). A merchant mandate that authorizes single
+  payments above that ceiling will have every such payment blocked and labeled
+  as a per-transaction-cap violation they never stated -- a false explanation
+  in the trace, on camera. The demo mandate uses a Rs 5,000 per-payment cap;
+  nothing in any demo beat approaches Rs 100,000. Confirm no ad-hoc amount
+  typed during rehearsal or recording comes close. See docs/THREATS.md and
+  ADR-0013.

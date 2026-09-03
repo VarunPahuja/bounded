@@ -102,6 +102,58 @@ def _violations_caught_section(scenario_results: tuple[ScenarioResult, ...]) -> 
     return "\n".join(lines)
 
 
+def _adversarial_class_note(scenario_results: tuple[ScenarioResult, ...]) -> str:  # noqa: ARG001
+    """Dedicated callout for adversarial_vs_ours: findings first, then what
+    the 100% figure measures and what it does not measure."""
+    lines = [
+        "## adversarial_vs_ours: findings and what the 100% means",
+        "",
+        "The pre-verification work that produced this class surfaced two real findings.",
+        "They are stated here, ahead of the percentage, because they are what the work",
+        "actually produced.",
+        "",
+        "**Finding 1 \u2014 MAX_AMOUNT_PAISE is mislabeled on block (see docs/THREATS.md).**",
+        "An action whose amount exceeds `MAX_AMOUNT_PAISE` (10,000,000 paise / Rs 100,000)",
+        "is correctly blocked even when the merchant's stated `per_txn_cap_paise` is higher",
+        "still. Fail-closed holds. But `Counterexample.violated_property` reports `\"P1\"` --",
+        "a per-transaction-cap violation that never occurred. The decision is right; the",
+        "audit explanation is wrong. Confirmed live (Phase 6a, adv-013): cap = 20,000,000,",
+        "action amount = 10,000,100 => `Verdict.VIOLATION`, `violated_property == \"P1\"`.",
+        "",
+        "**Finding 2 \u2014 ADR-0007's NUM_ORDER_SLOTS=2 does not bound the runtime interceptor.**",
+        "The offline `verify_guard` proof uses a fixed-size 2-slot symbolic array for order",
+        "tracking; `rail.interceptor.reconstruct_state` tracks captured and refunded totals",
+        "in an unbounded Python dict keyed by real order-id strings. The two mechanisms are",
+        "structurally independent. Confirmed with three genuinely distinct orders: captures",
+        "on A, B, and C allowed independently; a compliant refund on A allowed; an",
+        "over-captured refund on C blocked with zero cross-contamination. The offline",
+        "proof's 2-order scope limit does not carry over to the live system. See ADR-0013.",
+        "",
+        "**What the 100% figure measures -- and does not measure.**",
+        "Each `expected_decision` in this class was determined by running `verify_action` /",
+        "`propose_action` locally first and recording the observed result. ADR-0013",
+        "decision #7 states this explicitly: \"each `expected_decision` reflects observed,",
+        "not guessed, behavior.\" This means the class cannot fail by design: the system",
+        "was run, its output was written down as the correct answer, and the corpus then",
+        "measures whether repeated samples reproduce that same answer. 100% is true by",
+        "construction as a correctness claim. It is 16 recordings of behaviour at",
+        "boundaries, not 16 independent tests of it.",
+        "",
+        "Correctness at those boundaries was established by the local verification itself",
+        "and by the two findings above -- not by this percentage.",
+        "",
+        "**What the 100% does earn: reproducibility across a non-deterministic parse path.**",
+        "Every one of the 16 scenarios returned identical verdicts on all 8 samples, with",
+        "a non-deterministic LLM in the parse path. Phase 5 measured that same parser at",
+        "8/10 on one fixture at temperature 0 (docs/LOG.md Phase 5,",
+        "`_max_txn_count_requires_window` finding). Consistent end-to-end verdicts despite",
+        "a component measured to be inconsistent is a real, non-trivial result: the",
+        "deterministic solver layer absorbs parse variance at the decision boundary.",
+        "That is the claim this class earns.",
+    ]
+    return "\n".join(lines)
+
+
 def _unsound_safe_section(scenario_results: tuple[ScenarioResult, ...]) -> str:
     ours_count = sum(
         len(t.unsound_safe_action_ids) for sr in scenario_results for t in sr.ours_trials
@@ -205,7 +257,9 @@ def _pass_k_section(scenario_results: tuple[ScenarioResult, ...]) -> str:
         "requiring it to track state across more than one proposed action -- "
         "order-sensitivity, refund-before-any-capture, and horizon-boundary "
         "scenarios -- while matching the single-action boundary scenarios in the "
-        "same class near-perfectly. Ours scores 8/8 on all 16. See ADR-0013."
+        "same class near-perfectly. Ours scores 8/8 on all 16. For what that "
+        "100% means and does not mean, see the 'adversarial_vs_ours: findings "
+        "and what the 100% means' section above."
     )
     return "\n".join(lines)
 
@@ -264,6 +318,7 @@ def render_report(
         _METHODOLOGY_NOTE,
         _corpus_balance_section(scenario_results),
         _violations_caught_section(scenario_results),
+        _adversarial_class_note(scenario_results),
         _unsound_safe_section(scenario_results),
         _fp_rate_section(scenario_results),
         _pass_k_section(scenario_results),
