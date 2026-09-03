@@ -13,7 +13,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
   return (
     <ul className="flex flex-wrap gap-2">
       {properties.map((p) => (
-        <li key={p} className="rounded-full border border-black/10 bg-black/5 px-2.5 py-1 font-mono text-xs">
+        <li key={p} className="card card-soft rounded-full px-2.5 py-1 font-mono text-xs">
           {p}
         </li>
       ))}

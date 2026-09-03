@@ -6,6 +6,7 @@ import { paiseToRupees } from "@/lib/format";
 import { VerdictBadge } from "@/components/proof/VerdictBadge";
 import { PropertiesList } from "@/components/proof/PropertiesList";
 import { GuardCounterexampleTrace } from "@/components/proof/GuardCounterexampleTrace";
+import { useProofState } from "@/lib/proof-state";
 
 // Category-free by default so the naive guard's *only* unsoundness is the
 // missing cumulative check -- reproduces docs/DEMO.md's 1:00-2:00 window-
@@ -25,12 +26,15 @@ function GuardCard({ label, guard, policy }: GuardCardProps) {
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { setState: setProofState } = useProofState();
 
   async function run() {
     setLoading(true);
     setError(null);
     try {
-      setResult(await verifyProof(policy, guard, 8));
+      const r = await verifyProof(policy, guard, 8);
+      setResult(r);
+      setProofState(r.verdict === "violation" ? "violation" : "safe");
     } catch (e) {
       setError(e instanceof ApiError ? e.message : String(e));
     } finally {
@@ -39,7 +43,7 @@ function GuardCard({ label, guard, policy }: GuardCardProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-black/10 bg-white/60 p-4">
+    <div className="card flex flex-col gap-3 rounded-lg p-4">
       <div className="flex items-center justify-between">
         <h3 className="font-serif text-lg">{label}</h3>
         <button
@@ -106,7 +110,7 @@ export function ProofSurface() {
 
       <div className="flex flex-col gap-2">
         <textarea
-          className="rounded-md border border-black/10 bg-white p-3 text-sm"
+          className="rounded-md border border-black/10 bg-white p-3 text-sm text-[#2b2630]"
           rows={2}
           value={mandateText}
           onChange={(e) => setMandateText(e.target.value)}
@@ -125,14 +129,14 @@ export function ProofSurface() {
 
       {error && <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">{error}</div>}
       {ambiguousMessage && (
-        <div className="rounded-md border border-black/10 bg-black/5 p-3 text-sm">
+        <div className="card card-soft rounded-md p-3 text-sm">
           <span className="font-semibold">rejected as ambiguous:</span> {ambiguousMessage}
         </div>
       )}
 
       {policy && (
         <>
-          <div className="rounded-lg border border-black/10 bg-white/60 p-4 text-xs opacity-80">
+          <div className="card rounded-lg p-4 text-xs opacity-80">
             {policy.per_txn_cap_paise !== null && <span className="mr-4">per-txn cap: {paiseToRupees(policy.per_txn_cap_paise)}</span>}
             {policy.window_cap_paise !== null && (
               <span>

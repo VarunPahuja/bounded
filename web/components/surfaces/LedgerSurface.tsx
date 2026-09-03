@@ -5,11 +5,13 @@ import { ApiError, LedgerEntry, fetchLedgerEntries, fetchLedgerVerify } from "@/
 import { ChainStatusBadge } from "@/components/chain/ChainStatusBadge";
 import { LedgerEntryRow } from "@/components/chain/LedgerEntryRow";
 import { TamperControl } from "@/components/chain/TamperControl";
+import { useProofState } from "@/lib/proof-state";
 
 export function LedgerSurface() {
   const [entries, setEntries] = useState<LedgerEntry[] | null>(null);
   const [brokenAtIndex, setBrokenAtIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { setState: setProofState } = useProofState();
 
   async function load() {
     setError(null);
@@ -17,6 +19,10 @@ export function LedgerSurface() {
       const [entryList, verify] = await Promise.all([fetchLedgerEntries(), fetchLedgerVerify()]);
       setEntries(entryList);
       setBrokenAtIndex(verify.broken_at_index);
+      // Only the real chain state moves the ambient background -- the
+      // tamper control below is a non-destructive preview and must never
+      // announce a violation that hasn't actually happened.
+      setProofState(verify.broken_at_index !== null ? "violation" : "safe");
     } catch (e) {
       setError(e instanceof ApiError ? e.message : String(e));
     }
@@ -47,7 +53,7 @@ export function LedgerSurface() {
             </button>
           </div>
 
-          <ul className="rounded-lg border border-black/10 bg-white/60">
+          <ul className="card rounded-lg">
             {entries.map((e) => (
               <LedgerEntryRow key={e.entry_id} entry={e} brokenAtIndex={brokenAtIndex} />
             ))}

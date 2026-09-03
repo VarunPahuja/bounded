@@ -5,6 +5,7 @@ import { AttackRunResult, ApiError, ScenarioSummary, fetchAttackScenarios, runAt
 import { paiseToRupees } from "@/lib/format";
 import { CounterexampleTrace } from "@/components/trace/CounterexampleTrace";
 import { VerdictBadge } from "@/components/proof/VerdictBadge";
+import { useProofState } from "@/lib/proof-state";
 
 export function AttacksSurface() {
   const [scenarios, setScenarios] = useState<ScenarioSummary[] | null>(null);
@@ -12,6 +13,7 @@ export function AttacksSurface() {
   const [result, setResult] = useState<AttackRunResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { setState: setProofState } = useProofState();
 
   useEffect(() => {
     fetchAttackScenarios()
@@ -31,6 +33,7 @@ export function AttacksSurface() {
     try {
       const r = await runAttackScenario(scenarioId);
       setResult(r);
+      setProofState(r.blocked_at_step !== null ? "violation" : "safe");
     } catch (e) {
       setError(e instanceof ApiError ? e.message : String(e));
     } finally {
@@ -48,7 +51,7 @@ export function AttacksSurface() {
     <section className="mx-auto flex max-w-3xl flex-col gap-6 p-8">
       <header>
         <h1 className="font-serif text-3xl">Blocked attacks</h1>
-        <p className="mt-1 text-sm text-[var(--safe-fg)] opacity-70">
+        <p className="mt-1 text-sm opacity-70">
           Every action below ran through the real pipeline: real parse, real per-action Z3
           verdict, real hash-chained ledger write. Only the Razorpay network call is mocked
           (ADR-0014) -- same disclosed methodology as docs/EVAL.md.
@@ -57,7 +60,7 @@ export function AttacksSurface() {
 
       <div className="flex flex-wrap items-center gap-3">
         <select
-          className="rounded-md border border-black/10 bg-white px-3 py-2 text-sm"
+          className="rounded-md border border-black/10 bg-white px-3 py-2 text-sm text-[#2b2630]"
           value={scenarioId ?? ""}
           onChange={(e) => setScenarioId(e.target.value)}
           disabled={!scenarios}
@@ -85,7 +88,7 @@ export function AttacksSurface() {
 
       {result && (
         <div className="flex flex-col gap-4">
-          <div className="rounded-lg border border-black/10 bg-white/60 p-4 text-sm">
+          <div className="card rounded-lg p-4 text-sm">
             <div className="font-medium">Mandate</div>
             <p className="mt-1 opacity-80">{result.mandate_text}</p>
             <div className="mt-3 flex flex-wrap gap-4 text-xs opacity-70">

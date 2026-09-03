@@ -30,7 +30,7 @@ export function LedgerEntryRow({ entry, brokenAtIndex }: LedgerEntryRowProps) {
           : "unverified-after-break";
 
   return (
-    <li className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-black/10 px-4 py-3 text-sm">
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b px-4 py-3 text-sm" style={{ borderColor: "var(--card-border)" }}>
       <span className="w-10 font-mono text-xs opacity-50">#{entry.index}</span>
       <span
         className="w-20 font-mono text-xs font-semibold uppercase"

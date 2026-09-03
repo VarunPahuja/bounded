@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ApiError, PolicyIR, VerificationResult, activateMandate, parseMandate } from "@/lib/api";
 import { paiseToRupees } from "@/lib/format";
 import { VerdictBadge } from "@/components/proof/VerdictBadge";
+import { useProofState } from "@/lib/proof-state";
 
 // The exact string docs/DEMO.md's 0:25-1:00 beat uses and rehearses --
 // confirmed (docs/DEMO.md's pre-record checklist) not to trigger the
@@ -29,7 +30,7 @@ function PolicyView({ policy }: { policy: PolicyIR }) {
   rows.push(["refund_bounded_by_capture", "true (always on)"]);
 
   return (
-    <div className="rounded-lg border border-black/10 bg-white p-4 font-mono text-xs">
+    <div className="card rounded-lg p-4 font-mono text-xs">
       <div className="mb-2 font-sans text-sm font-semibold">PolicyIR (typed, what everything downstream reads)</div>
       <dl className="flex flex-col gap-1">
         {rows.map(([k, v]) => (
@@ -51,6 +52,7 @@ export function MandateSurface() {
   const [parsing, setParsing] = useState(false);
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { setState: setProofState } = useProofState();
 
   async function handleParse() {
     setParsing(true);
@@ -77,7 +79,9 @@ export function MandateSurface() {
     setActivating(true);
     setError(null);
     try {
-      setActivation(await activateMandate(policy, 8));
+      const r = await activateMandate(policy, 8);
+      setActivation(r);
+      setProofState(r.verdict === "violation" ? "violation" : "safe");
     } catch (e) {
       setError(e instanceof ApiError ? e.message : String(e));
     } finally {
@@ -109,7 +113,7 @@ export function MandateSurface() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-3">
           <textarea
-            className="min-h-[140px] rounded-md border border-black/10 bg-white p-3 text-sm"
+            className="min-h-[140px] rounded-md border border-black/10 bg-white p-3 text-sm text-[#2b2630]"
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -127,7 +131,7 @@ export function MandateSurface() {
             <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-800">{error}</div>
           )}
           {ambiguousMessage && (
-            <div className="rounded-md border-2 border-dashed border-black/20 bg-black/5 p-3 text-sm">
+            <div className="card card-soft rounded-md border-2 border-dashed p-3 text-sm">
               <div className="font-semibold">refused -- ambiguous, not guessed</div>
               <p className="mt-1 opacity-80">{ambiguousMessage}</p>
             </div>
@@ -149,7 +153,7 @@ export function MandateSurface() {
                 </button>
               </div>
               {activation && (
-                <div className="flex flex-col gap-2 rounded-lg border border-black/10 bg-white/60 p-4">
+                <div className="card flex flex-col gap-2 rounded-lg p-4">
                   <VerdictBadge verdict={activation.verdict} horizon={activation.horizon} />
                   <p className="text-xs opacity-70">
                     {activation.verdict === "safe"
@@ -161,7 +165,7 @@ export function MandateSurface() {
               )}
             </>
           ) : (
-            <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-black/10 p-8 text-sm opacity-50">
+            <div className="card flex h-full items-center justify-center rounded-lg border-dashed p-8 text-sm opacity-50">
               parse a mandate to see the typed policy here
             </div>
           )}

@@ -38,7 +38,7 @@ export function TamperControl({ entries }: TamperControlProps) {
   }
 
   return (
-    <div className="rounded-lg border border-black/10 bg-white/60 p-4">
+    <div className="card rounded-lg p-4">
       <h3 className="font-serif text-lg">Tamper control</h3>
       <p className="mt-1 text-xs opacity-70">
         Simulates editing one entry&apos;s amount directly in the database, bypassing this
@@ -47,7 +47,7 @@ export function TamperControl({ entries }: TamperControlProps) {
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <select
-          className="rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm"
+          className="rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm text-[#2b2630]"
           value={index ?? ""}
           onChange={(e) => setIndex(Number(e.target.value))}
         >
@@ -59,7 +59,7 @@ export function TamperControl({ entries }: TamperControlProps) {
         </select>
         <span className="text-xs opacity-60">new amount (₹):</span>
         <input
-          className="w-24 rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm"
+          className="w-24 rounded-md border border-black/10 bg-white px-2 py-1.5 text-sm text-[#2b2630]"
           value={newAmount}
           onChange={(e) => setNewAmount(e.target.value)}
         />
