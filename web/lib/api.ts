@@ -106,4 +106,36 @@ export function runAttackScenario(scenarioId: string): Promise<AttackRunResult> 
   });
 }
 
+export interface ParseResponse {
+  status: "ok" | "ambiguous";
+  policy: PolicyIR | null;
+  message: string | null;
+}
+
+export function parseMandate(text: string): Promise<ParseResponse> {
+  return request<ParseResponse>("/api/mandate/parse", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+}
+
+export function activateMandate(policy: PolicyIR, horizon = 8): Promise<VerificationResult> {
+  return request<VerificationResult>("/api/mandate/activate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ policy, horizon }),
+  });
+}
+
+export type GuardName = "naive" | "sound";
+
+export function verifyProof(policy: PolicyIR, guard: GuardName, horizon = 8): Promise<VerificationResult> {
+  return request<VerificationResult>("/api/proof/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ policy, guard, horizon }),
+  });
+}
+
 export { ApiError };
