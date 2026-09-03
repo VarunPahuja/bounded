@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AttacksSurface } from "@/components/surfaces/AttacksSurface";
 import { ProofSurface } from "@/components/surfaces/ProofSurface";
 import { LedgerSurface } from "@/components/surfaces/LedgerSurface";
+import { MandateSurface } from "@/components/surfaces/MandateSurface";
 
 // Placeholder nav for steps 2-4 of docs/PHASE7-PLAN.md's build order --
 // replaced in step 5 by the spatial, keyboard-driven layout docs/DESIGN.md
@@ -41,7 +42,7 @@ export function DashboardShell() {
       {active === "attacks" && <AttacksSurface />}
       {active === "proof" && <ProofSurface />}
       {active === "ledger" && <LedgerSurface />}
-      {active === "mandate" && <div className="p-8 text-sm opacity-60">Mandate surface: not built yet (step 4).</div>}
+      {active === "mandate" && <MandateSurface />}
     </div>
   );
 }
