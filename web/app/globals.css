@@ -72,21 +72,29 @@
 }
 
 /* ============================================================
-   UI 2.0 -- neobrutalist design tokens (ADR-0015, supersedes
-   docs/DESIGN.md's ethereal SAFE/VIOLATION palette).
+   UI 2.0 -- neobrutalist design tokens (ADR-0015, dialled back per the
+   2026-09-04 restraint pass: see docs/LOG.md).
 
-   Two layers of variables:
-   - Panel tokens (--panel-*) are UNCONDITIONAL: every card, button,
-     input and panel is a solid bone/white fill with a pure black
-     border and a pure black hard shadow, in both ambient states. This
-     is what "borders: pure black on every card" and "shadows: never
-     soft" mean literally, without per-state recolouring logic.
-   - Canvas tokens (--canvas-*, --accent, --accent-fg) are what actually
-     carries the SAFE/VIOLATION distinction: the page canvas flips from
-     bone to near-black, and the accent flips from electric blue to
-     electric cyan (never red -- the one rule carried forward from
-     DESIGN.md, restated in ADR-0015). Panels sit on top of either
-     canvas as crisp, unchanged islands.
+   The contrast rule, unconditional: every surface is a named {bg, fg,
+   muted} TRIO defined here, never a bare colour a component invents or
+   inherits past its immediate parent. There are exactly three surface
+   families, and every one of them defines all three of its own tokens:
+
+   - --canvas-*   the page background. AMBIENT -- flips bone/near-black
+                   with data-proof-state, so --canvas-muted must flip
+                   with it too (the bug this pass fixes: the old
+                   --muted-fg was a single fixed grey used on a
+                   background that could turn near-black under it).
+   - --panel-*    the default card surface. FIXED white/black in both
+                   ambient states -- every nb-panel/nb-panel-flat child
+                   can assume this pair without re-checking state.
+   - --trace-*    the black-field surface (counterexample traces, the
+                   compiled-policy block). FIXED, unconditionally dark.
+
+   A component that needs "quieter" text on one of these surfaces reads
+   that surface's *-muted token -- never a bare hex, never the other
+   surface's muted token, never CSS inheritance across a surface
+   boundary.
    ============================================================ */
 :root {
   --bone: #f2eee2;
@@ -98,27 +106,38 @@
      red (DESIGN.md's one rule that survives ADR-0015 unchanged). */
   --safe: #0033ff;
   --safe-ink: #ffffff;
-  --violation: #00e5ff;
+  --violation: #00b8d4;
   --violation-ink: #0a0a0a;
-  --admitted: #007a3d;
 
-  /* Ambient tokens -- the *global* current-state mood, used only by the
-     canvas background and the nav/status chrome. */
+  /* "Admitted" (allow/pass) is one semantic colour, green, rendered as
+     two shades because it sits on two different fixed backgrounds --
+     never two unrelated greens picked ad hoc per component (that was
+     the bug: LedgerEntryRow hardcoded #007a3d, the trace components
+     separately hardcoded an unrelated #39ff6a neon, and the --admitted
+     token meant to unify them was defined and never actually used). */
+  --admitted-on-light: #007a3d; /* on --panel-bg (white) */
+  --admitted-on-dark: #34d399; /* on --trace-bg (near-black) */
+
+  /* Ambient tokens -- the *global* current-state mood: canvas bg/fg/
+     muted flip together as one paired trio, and the accent used by nav/
+     status chrome flips with them. */
   --canvas-bg: var(--bone);
   --canvas-fg: var(--ink);
+  --canvas-muted: #5c5852;
   --accent: var(--safe);
   --accent-fg: var(--safe-ink);
 
   --panel-bg: #ffffff;
   --panel-fg: var(--ink);
+  --panel-muted: #5c5c5c;
   --panel-border: var(--ink);
   --panel-shadow: var(--ink);
-  --muted-fg: #4a4a4a;
 }
 
 [data-proof-state="violation"] {
   --canvas-bg: var(--ink);
   --canvas-fg: var(--bone);
+  --canvas-muted: #b6b2a8;
   --accent: var(--violation);
   --accent-fg: var(--violation-ink);
 }
@@ -126,15 +145,18 @@
 /* Trace surfaces are unconditionally a pure black field with bright
    monospace -- the default treatment now, not an exception carved out
    for one component (docs/DESIGN.md's old non-negotiable, restated as
-   the norm rather than the exception per ADR-0015). */
+   the norm rather than the exception per ADR-0015). Fixed in both
+   ambient states, same as --panel-*. */
 :root {
   --trace-bg: #0a0a0a;
   --trace-fg: #f2eee2;
-  --trace-muted: #8a8a8a;
+  --trace-muted: #9a9a9a;
 }
 
 /* ---- Structural utility classes ---- */
 
+/* Full weight: reserved for verdicts, traces and the Evidence
+   head-to-head numbers (docs/LOG.md, 2026-09-04 restraint pass). */
 .nb-panel {
   background: var(--panel-bg);
   color: var(--panel-fg);
@@ -142,10 +164,13 @@
   box-shadow: 8px 8px 0 var(--panel-shadow);
 }
 
+/* Default weight for everything else: a card, a table, a list -- thinner
+   border, no shadow, so the nb-panel elements actually read as heavier
+   by contrast instead of competing with them. */
 .nb-panel-flat {
   background: var(--panel-bg);
   color: var(--panel-fg);
-  border: 3px solid var(--panel-border);
+  border: 2px solid var(--panel-border);
 }
 
 .nb-btn {
@@ -153,10 +178,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border: 3px solid var(--ink);
-  box-shadow: 6px 6px 0 var(--ink);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
   font-weight: 800;
-  padding: 0.75rem 1.5rem;
+  padding: 0.65rem 1.4rem;
   /* Fixed --safe, not the ambient --accent: an action button ("run
      this", "parse this") is a call to action, not a verdict, so it
      stays the same colour regardless of what the rest of the page is
@@ -168,11 +193,11 @@
 }
 .nb-btn:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
 }
 .nb-btn:active:not(:disabled) {
-  transform: translate(4px, 4px);
-  box-shadow: 2px 2px 0 var(--ink);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
 }
 .nb-btn:disabled {
   cursor: not-allowed;
@@ -186,7 +211,7 @@
 }
 
 .nb-input {
-  border: 3px solid var(--ink);
+  border: 2px solid var(--ink);
   background: #ffffff;
   color: var(--ink);
   padding: 0.6rem 0.8rem;
@@ -196,11 +221,20 @@
   outline: 3px solid var(--accent);
   outline-offset: 0;
 }
+/* Explicit disabled pair -- never left to inherit or to the browser's UA
+   default. This is the exact bug class the last two builds shipped
+   ("light text on white form controls"): a form control's every state,
+   not just its default state, needs its own defined pair. */
+.nb-input:disabled {
+  cursor: not-allowed;
+  background: #e5e5e5;
+  color: #6a6a6a;
+}
 
 .nb-chip {
   display: inline-flex;
   align-items: center;
-  border: 3px solid var(--ink);
+  border: 2px solid var(--ink);
   background: #ffffff;
   color: var(--ink);
   padding: 0.2rem 0.6rem;
@@ -208,12 +242,17 @@
   font-weight: 700;
 }
 
+/* Color set here, explicitly, rather than left to inherit from whatever
+   ambient wrapper happens to surround a given h1 -- nb-heading is only
+   ever used directly on the canvas, so it states that pair itself
+   instead of relying on an ancestor three levels up to have set it. */
 .nb-heading {
   font-weight: 900;
   letter-spacing: -0.03em;
-  line-height: 0.85;
+  line-height: 0.9;
   text-transform: uppercase;
   margin: 0;
+  color: var(--canvas-fg);
 }
 
 .nb-mono {

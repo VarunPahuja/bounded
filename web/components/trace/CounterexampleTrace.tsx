@@ -49,7 +49,7 @@ export function CounterexampleTrace({ steps, blockedAtStep }: CounterexampleTrac
                   [{step.action.category}]
                 </span>
               )}
-              <span className="ml-auto text-2xl font-black" style={{ color: isBlocked ? "var(--violation-ink)" : "#39ff6a" }}>
+              <span className="ml-auto text-2xl font-black" style={{ color: isBlocked ? "var(--violation-ink)" : "var(--admitted-on-dark)" }}>
                 {step.allowed ? "ADMITTED" : "BLOCKED"}
               </span>
             </li>
@@ -73,7 +73,7 @@ export function CounterexampleTrace({ steps, blockedAtStep }: CounterexampleTrac
       )}
 
       {blockedAtStep === null && (
-        <p className="mt-5 pt-5 text-xl font-bold" style={{ borderTop: "4px solid #39ff6a", color: "#39ff6a" }}>
+        <p className="mt-5 pt-5 text-xl font-bold" style={{ borderTop: "4px solid var(--admitted-on-dark)", color: "var(--admitted-on-dark)" }}>
           every action in this sequence was admitted — no violation found.
         </p>
       )}

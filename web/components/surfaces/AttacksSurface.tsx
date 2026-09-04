@@ -61,12 +61,10 @@ export function AttacksSurface() {
   return (
     <section className="flex w-full flex-col gap-8 px-8 py-10 md:px-14">
       <header>
-        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
-          Blocked
-          <br />
-          attacks
+        <h1 className="nb-heading" style={{ fontSize: "clamp(30px, 4vw, 56px)" }}>
+          Blocked attacks
         </h1>
-        <p className="mt-4 max-w-3xl text-lg font-bold" style={{ color: "var(--muted-fg)" }}>
+        <p className="mt-3 max-w-3xl text-base font-semibold" style={{ color: "var(--canvas-muted)" }}>
           Every action below ran through the real pipeline: real parse, real per-action Z3
           verdict, real hash-chained ledger write.{" "}
           <span className="nb-chip">ADR-0014: RAZORPAY CALL MOCKED</span> — same disclosed
@@ -101,7 +99,7 @@ export function AttacksSurface() {
 
       {result && (
         <div className="flex flex-col gap-6">
-          <div className="nb-panel p-5">
+          <div className="nb-panel-flat p-5">
             <div className="text-lg font-black uppercase tracking-tight">Mandate</div>
             <p className="mt-2 text-lg font-bold">{result.mandate_text}</p>
             <div className="nb-mono mt-3 flex flex-wrap gap-3 text-sm font-bold">

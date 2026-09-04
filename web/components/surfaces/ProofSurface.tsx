@@ -23,12 +23,14 @@ interface GuardCardProps {
   autoRun?: boolean;
 }
 
-// UI 2.0 (ADR-0015): the VIOLATION -> SAFE flip is the beat this surface
-// narrates -- make the whole panel change, not just a badge. A resolved
-// naive guard turns the entire card into a black/cyan violation block; a
-// resolved sound guard turns it into a solid blue/white safe block. Two
-// panels side by side, opposite colours, is the "dramatic" the brief asks
-// for -- not a colour swatch inside an otherwise-identical white card.
+// UI 2.0, restraint pass (docs/LOG.md, 2026-09-04): the VIOLATION -> SAFE
+// flip is still the beat this surface narrates, but the card itself stays
+// on the fixed panel pair (white/black) at all times -- only its border
+// and shadow pick up the resolved state's colour. The solid fill that
+// used to cover the whole card now lives only in VerdictBadge, a small
+// element built for exactly that job. This is a verdict container, so it
+// keeps the full 4px/8px weight (docs/LOG.md's "verdicts stay heavy"
+// rule) -- what changed is the fill, not the weight.
 function GuardCard({ label, guard, policy, autoRun }: GuardCardProps) {
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -62,9 +64,9 @@ function GuardCard({ label, guard, policy, autoRun }: GuardCardProps) {
   const resolved = result?.verdict === "violation" ? "violation" : result?.verdict === "safe" ? "safe" : null;
   const panelStyle =
     resolved === "violation"
-      ? { background: "var(--ink)", color: "var(--bone)", borderColor: "var(--violation)", boxShadow: "8px 8px 0 var(--violation)" }
+      ? { background: "var(--panel-bg)", color: "var(--panel-fg)", borderColor: "var(--violation)", boxShadow: "8px 8px 0 var(--violation)" }
       : resolved === "safe"
-        ? { background: "var(--safe)", color: "var(--safe-ink)", borderColor: "var(--ink)", boxShadow: "8px 8px 0 var(--ink)" }
+        ? { background: "var(--panel-bg)", color: "var(--panel-fg)", borderColor: "var(--safe)", boxShadow: "8px 8px 0 var(--safe)" }
         : { background: "var(--panel-bg)", color: "var(--panel-fg)", borderColor: "var(--ink)", boxShadow: "8px 8px 0 var(--ink)" };
 
   return (
@@ -133,10 +135,10 @@ export function ProofSurface() {
   return (
     <section className="flex w-full flex-col gap-8 px-8 py-10 md:px-14">
       <header>
-        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+        <h1 className="nb-heading" style={{ fontSize: "clamp(30px, 4vw, 56px)" }}>
           Proof
         </h1>
-        <p className="mt-4 max-w-3xl text-lg font-bold" style={{ color: "var(--muted-fg)" }}>
+        <p className="mt-3 max-w-3xl text-base font-semibold" style={{ color: "var(--canvas-muted)" }}>
           Same policy, same solver, two guards. The naive guard checks each payment against the
           per-payment cap alone; the sound guard also tracks the running window spend. Nobody
           writes the counterexample below — the solver searches every guard-admitted sequence up

@@ -35,10 +35,10 @@ export function LedgerSurface() {
   return (
     <section className="flex w-full flex-col gap-8 px-8 py-10 md:px-14">
       <header>
-        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+        <h1 className="nb-heading" style={{ fontSize: "clamp(30px, 4vw, 56px)" }}>
           Ledger
         </h1>
-        <p className="mt-4 max-w-3xl text-lg font-bold" style={{ color: "var(--muted-fg)" }}>
+        <p className="mt-3 max-w-3xl text-base font-semibold" style={{ color: "var(--canvas-muted)" }}>
           The hash-chained, Ed25519-signed audit trail every decision in this system is written
           to. Real entries from the real interceptor — the same one Attacks and Proof exercise.
         </p>
@@ -59,7 +59,7 @@ export function LedgerSurface() {
             </button>
           </div>
 
-          <ul className="nb-panel">
+          <ul className="nb-panel-flat">
             {entries.map((e) => (
               <LedgerEntryRow key={e.entry_id} entry={e} brokenAtIndex={brokenAtIndex} />
             ))}

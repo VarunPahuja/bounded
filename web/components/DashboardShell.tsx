@@ -24,9 +24,15 @@ const SURFACES: { id: SurfaceId; label: string; key: string }[] = [
   { id: "evidence", label: "Evidence", key: "5" },
 ];
 
-const NAV_H = 128;
-const STATUS_H = 56;
+const NAV_H = 84;
+const STATUS_H = 52;
 
+// Restraint pass (docs/LOG.md, 2026-09-04): the active tab used to be a
+// full-height solid accent fill -- a large saturated area for something
+// that's chrome, not a verdict. It now stays on the fixed panel pair
+// (white/black) like every other tab and signals "active" with a thin
+// accent-coloured underline plus a filled key number -- the accent is
+// still used for state, just as a small mark instead of a background.
 function NavStrip({ active, onSelect }: { active: SurfaceId; onSelect: (id: SurfaceId) => void }) {
   return (
     <div
@@ -34,8 +40,7 @@ function NavStrip({ active, onSelect }: { active: SurfaceId; onSelect: (id: Surf
       style={{
         height: NAV_H,
         background: "var(--panel-bg)",
-        borderBottom: "4px solid var(--ink)",
-        boxShadow: "0 8px 0 var(--ink)",
+        borderBottom: "3px solid var(--ink)",
       }}
     >
       {SURFACES.map((s, i) => {
@@ -44,17 +49,29 @@ function NavStrip({ active, onSelect }: { active: SurfaceId; onSelect: (id: Surf
           <button
             key={s.id}
             onClick={() => onSelect(s.id)}
-            className="flex flex-1 items-center gap-4 px-6 text-left transition-colors"
+            className="flex flex-1 items-center gap-3 px-5 text-left transition-colors"
             style={{
-              borderLeft: i === 0 ? "none" : "3px solid var(--ink)",
-              background: isActive ? "var(--accent)" : "var(--panel-bg)",
-              color: isActive ? "var(--accent-fg)" : "var(--panel-fg)",
+              borderLeft: i === 0 ? "none" : "2px solid var(--ink)",
+              borderBottom: isActive ? "4px solid var(--accent)" : "4px solid transparent",
+              background: "var(--panel-bg)",
+              color: "var(--panel-fg)",
             }}
           >
-            <span className="nb-mono" style={{ fontSize: 44, fontWeight: 900, lineHeight: 1 }}>
+            <span
+              className="nb-mono flex items-center justify-center"
+              style={{
+                fontSize: 20,
+                fontWeight: 900,
+                lineHeight: 1,
+                width: 28,
+                height: 28,
+                background: isActive ? "var(--accent)" : "transparent",
+                color: isActive ? "var(--accent-fg)" : "var(--panel-fg)",
+              }}
+            >
               {s.key}
             </span>
-            <span className="text-lg font-extrabold uppercase tracking-tight">{s.label}</span>
+            <span className="text-sm font-extrabold uppercase tracking-tight">{s.label}</span>
           </button>
         );
       })}

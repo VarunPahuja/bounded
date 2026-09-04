@@ -50,7 +50,7 @@ export function GuardCounterexampleTrace({ counterexample }: GuardCounterexample
                   [{step.category}]
                 </span>
               )}
-              <span className="ml-auto text-lg font-black" style={{ color: isBreachPoint ? "var(--violation-ink)" : "#39ff6a" }}>
+              <span className="ml-auto text-lg font-black" style={{ color: isBreachPoint ? "var(--violation-ink)" : "var(--admitted-on-dark)" }}>
                 ADMITTED
               </span>
               {isBreachPoint && <span className="text-lg font-black">← INVARIANT BREAKS HERE</span>}

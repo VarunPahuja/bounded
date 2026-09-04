@@ -37,21 +37,30 @@ export function StatusStrip({ top, height }: { top: number; height: number }) {
         borderBottom: "3px solid var(--ink)",
       }}
     >
-      {items.map((item, i) => (
-        <span
-          key={item}
-          className="nb-mono flex h-full shrink-0 items-center px-5 text-sm font-bold tracking-wide"
-          style={{
-            borderLeft: i === 0 ? "none" : "3px solid var(--ink)",
-            color:
-              status && item === "CHAIN BROKEN"
-                ? "var(--accent)"
-                : "var(--panel-fg)",
-          }}
-        >
-          {item}
-        </span>
-      ))}
+      {items.map((item, i) => {
+        // --violation (electric cyan) measures under 1.5:1 against the
+        // white panel background it would sit on as plain text -- almost
+        // exactly the "light text on a light form control" bug class,
+        // just on a status bar instead of an input. A small solid chip
+        // gives the state its accent without asking cyan text to carry
+        // its own contrast against white.
+        const broken = status && item === "CHAIN BROKEN";
+        return (
+          <span
+            key={item}
+            className="nb-mono flex h-full shrink-0 items-center px-5 text-sm font-bold tracking-wide"
+            style={{ borderLeft: i === 0 ? "none" : "3px solid var(--ink)" }}
+          >
+            {broken ? (
+              <span className="px-2 py-0.5" style={{ background: "var(--violation)", color: "var(--violation-ink)" }}>
+                {item}
+              </span>
+            ) : (
+              item
+            )}
+          </span>
+        );
+      })}
     </div>
   );
 }

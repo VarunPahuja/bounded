@@ -38,9 +38,9 @@ export function TamperControl({ entries }: TamperControlProps) {
   }
 
   return (
-    <div className="nb-panel p-6">
+    <div className="nb-panel-flat p-6">
       <h3 className="text-2xl font-black uppercase tracking-tight">Tamper control</h3>
-      <p className="mt-2 text-base font-medium" style={{ color: "var(--muted-fg)" }}>
+      <p className="mt-2 text-base font-medium" style={{ color: "var(--panel-muted)" }}>
         Simulates editing one entry&apos;s amount directly in the database, bypassing this
         application entirely. Nothing is written to the real ledger — this previews, on a copy,
         exactly where <code className="nb-mono font-bold">verify_chain</code> would detect the edit.
@@ -71,7 +71,7 @@ export function TamperControl({ entries }: TamperControlProps) {
       {result && (
         <p className="nb-mono mt-4 text-lg font-black">
           {result.error ? (
-            <span style={{ color: "var(--muted-fg)" }}>{result.error}</span>
+            <span style={{ color: "var(--panel-muted)" }}>{result.error}</span>
           ) : result.broken_at_index !== null ? (
             <span
               className="inline-block border-2 px-3 py-1"
@@ -80,7 +80,7 @@ export function TamperControl({ entries }: TamperControlProps) {
               VERIFY_CHAIN DETECTS THE TAMPER AT INDEX {result.broken_at_index}
             </span>
           ) : (
-            <span style={{ color: "#007a3d" }}>CHAIN STILL VERIFIES (unexpected — report this)</span>
+            <span style={{ color: "var(--admitted-on-light)" }}>CHAIN STILL VERIFIES (unexpected — report this)</span>
           )}
         </p>
       )}

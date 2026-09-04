@@ -10,9 +10,9 @@ interface LedgerEntryRowProps {
 }
 
 const DECISION_COLOR: Record<string, string> = {
-  allow: "#007a3d",
+  allow: "var(--admitted-on-light)",
   block: "var(--violation)",
-  genesis: "var(--muted-fg)",
+  genesis: "var(--panel-muted)",
 };
 
 function shortHash(hash: string): string {
@@ -50,10 +50,10 @@ export function LedgerEntryRow({ entry, brokenAtIndex }: LedgerEntryRowProps) {
             {entry.action.action_type} · {paiseToRupees(entry.action.amount_paise)} on {entry.action.order_id}
           </>
         ) : (
-          <span style={{ color: "var(--muted-fg)" }}>no action (genesis)</span>
+          <span style={{ color: "var(--panel-muted)" }}>no action (genesis)</span>
         )}
       </span>
-      <span className="flex items-center gap-1 text-sm font-bold" style={{ color: "var(--muted-fg)" }} title={entry.prev_hash}>
+      <span className="flex items-center gap-1 text-sm font-bold" style={{ color: "var(--panel-muted)" }} title={entry.prev_hash}>
         {shortHash(entry.prev_hash)}
       </span>
       <span className="text-xl font-black" aria-hidden>
@@ -71,8 +71,8 @@ export function LedgerEntryRow({ entry, brokenAtIndex }: LedgerEntryRowProps) {
             verifiedStatus === "broken-here"
               ? "var(--violation-ink)"
               : verifiedStatus === "unverified-after-break"
-                ? "var(--muted-fg)"
-                : "#007a3d",
+                ? "var(--panel-muted)"
+                : "var(--admitted-on-light)",
         }}
       >
         {verifiedStatus === "verified" && "✓ SIGNATURE OK"}

@@ -71,7 +71,7 @@ export function EvidenceSurface() {
   if (error) {
     return (
       <section className="flex w-full flex-col gap-6 px-8 py-10 md:px-14">
-        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+        <h1 className="nb-heading" style={{ fontSize: "clamp(30px, 4vw, 56px)" }}>
           Evidence
         </h1>
         <div className="nb-panel-flat p-4 text-base font-bold" style={{ borderColor: "var(--violation)" }}>
@@ -84,7 +84,7 @@ export function EvidenceSurface() {
   if (!summary) {
     return (
       <section className="flex w-full flex-col gap-6 px-8 py-10 md:px-14">
-        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+        <h1 className="nb-heading" style={{ fontSize: "clamp(30px, 4vw, 56px)" }}>
           Evidence
         </h1>
         <p className="nb-mono text-lg font-bold">loading the eval report…</p>
@@ -99,10 +99,10 @@ export function EvidenceSurface() {
   return (
     <section className="flex w-full flex-col gap-8 px-8 py-10 md:px-14">
       <header>
-        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+        <h1 className="nb-heading" style={{ fontSize: "clamp(30px, 4vw, 56px)" }}>
           Evidence
         </h1>
-        <p className="mt-4 max-w-4xl text-lg font-bold" style={{ color: "var(--muted-fg)" }}>
+        <p className="mt-3 max-w-4xl text-base font-semibold" style={{ color: "var(--canvas-muted)" }}>
           The head-to-head measurement in docs/EVAL.md, parsed live from the committed file (not
           hand-typed) — generated {summary.generated_at}, mode {summary.mode}, commit{" "}
           <code className="nb-mono">{summary.commit.slice(0, 12)}</code>. Corpus: {summary.n_scenarios}{" "}
@@ -132,11 +132,11 @@ export function EvidenceSurface() {
       </div>
 
       {ours && judge && (
-        <div className="nb-panel p-6">
+        <div className="nb-panel-flat p-6">
           <div className="mb-4 text-xl font-black uppercase tracking-tight">False positive rate on benign flows (95% CI)</div>
           <table className="nb-mono w-full border-collapse text-left text-base">
             <thead>
-              <tr className="text-sm font-black uppercase" style={{ color: "var(--muted-fg)" }}>
+              <tr className="text-sm font-black uppercase" style={{ color: "var(--panel-muted)" }}>
                 <th className="border-b-2 py-2 pr-4" style={{ borderColor: "var(--ink)" }}>pipeline</th>
                 <th className="border-b-2 py-2 pr-4" style={{ borderColor: "var(--ink)" }}>fp</th>
                 <th className="border-b-2 py-2 pr-4" style={{ borderColor: "var(--ink)" }}>n</th>
@@ -161,12 +161,12 @@ export function EvidenceSurface() {
         </div>
       )}
 
-      <div className="nb-panel p-6">
+      <div className="nb-panel-flat p-6">
         <div className="mb-4 text-xl font-black uppercase tracking-tight">pass^k (tau-bench definition), macro-averaged per scenario</div>
         <div className="overflow-x-auto">
           <table className="nb-mono w-full min-w-[720px] border-collapse text-left text-base">
             <thead>
-              <tr className="text-sm font-black uppercase" style={{ color: "var(--muted-fg)" }}>
+              <tr className="text-sm font-black uppercase" style={{ color: "var(--panel-muted)" }}>
                 <th className="border-b-2 py-2 pr-4" style={{ borderColor: "var(--ink)" }}>class</th>
                 <th className="border-b-2 py-2 pr-3" style={{ borderColor: "var(--ink)" }}>ours k=1</th>
                 <th className="border-b-2 py-2 pr-3" style={{ borderColor: "var(--ink)" }}>ours k=4</th>
@@ -194,7 +194,7 @@ export function EvidenceSurface() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="nb-panel p-6">
+        <div className="nb-panel-flat p-6">
           <div className="mb-3 text-xl font-black uppercase tracking-tight">Corpus composition</div>
           <ul className="nb-mono flex flex-wrap gap-2 text-sm font-bold">
             {summary.corpus.classes.map((c) => (
@@ -208,11 +208,11 @@ export function EvidenceSurface() {
           </p>
         </div>
 
-        <div className="nb-panel p-6">
+        <div className="nb-panel-flat p-6">
           <div className="mb-1 text-xl font-black uppercase tracking-tight">Median Z3 verification latency</div>
           <p className="nb-mono text-4xl font-black">
             {summary.median_latency_ms.toFixed(3)} ms{" "}
-            <span className="text-sm font-bold" style={{ color: "var(--muted-fg)" }}>
+            <span className="text-sm font-bold" style={{ color: "var(--panel-muted)" }}>
               (n={summary.median_latency_n})
             </span>
           </p>
@@ -223,7 +223,7 @@ export function EvidenceSurface() {
           correction (adversarial_vs_ours' 100% is reproducibility, not
           adversarial robustness) must survive onto the screen exactly, not
           be summarized down to the bare percentage. */}
-      <div className="nb-panel p-6">
+      <div className="nb-panel-flat p-6">
         <div className="mb-3 text-xl font-black uppercase tracking-tight">adversarial_vs_ours: findings and what the 100% means</div>
         <pre className="nb-mono max-h-96 overflow-y-auto whitespace-pre-wrap text-sm font-medium leading-relaxed">
           {summary.adversarial_note.replace(/^## adversarial_vs_ours.*\n\n/, "")}

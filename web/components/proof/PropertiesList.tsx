@@ -9,7 +9,7 @@ interface PropertiesListProps {
 export function PropertiesList({ properties }: PropertiesListProps) {
   if (properties.length === 0) {
     return (
-      <p className="nb-mono text-sm font-bold" style={{ color: "var(--muted-fg)" }}>
+      <p className="nb-mono text-sm font-bold" style={{ color: "var(--panel-muted)" }}>
         no properties applied by this policy
       </p>
     );

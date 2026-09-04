@@ -17,10 +17,16 @@ const RECORDING_MANDATE =
 // rule (policy/parse.py's system prompt) is to never invent one.
 const AMBIGUOUS_MANDATE = "Keep the agent's spending reasonable and don't let it go overboard.";
 
-// UI 2.0 (ADR-0015): the typed side renders as a black-field mono block --
-// visually a "compiled" artifact next to the English prose, so the
-// translation the brief asks to make legible at a glance reads as a
-// contrast in kind (prose vs. typed object), not just two white cards.
+// UI 2.0 (ADR-0015, restraint pass 2026-09-04): the typed side stays a
+// black-field mono block -- visually a "compiled" artifact next to the
+// English prose -- but this is chrome framing, not a verdict or a trace,
+// so it now gets the secondary treatment: thinner border, no hard
+// shadow. The label text was previously --safe blue on this near-black
+// field, which measures under 3:1 contrast (dark-on-dark, the exact bug
+// class this pass audits for); it now uses --trace-fg like every other
+// line here, with blue kept only as a thin rule under the label -- a
+// small accent mark, not a text colour that has to fight the field for
+// contrast.
 function PolicyView({ policy }: { policy: PolicyIR }) {
   const rows: [string, string][] = [];
   if (policy.per_txn_cap_paise !== null) rows.push(["per_txn_cap_paise", paiseToRupees(policy.per_txn_cap_paise)]);
@@ -34,8 +40,11 @@ function PolicyView({ policy }: { policy: PolicyIR }) {
   rows.push(["refund_bounded_by_capture", "true (always on)"]);
 
   return (
-    <div className="nb-mono p-6" style={{ background: "var(--trace-bg)", color: "var(--trace-fg)", border: "4px solid var(--trace-fg)", boxShadow: "8px 8px 0 var(--safe)" }}>
-      <div className="mb-4 text-lg font-black uppercase tracking-tight" style={{ color: "var(--safe)" }}>
+    <div className="nb-mono p-6" style={{ background: "var(--trace-bg)", color: "var(--trace-fg)", border: "2px solid var(--trace-fg)" }}>
+      <div
+        className="mb-4 pb-2 text-lg font-black uppercase tracking-tight"
+        style={{ color: "var(--trace-fg)", borderBottom: "3px solid var(--safe)" }}
+      >
         PolicyIR — what everything downstream reads
       </div>
       <dl className="flex flex-col gap-2 text-base">
@@ -117,10 +126,10 @@ export function MandateSurface() {
   return (
     <section className="flex w-full flex-col gap-8 px-8 py-10 md:px-14">
       <header>
-        <h1 className="nb-heading" style={{ fontSize: "clamp(56px, 8vw, 120px)" }}>
+        <h1 className="nb-heading" style={{ fontSize: "clamp(30px, 4vw, 56px)" }}>
           Mandate
         </h1>
-        <p className="mt-4 max-w-3xl text-lg font-bold" style={{ color: "var(--muted-fg)" }}>
+        <p className="mt-3 max-w-3xl text-base font-semibold" style={{ color: "var(--canvas-muted)" }}>
           The model only translates English into a typed object — it never decides whether a
           payment is allowed. If it can&apos;t extract every field without guessing, it refuses
           rather than filling the gap. That refusal is shown below, not hidden.
@@ -170,7 +179,7 @@ export function MandateSurface() {
                 </button>
               </div>
               {activation && (
-                <div className="nb-panel flex flex-col gap-3 p-5">
+                <div className="nb-panel-flat flex flex-col gap-3 p-5">
                   <VerdictBadge verdict={activation.verdict} horizon={activation.horizon} />
                   <p className="text-base font-bold">
                     {activation.verdict === "safe"
