@@ -1250,3 +1250,131 @@ before the redesign, only JSX and class names changed.
 
 ADR-0015 written and accepted before any component code, per standing
 practice. Not merged to `main` — pushed on `ui-2.0` for review.
+
+## 2026-09-04 — Merge to main, rename check, deploy, README: pre-recording pass
+
+Four tasks, run in order, each stopped-and-reported before the next. This
+entry covers all four together since none produced enough on its own to
+warrant a separate phase heading, and the four are one continuous session.
+
+**1. Merge.** `ui-2.0` had one uncommitted restraint pass sitting on top of
+ADR-0015 (headings down a step, the active-tab full-fill replaced with a
+thin accent underline, `GuardCard`'s whole-panel verdict fill moved to
+border/shadow only, the `--muted-fg` contrast bug root-caused into three
+explicit `{bg,fg,muted}` token trios instead of patched instance-by-
+instance) — committed first, then fast-forward merged into `main` (no
+conflicts; `ui-2.0` was already strictly ahead). `pytest` on `main`: 114
+passed, 3 skipped, matching the stated baseline on 4 of 5 verification
+runs. The fifth run hit a *different*, previously undocumented flake —
+`tests/policy/test_parse_live.py` makes a real Azure OpenAI call, and once
+it returned a policy with `max_txn_count` set but no `window`, which fails
+a pydantic validator. Reported plainly rather than folded silently into
+"baseline confirmed," since it's a second, distinct source of flakiness
+the stated baseline didn't name. Pushed to `origin/main`.
+
+**2. Rename.** Found one real placeholder: `docs/MASTER.md` still read
+"**Name:** deferred. Placeholder `bounded` for the repo slug... Decide it
+before the video, not after" — the decision had been made weeks earlier
+everywhere else (`pyproject.toml`, the page title, ADR-0015) but that one
+line never got updated to say so. Fixed, along with "(working name)" on
+the same page's header. Three smaller gaps: `web/package.json`'s name was
+still the create-next-app default `"web"`; `web/README.md` was pure
+Next.js boilerplate with zero mention of the project; and the running
+dashboard itself had no visible product name anywhere on screen — five
+tab labels, no wordmark. Added a "BOUNDED" mark to the nav strip, left of
+the tabs, fixed width so it doesn't compete with them for space.
+
+**3. Deploy.** Frontend to Vercel, API to Render, both free tier, per
+instruction — "the deployment exists so the repo has a working link, not
+so the demo runs on it... if it works at all, that is enough."
+
+Vercel authenticated instantly via an existing Claude Code integration
+(no login flow needed). First real catch of the session: I renamed the
+Vercel project to `bounded` and curled `bounded.vercel.app` — got a 200
+with `<title>Bounded</title>` and almost used it as the live link. It
+belongs to someone else. `<project>.vercel.app` short subdomains are
+global across all Vercel accounts, not scoped per project, and my project
+was never actually assigned that one (`vercel project inspect` showed no
+domains at all; `vercel alias ls` showed the real assigned aliases were
+`bounded-varunps-projects.vercel.app` and a leftover `web-xi-murex-...`
+alias from before the rename). A second check — `vercel alias ls` against
+my own project, not a bare curl of the name I assumed I'd claimed — is
+what caught it before it went in the README. The user separately caught
+that `bounded-varunps-projects.vercel.app` was *also* wrong: Vercel
+Deployment Protection (SSO) was on for the project, redirecting every
+anonymous request to a Vercel login wall — invisible to a plain curl of
+the happy path, only visible once `-D -` showed the 302 to
+`vercel.com/sso-api`. Disabling it via `vercel project protection` was
+blocked by the harness's own auto-mode classifier before I could try. The
+user supplied the actual correct, already-working, unprotected domain —
+`boundedv1.vercel.app` — directly.
+
+Render has no comparable CLI or existing auth link, so that half needed
+the user: a `render.yaml` blueprint (free plan, Python 3.11.9 pinned via
+`.python-version`, the `api,verifier,rail,ledger,llm` extras, five
+`sync: false` credential env vars prompted at setup) was prepared and
+pushed so the "New from Blueprint" flow was a few clicks, not a manual
+service configuration. Also fixed, before asking for the deploy: CORS in
+`api/main.py` was hardcoded to `localhost:3000` only, which would have
+silently broken every request from any deployed frontend regardless of
+which platform hosted it — opened via `allow_origin_regex` for
+`*.vercel.app` rather than widening to `allow_origins=["*"]`.
+
+**End-to-end verification found a real failure, and it stayed cut.**
+Every GET endpoint on the deployed API returns real data — status,
+ledger, eval summary, scenario list, all confirmed against the actual
+Render deployment via a driven headless-browser pass over
+`boundedv1.vercel.app`. But both LLM-dependent POST endpoints
+(`/api/mandate/parse`, and `/api/attack/run/...` which parses
+internally) return a bare `500 Internal Server Error` in production,
+consistently, reproduced directly with `curl` outside the browser too.
+The browser console reported this as a CORS failure — a real, separately-
+confirmed red herring: the OPTIONS preflight for both endpoints returns
+correct `access-control-allow-origin` headers on direct testing, but the
+500 response itself drops CORS headers entirely (a FastAPI/Starlette
+behavior where an unhandled exception's response doesn't route back
+through `CORSMiddleware`), so a genuine server-side 500 shows up in
+DevTools looking exactly like a client-side CORS misconfiguration.
+`policy/parse.py` does `os.environ["AZURE_OPENAI_API_KEY"/"_ENDPOINT"/
+"_DEPLOYMENT"]` with no fallback, so this is almost certainly one of
+those three Render env vars missing or malformed — but confirming which,
+without dashboard or log access, wasn't a few-minutes job. Per explicit
+instruction ("a dead link is worse than no link... do not spend more
+than a few minutes on this"), the live-link claim was cut from the
+README entirely rather than debugged further or shipped half-working.
+Two of five dashboard surfaces (Attacks, which auto-runs on load, and
+Proof) would have shown an error to the first thing a judge saw — that's
+"fighting," not "works at all."
+
+**4. README.** Written last, to the given structure: one sentence, then
+positioning second and deliberate (AP2 records authorization vs. this
+proves the agent cannot exceed it; OAP/PCAS/APEX and Cedar/Zelkova/CEL
+named by their actual arXiv IDs for what they already did, so the
+results read against a fair account of prior art rather than a blank
+slate), the head-to-head table, limits with real weight (linking
+`docs/THREATS.md` rather than summarizing it away), a setup section, and
+the architecture diagram as a GitHub-native Mermaid flowchart rather than
+a separate image asset. Two claims in the setup section — that a missing
+`RAZORPAY_KEY_ID` and a missing `AZURE_OPENAI_ENDPOINT` each fail loudly
+and name the exact variable — were verified by actually reproducing both
+`KeyError`s from a directory outside the repo (so `python-dotenv` couldn't
+silently repopulate the var from the real `.env` and mask the test), not
+just asserted from reading the two `os.environ[...]` lines. The combined
+extras install command in the setup section
+(`api,verifier,rail,ledger,llm,eval,dev`) was dry-run verified to resolve
+cleanly before being committed.
+
+**Changed my mind:** the README's opening line originally added a
+sentence explaining *why* there's no live link ("needs a real Azure
+credential, not something to hand out publicly") — cut on a second look,
+because that wasn't the actual reason. The actual reason is the
+deployment is broken and there wasn't time to fix it blind before
+recording. Stating a plausible-sounding but false rationale would have
+been exactly the kind of thing this project's whole stated ethos argues
+against. "Run locally — see Setup below," with no invented justification,
+is what shipped.
+
+`pytest` on `main` after all of the above: 114 passed, 3 skipped,
+unchanged. Nothing in this session touched `verifier/`, `policy/`,
+`rail/`, or `ledger/` — only `api/main.py`'s CORS block, deploy config,
+docs, and the README.
