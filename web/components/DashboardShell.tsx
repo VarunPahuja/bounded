@@ -43,6 +43,19 @@ function NavStrip({ active, onSelect }: { active: SurfaceId; onSelect: (id: Surf
         borderBottom: "3px solid var(--ink)",
       }}
     >
+      {/* Wordmark: the dashboard had no visible product name anywhere on
+          screen before this (docs/MASTER.md's naming task, 2026-09-04) --
+          five tab labels but nothing identifying what the tool is. Fixed
+          width, not flex-1, so it doesn't compete with the tabs for
+          space. */}
+      <div
+        className="flex shrink-0 items-center px-5"
+        style={{ borderRight: "2px solid var(--ink)" }}
+      >
+        <span className="nb-mono text-lg font-black uppercase tracking-tight" style={{ color: "var(--panel-fg)" }}>
+          Bounded
+        </span>
+      </div>
       {SURFACES.map((s, i) => {
         const isActive = s.id === active;
         return (

@@ -1,6 +1,6 @@
 # MASTER.md
 
-**Project:** Bounded (working name)
+**Project:** Bounded
 **Tagline:** AP2 records what the user authorized. Bounded proves the agent cannot exceed it.
 **Submission:** Razorpay AI-First Internship, Track 1 (AI Growth & Agentic Commerce)
 **Status:** scope locked, build not started
@@ -400,7 +400,7 @@ The only paid things in the vicinity are Claude Code itself and the Azure OpenAI
 - **Repo public from commit one.** Commit history is part of the evidence.
 - **Phase gate rule is binding.** Phase N does not start until Phase N-1's tests pass. No exceptions, no "I'll come back to it."
 - **Razorpay test keys:** obtained in Phase 0.
-- **Name:** deferred. Placeholder `bounded` for the repo slug, renameable before submission. Decide it before the video, not after.
+- **Name: Bounded.** Decided — not a placeholder. Consistent across `pyproject.toml`, the repo slug, the dashboard's page title and header, and README.
 - **Video:** OBS Studio (free, open source). Record in Phase 8.
 
 ### Date gates
