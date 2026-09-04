@@ -1,13 +1,17 @@
 """Thin FastAPI orchestration layer for the Phase 7 dashboard
 (docs/PHASE7-PLAN.md). Every route is a direct call into an existing
 module -- verifier/, rail/, policy/, ledger/ -- with no new decision
-logic. CORS is open to localhost dev origins only; this is a local demo
-backend, not a deployed service handling untrusted traffic.
+logic. CORS allows local dev origins plus any *.vercel.app origin (the
+deployed frontend's preview and production URLs both match that
+pattern) -- this is a demo backend for a graded submission, not a
+service hardened against untrusted traffic.
 
 Run with: uvicorn api.main:app --reload --port 8000
 """
 
 from __future__ import annotations
+
+import os
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,9 +35,19 @@ from api.status_summary import StatusSummary, get_status_summary
 
 app = FastAPI(title="Bounded dashboard API")
 
+# CORS_EXTRA_ORIGIN lets the deployed frontend's exact origin be added
+# explicitly (Render env var) without widening the regex below to
+# anything broader than the *.vercel.app pattern every Vercel deploy of
+# this project actually uses.
+_extra_origin = os.environ.get("CORS_EXTRA_ORIGIN")
+_allow_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+if _extra_origin:
+    _allow_origins.append(_extra_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=_allow_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_methods=["*"],
     allow_headers=["*"],
 )
